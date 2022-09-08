@@ -11,8 +11,8 @@ library(tidyverse)
 # take traits, current state, and patch number and outputs future state
 
 # simple function for now: 
-# if average of traits > 1, increase IUCN status
-# if average of traits < 1, decrease IUCN status
+# if average of traits > 0.5, increase IUCN status
+# if average of traits < -0.5, decrease IUCN status
 # otherwise maintain status
 vulner_func <- function(in_df, in_year) {
   out_df <- in_df %>%
@@ -20,15 +20,16 @@ vulner_func <- function(in_df, in_year) {
     rowwise() %>% 
     # compute average of traits
     # TODO replace to use starts_with("trait") somehow
-    mutate(trait_avg  = mean(c(trait1, trait2, trait3, trait4))) %>% 
+    mutate(trait_avg  = mean(c(trait1, trait2, trait3, trait4))) %>%
+    mutate(trait1  = rnorm(1)) %>%
     # assign new states
     mutate(state = state + case_when(
-      state == 1       ~ 0, # if extinct, stay extinct
+      state == 1       ~ ifelse(rnorm(1) > 2.326, 1, 0), # with small prob., extirpated species re-emerge
       trait_avg > 0.5  ~ 1,
       trait_avg < -0.5 ~ -1,
       TRUE             ~ 0)
       ) %>% 
-    mutate(state = ifelse(state>6, 6, state)) %>% # 6 is the highest IUCN level (Least concern)
+    mutate(state = ifelse(state > 6, 6, state)) %>% # 6 is the highest IUCN level (Least concern)
     mutate(year = year + 1) %>% 
     select(-trait_avg) %>% 
     ungroup()
@@ -44,7 +45,7 @@ biodiv_1 <- function(in_df) {
   out_df <- in_df %>%
     filter(state > 1) %>% # remove extinct entities
     select(patch, year, entityID) %>% 
-    count(patch, year) 
+    count(patch, year)
 }
 
 # Number of endemic entities
@@ -79,3 +80,6 @@ biodiv_2 <- function(in_df) {
 
 # simple function for now:
 # measure the overlap in which patches were considered hotspots
+
+
+

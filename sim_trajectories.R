@@ -13,7 +13,7 @@ source("sim_functions.R")
 ## Parameters-------------------------------------------------------------------
 
 # Number of years to simulate
-simYears <- 20
+simYears <- 200
 
 ## Create trajectories----------------------------------------------------------
 
@@ -28,7 +28,6 @@ biod1_plot <- biod1_df %>%
   group_by(patch) %>% 
   ggplot(aes(x = year, y = n, color = as.factor(patch))) +
   geom_line()
-
 
 
 

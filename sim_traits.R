@@ -9,10 +9,10 @@ library(tidyverse)
 
 # Sample from a discrete uniform distribution
 # Source: https://stats.stackexchange.com/questions/3930/are-there-default-functions-for-discrete-uniform-distributions-in-r
-dunif_sampleone <- function(n) sample(1:n, n, replace = T)
+dunif_sampleone <- function(n) sample(1:n, 1, replace = T)
 
 # Assign entries from df to groups of size 1 to n (chosen uniformly randomly)
-group_assign <- function(df, n) sort(sample(df, dunif_sampleone(n), replace = FALSE))
+group_assign <- function(df, n) sample(df, size = dunif_sampleone(n), replace = FALSE)
 
 # Parameters--------------------------------------------------------------------
 
@@ -20,14 +20,14 @@ group_assign <- function(df, n) sort(sample(df, dunif_sampleone(n), replace = FA
 set.seed(8797)
 
 ## Number of entities
-numEntities <- 100 # got to 10 million before code took a while to run
+numEntities <- 100000 # got to 10 million before code took a while to run
 
 ## Number of traits
 # TODO automate number of traits (low priority as we'll probably be taking traits from a database)
 # numTraits <- 
 
 ## Number of patches
-#numPatches <- # TODO: automate number of patches
+# numPatches <- # TODO: automate number of patches
 
 ## Maximum number of entities per patch
 maxEntitiesPatch <- numEntities/4 # very arbitrary choice for now.
@@ -58,15 +58,15 @@ entity_df <- tibble(
 # will be automated in future update
 # uses a discrete uniform distribution to assign entities to patches for now
 regional_df <- tibble(
-  entityID = c(),
-  patch = c()
-) %>%
+  entityID = NA,
+  patch = NA) %>%
   add_row(patch = 1, entityID = group_assign(entity_df$entityID, maxEntitiesPatch)) %>%
   add_row(patch = 2, entityID = group_assign(entity_df$entityID, maxEntitiesPatch)) %>%
   add_row(patch = 3, entityID = group_assign(entity_df$entityID, maxEntitiesPatch)) %>%
   add_row(patch = 4, entityID = group_assign(entity_df$entityID, maxEntitiesPatch)) %>%
   add_row(patch = 5, entityID = group_assign(entity_df$entityID, maxEntitiesPatch)) %>%
-  mutate(uniqueID = paste("E", entityID, "_P", patch, sep = ""))
+  mutate(uniqueID = paste("E", entityID, "_P", patch, sep = "")) %>% 
+  filter(!is.na(entityID))
 
 ## Expand the global entity data frame to include patch assignments
 full_df <- inner_join(entity_df, regional_df) %>%
