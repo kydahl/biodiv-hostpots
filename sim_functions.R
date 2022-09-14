@@ -56,6 +56,7 @@ biodiv_2 <- function(in_df) {
     select(patch, year, entityID) %>% 
     group_by(patch, year) %>% 
     arrange(patch, year) %>% 
+    distinct(entityID)
     # for each patch-year combination, collect all the entityIDs into a vector
     summarize(endemics = paste(sort(unique(entityID)), collapse = ", ")) #%>% 
     # turn the "endemics" entry into a proper list so that it comparisons can be

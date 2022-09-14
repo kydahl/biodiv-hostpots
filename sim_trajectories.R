@@ -13,7 +13,7 @@ source("sim_functions.R")
 ## Parameters-------------------------------------------------------------------
 
 # Number of years to simulate
-simYears <- 200
+simYears <- 20
 
 ## Create trajectories----------------------------------------------------------
 
