@@ -20,7 +20,7 @@ group_assign <- function(df, n) sample(df, size = dunif_sampleone(n), replace = 
 set.seed(8797)
 
 ## Number of entities
-numEntities <- 10000 # got to 10 million before code took a while to run
+numEntities <- 1000 # got to 10 million before code took a while to run
 
 ## Number of traits
 # TODO automate number of traits (low priority as we'll probably be taking traits from a database)
@@ -30,7 +30,7 @@ numEntities <- 10000 # got to 10 million before code took a while to run
 # numPatches <- # TODO: automate number of patches
 
 ## Maximum number of entities per patch
-maxEntitiesPatch <- numEntities/4 # very arbitrary choice for now.
+maxEntitiesPatch <- numEntities/20 # very arbitrary choice for now.
 
 ## IUCN categories
 IUCN_cats <- c("Extinct",

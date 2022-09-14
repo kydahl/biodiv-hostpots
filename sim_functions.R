@@ -21,10 +21,10 @@ vulner_func <- function(in_df, in_year) {
     # compute average of traits
     # TODO replace to use starts_with("trait") somehow
     mutate(trait_avg = mean(c(trait1, trait2, trait3, trait4))) %>%
-    mutate(trait1 = rnorm(1)) %>%
+    mutate(trait1 = rnorm(1)) %>% # one trait changes over time due to environmental changes, say
     # assign new states
     mutate(state = state + case_when(
-      state == 1       ~ ifelse(rnorm(1) > 2.326, 1, 0), # with small prob., extirpated species re-emerge
+      state == 1       ~ ifelse(rnorm(1) > 3, 1, 0), #2.326, 1, 0), # with small prob., extirpated species re-emerge
       trait_avg > 0.5  ~ 1,
       trait_avg < -0.5 ~ -1,
       TRUE             ~ 0)
@@ -50,20 +50,15 @@ biodiv_1 <- function(in_df) {
 
 # Number of endemic entities
 biodiv_2 <- function(in_df) {
-  
   out_df <- in_df %>% 
     filter(state > 1) %>% # remove extinct entities
-    select(patch, year, entityID) %>% 
-    group_by(patch, year) %>% 
-    arrange(patch, year) %>% 
-    distinct(entityID)
-    # for each patch-year combination, collect all the entityIDs into a vector
-    summarize(endemics = paste(sort(unique(entityID)), collapse = ", ")) #%>% 
-    # turn the "endemics" entry into a proper list so that it comparisons can be
-    # made with other patches
-    
-    #mutate(test = as.vector(strsplit(substr(endemics, 1, nchar(endemics)), ', ')[[1]]))
-  
+    select(patch, year, entityID) %>%  
+    # only keep rows where entityID and year are unique ( == endemics)
+    group_by(entityID, year) %>% 
+    filter(n() == 1) %>% 
+    ungroup() %>% 
+    # count number of endemics in each patch
+    count(patch, year)
 }
 
 
