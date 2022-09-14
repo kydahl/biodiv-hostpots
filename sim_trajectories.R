@@ -27,8 +27,7 @@ biod1_df <- biodiv_1(full_df)
 biod1_plot <- biod1_df %>% 
   group_by(patch) %>% 
   ggplot(aes(x = year, y = n, color = as.factor(patch))) +
-  geom_line()
-
+  geom_line(lwd = 2)
 
 
 # at end time, identify hotspots under each biodiversity metric

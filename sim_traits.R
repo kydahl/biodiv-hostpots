@@ -20,7 +20,7 @@ group_assign <- function(df, n) sample(df, size = dunif_sampleone(n), replace = 
 set.seed(8797)
 
 ## Number of entities
-numEntities <- 100 # got to 10 million before code took a while to run
+numEntities <- 10000 # got to 10 million before code took a while to run
 
 ## Number of traits
 # TODO automate number of traits (low priority as we'll probably be taking traits from a database)
@@ -65,6 +65,8 @@ regional_df <- tibble(
   add_row(patch = 3, entityID = group_assign(entity_df$entityID, maxEntitiesPatch)) %>%
   add_row(patch = 4, entityID = group_assign(entity_df$entityID, maxEntitiesPatch)) %>%
   add_row(patch = 5, entityID = group_assign(entity_df$entityID, maxEntitiesPatch)) %>%
+  add_row(patch = 6, entityID = group_assign(entity_df$entityID, maxEntitiesPatch)) %>%
+  add_row(patch = 7, entityID = group_assign(entity_df$entityID, maxEntitiesPatch)) %>%
   mutate(uniqueID = paste("E", entityID, "_P", patch, sep = "")) %>% 
   filter(!is.na(entityID))
 

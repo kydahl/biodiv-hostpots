@@ -20,8 +20,8 @@ vulner_func <- function(in_df, in_year) {
     rowwise() %>% 
     # compute average of traits
     # TODO replace to use starts_with("trait") somehow
-    mutate(trait_avg  = mean(c(trait1, trait2, trait3, trait4))) %>%
-    mutate(trait1  = rnorm(1)) %>%
+    mutate(trait_avg = mean(c(trait1, trait2, trait3, trait4))) %>%
+    mutate(trait1 = rnorm(1)) %>%
     # assign new states
     mutate(state = state + case_when(
       state == 1       ~ ifelse(rnorm(1) > 2.326, 1, 0), # with small prob., extirpated species re-emerge
