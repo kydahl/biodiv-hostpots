@@ -160,7 +160,7 @@ find.hotspots <- function(in_df, biod_metric) {
 calc.hotspot_compare <- function(df1, df2) {
   vec1 <- select(df1, patch)
   vec2 <- select(df2, patch)
-  # get the Euclidean distance between the patch lists (!!! temporary)
+  # get the Euclidean distance between the patch lists (!!! placeholder)
   norm(vec1-vec2, "2")
   
 }
