@@ -6,6 +6,70 @@
 library(tidyverse)
 
 ## Helper functions-------------------------------------------------------------
+# Sample from a discrete uniform distribution
+# Source: https://stats.stackexchange.com/questions/3930/are-there-default-functions-for-discrete-uniform-distributions-in-r
+dunif_sampleone <- function(n) sample(1:n, 1, replace = T)
+
+# Assign entries from df to groups of size 1 to n (chosen uniformly randomly)
+group_assign <- function(df, n) sample(df, size = dunif_sampleone(n), replace = FALSE)
+
+## Functions for creating data frames-------------------------------------------
+## Create entities and assign trait values
+get.entities <- function(numEntities, numTraits) {
+  tibble(expand.grid(
+    entityID = 1:numEntities,
+    trait.num = 1:numTraits
+  ),
+  trait.val = rnorm(numEntities * numTraits)
+  )
+}
+
+
+## Assign entities to patches
+get.patches <- function(entity_df, numPatches, maxEntitiesPatch) {
+  # initialize data.frame
+  regional_df <- tibble(
+    entityID = NA,
+    patch = NA
+  )
+  
+  # sample from entities list to fill patches
+  for (i in 1:numPatches) {
+    regional_df <- add_row(regional_df, patch = i, entityID = group_assign(entity_df$entityID, maxEntitiesPatch))
+  }
+  
+  # assign uniqueIDs to entities in patches (and remove NAs we added in initialization)
+  regional_df <- regional_df %>%
+    mutate(uniqueID = paste("E", entityID, "_P", patch, sep = "")) %>%
+    filter(!is.na(entityID))
+}
+
+## Assign states to each of the entities in each patch
+assign.states <- function(regional_df) {
+  regional_df <- regional_df %>%
+    # Assign states (except for "Extinct")
+    # these are numbers with higher = better
+    mutate(state = sample(2:6, dim(regional_df)[1], replace = TRUE)) %>%
+    mutate(year = 0) # initial year
+}
+
+## Create full data.frame of entities and their traits in patches with assigned states
+get.full_df <- function(numEntities, numTraits, numPatches, maxEntitiesPatch) {
+  # create entities data.frame and assign trait values
+  entity_df <- get.entities(numEntities, numTraits)
+  # assign patches and states to entities
+  states_df <- entity_df %>% 
+    # assign entities to patches
+    get.patches(numPatches, maxEntitiesPatch) %>% 
+    # assign states to entities within patches
+    assign.states(.) 
+  
+  # add trait values back in
+  full_df <- inner_join(entity_df, states_df) %>%
+    # re-order the data.frame for easier viewing
+    relocate(entityID, patch, uniqueID)
+}
+
 
 ## Vulnerability function-------------------------------------------------------
 # take traits, current state, and patch number and outputs future state
@@ -49,7 +113,10 @@ get.vulnerability <- function(in_df, in_year) {
 calc.biodiv_1 <- function(in_df) {
   out_df <- in_df %>%
     filter(state > 1) %>% # remove extinct entities
+    # remove duplicates due to rows from trait.num
     select(patch, year, entityID) %>%
+    distinct() %>%
+    # count number of distinct entities
     count(patch, year, name = "biodiv1")
 }
 
@@ -89,7 +156,7 @@ find.hotspots <- function(in_df, biod_metric) {
 # biodiversity metrics for the same dataset
 
 # simple function for now:
-# measure the overlap in which patches were considered hotspots
+# count the number of overlaps in which patches were considered hotspots
 calc.hotspot_compare <- function(df1, df2) {
   vec1 <- select(df1, patch)
   vec2 <- select(df2, patch)
