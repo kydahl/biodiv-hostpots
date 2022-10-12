@@ -23,7 +23,7 @@ numEntities <- 1000
 numTraits <- 3
 
 ## Number of patches
-numPatches <- 20 
+numPatches <- 40 
 # Note: I chose this value so that the one patch with the highest biodiversity 
 #       is necessarily equal to the top 5th percentile
 
@@ -52,7 +52,7 @@ IUCN_cats <- c(
 state_keys <- tibble(nums = 1:6, cats = IUCN_cats) # in case we want to convert numbers to categories
 
 ## Number of years to simulate
-simYears <- 10 
+simYears <- 20 
 
 ## Number of iterations to compute biodiversity over
 numIterations <- 100
@@ -88,7 +88,7 @@ biod_plot <- biod_df %>%
   ggplot(aes(x = year, y = biodiv_val, color = as.factor(patch)), linetype = biodiv_metric) +
   geom_line(lwd = 1) +
   geom_point() +
-  scale_y_continuous(name = "Biodiversity measure") +
+  scale_y_continuous(name = "Biodiversity metric") +
   scale_color_discrete(name = "Patch") +
   # faceting:
   facet_wrap(~biodiv_metric, nrow = 1, scales = "free", labeller = labeller(variable = label_parsed)) +
