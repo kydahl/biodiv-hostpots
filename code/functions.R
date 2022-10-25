@@ -16,11 +16,12 @@ group_assign <- function(df, n) sample(df, size = dunif_sampleone(n), replace = 
 ## Functions for creating data frames-------------------------------------------
 ## Create entities and assign trait values
 get.entities <- function(numEntities, numTraits) {
-  tibble(expand.grid(
-    entityID = 1:numEntities,
-    trait.num = 1:numTraits
-  ),
-  trait.val = rnorm(numEntities * numTraits)
+  tibble(
+    expand.grid(
+      entityID = 1:numEntities,
+      trait.num = 1:numTraits
+    ),
+    trait.val = rnorm(numEntities * numTraits)
   )
 }
 
@@ -32,12 +33,18 @@ get.patches <- function(entity_df, numPatches, maxEntitiesPatch) {
     entityID = NA,
     patch = NA
   )
-  
+
   # sample from entities list to fill patches
   for (i in 1:numPatches) {
-    regional_df <- add_row(regional_df, patch = i, entityID = group_assign(entity_df$entityID, maxEntitiesPatch))
+    regional_df <- add_row(regional_df,
+      patch = i,
+      entityID = group_assign(
+        entity_df$entityID,
+        maxEntitiesPatch
+      )
+    )
   }
-  
+
   # assign uniqueIDs to entities in patches (and remove NAs we added in initialization)
   regional_df <- regional_df %>%
     mutate(uniqueID = paste("E", entityID, "_P", patch, sep = "")) %>%
@@ -49,25 +56,65 @@ assign.states <- function(regional_df) {
   regional_df <- regional_df %>%
     # Assign states (except for "Extinct")
     # these are numbers with higher = better
-    mutate(state = sample(2:6, dim(regional_df)[1], replace = TRUE)) %>%
-    mutate(year = 0) # initial year
+    mutate(state = case_when(
+      Status == "Increasing (Least Concern)" ~ 7,
+      Status == "Stable (Least Concern)" ~ 6,
+      Status == "Unknown (Least Concern)" ~ 5,
+      Status == "Decreasing (Least Concern)" ~ 4,
+      Status == "Decreasing (Near threatened)" ~ 3,
+      Status == "Decreasing (Endangered)" ~ 2,
+      Status == "/" ~ sample(2:6, 1) # !!! placeholder. just assign something random if it's blank...
+    ))
+
+  # mutate(state = sample(2:6, dim(regional_df)[1], replace = TRUE)) %>%
+  # mutate(year = 0) # initial year
 }
 
 ## Create full data.frame of entities and their traits in patches with assigned states
-get.full_df <- function(numEntities, numTraits, numPatches, maxEntitiesPatch) {
+get.full_df <- function(entity_df, numTraits, numPatches, maxEntitiesPatch) {
   # create entities data.frame and assign trait values
-  entity_df <- get.entities(numEntities, numTraits)
+  # entity_df <- get.entities(numEntities, numTraits)
   # assign patches and states to entities
-  states_df <- entity_df %>% 
-    # assign entities to patches
-    get.patches(numPatches, maxEntitiesPatch) %>% 
-    # assign states to entities within patches
-    assign.states(.) 
-  
-  # add trait values back in
-  full_df <- inner_join(entity_df, states_df) %>%
+  regional_df <- get.patches(entity_df, numPatches, maxEntitiesPatch)
+
+  states_df <- full_join(entity_df, regional_df) %>%
+    filter(!is.na(patch))
+
+  full_df <- states_df %>%
+    # assign states to entities within patches%>%
+    # Assign states (except for "Extinct")
+    # these are numbers with higher = better
+    mutate(state = ifelse(test = (Status == "/"),
+      # !!! place holder. if we don't know status, just assign randomly
+      yes = sample(
+        x = 2:7,
+        size = dim(filter(states_df, Status == "/"))[1],
+        replace = TRUE
+      ),
+      no = case_when(
+        Status == "Increasing (Least Concern)" ~ 7,
+        Status == "Stable (Least Concern)" ~ 6,
+        Status == "Unknown (Least Concern)" ~ 5,
+        Status == "Decreasing (Least Concern)" ~ 4,
+        Status == "Decreasing (Near threatened)" ~ 3,
+        Status == "Decreasing (Endangered)" ~ 2,
+        # Status == "/" ~ sample.int(6, 1, replace = TRUE) # !!! placeholder. just assign something random if it's blank...
+      )
+    )) %>%
+    mutate(year = 0) %>%
     # re-order the data.frame for easier viewing
     relocate(entityID, patch, uniqueID)
+
+  # states_df <- entity_df %>%
+  #   # assign entities to patches
+  #   get.patches(numPatches, maxEntitiesPatch) %>%
+  #   # assign states to entities within patches
+  #   assign.states(.)
+
+  # add trait values back in
+  # full_df <- inner_join(entity_df, states_df) %>%
+  #   # re-order the data.frame for easier viewing
+  #   relocate(entityID, patch, uniqueID)
 }
 
 
@@ -83,9 +130,9 @@ get.vulnerability <- function(in_df, in_year) {
     # select the correct year
     filter(year == in_year) %>%
     # group by all columns except traits
-    group_by(across(c(-trait.num, -trait.val)), .drop = FALSE) %>%
+    group_by(across(c(-Trait, -value)), .drop = FALSE) %>%
     # compute average of traits
-    mutate(trait_avg = mean(trait.val)) %>%
+    # mutate(trait_avg = mean(value)) %>%
     # assign new states based on average of traits (in future, this will be a real function based on biology)
     mutate(state = state + case_when(
       state == 1 ~ ifelse(rnorm(1) > 3, 1, 0), # 2.326, 1, 0), # with small prob., extirpated species re-emerge
@@ -94,7 +141,7 @@ get.vulnerability <- function(in_df, in_year) {
       TRUE ~ 0
     )) %>%
     # 6 is the highest IUCN level (Least concern), so don't go higher than 6
-    mutate(state = ifelse(state > 6, 6, state)) %>%
+    mutate(state = ifelse(state > 7, 7, state)) %>%
     mutate(year = year + 1) %>%
     mutate(trait.val = case_when(
       trait.num == 1 ~ rnorm(1), # one trait changes randomly over time due to environmental changes, say
@@ -108,20 +155,19 @@ get.vulnerability <- function(in_df, in_year) {
 # for a patch, look at entities and their states & traits and output
 # biodiversity measure of the patch
 
-# simple function for now:
 # number of unique entityIDs in a patch
-calc.biodiv_1 <- function(in_df) {
+num.unique.metric <- function(in_df) {
   out_df <- in_df %>%
     filter(state > 1) %>% # remove extinct entities
     # remove duplicates due to rows from trait.num
     select(patch, year, entityID) %>%
     distinct() %>%
     # count number of distinct entities
-    count(patch, year, name = "biodiv1")
+    count(patch, year, name = "biodiv")
 }
 
 # Number of endemic entities
-calc.biodiv_2 <- function(in_df) {
+num.endemic.metric <- function(in_df) {
   out_df <- in_df %>%
     filter(state > 1) %>% # remove extinct entities
     select(patch, year, entityID) %>%
@@ -129,10 +175,26 @@ calc.biodiv_2 <- function(in_df) {
     group_by(entityID, year) %>%
     # remove duplicates due to rows from trait.num
     distinct() %>%
-    filter(n() == 1) %>%
-    ungroup() %>%
-    # count number of endemics in each patch
-    count(patch, year, name = "biodiv2")
+    mutate(endemic_flag = ifelse(n() == 1, 1, 0)) %>% 
+    ungroup() %>% 
+    group_by(patch, year) %>% 
+    summarise("biodiv" = sum(endemic_flag, na.rm = TRUE),
+              .groups = "keep")
+    # filter(n() == 1) %>%
+    # ungroup() %>%
+    # # count number of endemics in each patch
+    # count(patch, year, name = "biodiv")
+}
+
+trait.count.metric <- function(in_df, trait_name) {
+  out_df <- in_df %>%
+    # remove extinct entities
+    filter(state > 1) %>%
+    filter(Trait == trait_name) %>%
+    select(patch, year, entityID, value) %>%
+    group_by(patch, year) %>%
+    summarise("biodiv" = sum(value, na.rm = TRUE),
+              .groups = "keep")
 }
 
 
@@ -141,13 +203,13 @@ calc.biodiv_2 <- function(in_df) {
 # "hotspots" relative to the other patches
 
 # simple function for now:
-# just choose the top patch in terms of biodiversity
-find.hotspots <- function(in_df, biod_metric) {
+# give all the patches in the 95% quantile
+# !!! or do we actually just want those landing in the top 5% after sorting?
+find.hotspots <- function(in_df) {
   out_df <- in_df %>%
-    select(patch, year, !!as.name(biod_metric)) %>%
+    select(patch, year, biodiv) %>%
     group_by(year) %>%
-    slice_max(order_by = !!as.name(biod_metric), n = 1, with_ties = FALSE) %>%  # !!! this breaks ties arbitrarily
-    ungroup()
+    filter(quantile(biodiv, 0.95) < biodiv)
 }
 
 
@@ -161,7 +223,5 @@ calc.hotspot_compare <- function(df1, df2) {
   vec1 <- select(df1, patch)
   vec2 <- select(df2, patch)
   # get the Euclidean distance between the patch lists (!!! placeholder)
-  norm(vec1-vec2, "2")
-  
+  norm(vec1 - vec2, "2")
 }
-

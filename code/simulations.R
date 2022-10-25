@@ -7,7 +7,8 @@ library(tidyverse)
 library(doParallel)
 library(MetBrewer)
 registerDoParallel(cores = 15)
-source("functions.R")
+source("code/functions.R")
+source("code/data_intake.R")
 
 ## Helper functions-------------------------------------------------------------
 
@@ -17,19 +18,19 @@ source("functions.R")
 # set.seed(8797)
 
 ## Number of entities
-numEntities <- 1000
+numEntities <- dim(data_in)[1]
 
 ## Number of traits
 numTraits <- 3
 
 ## Number of patches
-numPatches <- 40 
+numPatches <- 400
 # Note: I chose this value so that the one patch with the highest biodiversity 
 #       is necessarily equal to the top 5th percentile
 
 ## Maximum number of entities per patch
-patchEntities_denominator <- 5
-maxEntitiesPatch <- numEntities / patchEntities_denominator
+patchEntities_denominator <- 50
+maxEntitiesPatch <- ceiling(numEntities / patchEntities_denominator)
 # Notes / Observations:
 # * Species richness and num. endemics become more similar as 
 #   patchEntities_denominator is increased. 
@@ -57,12 +58,60 @@ simYears <- 20
 ## Number of iterations to compute biodiversity over
 numIterations <- 100
 
+## Create data frame
+entity_df <- data_in
+full_df <- get.full_df(entity_df, numTraits, numPatches, maxEntitiesPatch)
+
+## Basic statistics-------------------------------------------------------------
+
+## Experiment 1:
+## Generate 1000 "environments", in each, calculate biodiversity metrics and
+## determine the hotspot patches, then measure the difference in how each 
+## metric assigns hotspots. Across those 1000 environments, so how each metric 
+## matches up. Which are most similar to each other? Which are most different?
+## We can do this by creating a correlation matrix.
+
+for (i in 1 : numIterations) {
+  full_df <- get.full_df(entity_df, numTraits, numPatches, maxEntitiesPatch)
+  
+  # Number of unique entities
+  num.unique_df <- num.unique.metric(full_df)
+  hotspots.unique <- find.hotspots(num.unique_df)
+    
+  # Number of endemic entities
+  num.endemic_df <- num.endemic.metric(full_df)
+  hotspots.endemic <- find.hotspots(num.endemic_df)
+  
+  # Number of Indigenous names
+  num.indig.name_df <- trait.count.metric(full_df,
+                                      "Number of unique names (Indigenous)")
+  hotspots.indig.name <- find.hotspots(num.indig.name_df)
+    
+  # Number of Indigenous languages
+  num.indig.lang_df <- trait.count.metric(full_df,
+                                      "Number of unique  languages (from Appendix 2B)")
+  hotspots.indig.lang <- find.hotspots(num.indig.lang_df)
+  
+  # Number of uses
+  num.use_df <- trait.count.metric(full_df,
+                                      "Number of uses")
+  hotspots.use <- find.hotspots(num.use_df)
+  
+  # Compare lists of identified hotspots
+  
+  
+}
+
+
+
+
+
 ## Illustrative figures---------------------------------------------------------
 
 ### FIGURE 1 ###
 ### Comparing two biodiversity measures for a simulated set of patches over some
 ### number of years
-full_df <- get.full_df(numEntities, numTraits, numPatches, maxEntitiesPatch)
+
 
 # iterate over years to obtain states over time
 for (i in 1:simYears) {
