@@ -11,7 +11,16 @@ library(tidyverse)
 dunif_sampleone <- function(n) sample(1:n, 1, replace = T)
 
 # Assign entries from df to groups of size 1 to n (chosen uniformly randomly)
-group_assign <- function(df, n) sample(df, size = dunif_sampleone(n), replace = FALSE)
+group_assign <- function(in_df, 
+                         mean.NumEntities,
+                         sd.NumEntities) {
+  Num.Entities <- min(max(
+    floor(rnorm(1, mean = mean.NumEntities, sd.NumEntities)),
+    1),
+    length(in_df))
+  
+  sample(in_df, size = Num.Entities, replace = FALSE)
+}
 
 ## Functions for creating data frames-------------------------------------------
 ## Create entities and assign trait values
@@ -27,7 +36,10 @@ get.entities <- function(numEntities, numTraits) {
 
 
 ## Assign entities to patches
-get.patches <- function(entity_df, numPatches, maxEntitiesPatch) {
+get.patches <- function(entity_df,
+                        numPatches, 
+                        mean.NumEntities,
+                        sd.NumEntities) {
   # initialize data.frame
   regional_df <- tibble(
     entityID = NA,
@@ -40,7 +52,8 @@ get.patches <- function(entity_df, numPatches, maxEntitiesPatch) {
       patch = i,
       entityID = group_assign(
         entity_df$entityID,
-        maxEntitiesPatch
+        mean.NumEntities,
+        sd.NumEntities
       )
     )
   }
@@ -67,17 +80,19 @@ assign.states <- function(regional_df) {
     ))
 
   # mutate(state = sample(2:6, dim(regional_df)[1], replace = TRUE)) %>%
-  # mutate(year = 0) # initial year
 }
 
 ## Create full data.frame of entities and their traits in patches with assigned states
-get.full_df <- function(entity_df, numTraits, numPatches, maxEntitiesPatch) {
+get.full_df <- function(entity_df, numTraits, numPatches, mean.NumEntities, sd.NumEntities) {
   # create entities data.frame and assign trait values
   # entity_df <- get.entities(numEntities, numTraits)
   # assign patches and states to entities
-  regional_df <- get.patches(entity_df, numPatches, maxEntitiesPatch)
+  regional_df <- get.patches(entity_df,
+                             numPatches, 
+                             mean.NumEntities,
+                             sd.NumEntities) 
 
-  states_df <- full_join(entity_df, regional_df) %>%
+  states_df <- full_join(entity_df, regional_df, by = "entityID") %>%
     filter(!is.na(patch))
 
   full_df <- states_df %>%
@@ -101,7 +116,6 @@ get.full_df <- function(entity_df, numTraits, numPatches, maxEntitiesPatch) {
         # Status == "/" ~ sample.int(6, 1, replace = TRUE) # !!! placeholder. just assign something random if it's blank...
       )
     )) %>%
-    mutate(year = 0) %>%
     # re-order the data.frame for easier viewing
     relocate(entityID, patch, uniqueID)
 
@@ -125,10 +139,8 @@ get.full_df <- function(entity_df, numTraits, numPatches, maxEntitiesPatch) {
 # if average of traits > 0.5, increase IUCN status
 # if average of traits < -0.5, decrease IUCN status
 # otherwise maintain status
-get.vulnerability <- function(in_df, in_year) {
+get.vulnerability <- function(in_df) {
   out_df <- in_df %>%
-    # select the correct year
-    filter(year == in_year) %>%
     # group by all columns except traits
     group_by(across(c(-Trait, -value)), .drop = FALSE) %>%
     # compute average of traits
@@ -142,7 +154,6 @@ get.vulnerability <- function(in_df, in_year) {
     )) %>%
     # 6 is the highest IUCN level (Least concern), so don't go higher than 6
     mutate(state = ifelse(state > 7, 7, state)) %>%
-    mutate(year = year + 1) %>%
     mutate(trait.val = case_when(
       trait.num == 1 ~ rnorm(1), # one trait changes randomly over time due to environmental changes, say
       TRUE ~ trait.val
@@ -160,30 +171,30 @@ num.unique.metric <- function(in_df) {
   out_df <- in_df %>%
     filter(state > 1) %>% # remove extinct entities
     # remove duplicates due to rows from trait.num
-    select(patch, year, entityID) %>%
+    select(patch, entityID) %>%
     distinct() %>%
     # count number of distinct entities
-    count(patch, year, name = "biodiv")
+    count(patch, name = "biodiv")
 }
 
 # Number of endemic entities
 num.endemic.metric <- function(in_df) {
   out_df <- in_df %>%
     filter(state > 1) %>% # remove extinct entities
-    select(patch, year, entityID) %>%
-    # only keep rows where entityID and year are unique ( == endemics)
-    group_by(entityID, year) %>%
+    select(patch, entityID) %>%
+    # only keep rows where entityID is unique ( == endemics)
+    group_by(entityID) %>%
     # remove duplicates due to rows from trait.num
     distinct() %>%
     mutate(endemic_flag = ifelse(n() == 1, 1, 0)) %>% 
     ungroup() %>% 
-    group_by(patch, year) %>% 
+    group_by(patch) %>% 
     summarise("biodiv" = sum(endemic_flag, na.rm = TRUE),
               .groups = "keep")
     # filter(n() == 1) %>%
     # ungroup() %>%
     # # count number of endemics in each patch
-    # count(patch, year, name = "biodiv")
+    # count(patch, name = "biodiv")
 }
 
 trait.count.metric <- function(in_df, trait_name) {
@@ -191,8 +202,8 @@ trait.count.metric <- function(in_df, trait_name) {
     # remove extinct entities
     filter(state > 1) %>%
     filter(Trait == trait_name) %>%
-    select(patch, year, entityID, value) %>%
-    group_by(patch, year) %>%
+    select(patch, entityID, value) %>%
+    group_by(patch) %>%
     summarise("biodiv" = sum(value, na.rm = TRUE),
               .groups = "keep")
 }
@@ -204,12 +215,10 @@ trait.count.metric <- function(in_df, trait_name) {
 
 # simple function for now:
 # give all the patches in the 95% quantile
-# !!! or do we actually just want those landing in the top 5% after sorting?
 find.hotspots <- function(in_df) {
-  out_df <- in_df %>%
-    select(patch, year, biodiv) %>%
-    group_by(year) %>%
-    filter(quantile(biodiv, 0.95) < biodiv)
+  
+  # Select top 5th percentile
+  in_df[in_df$biodiv > quantile(in_df$biodiv,0.95), ]
 }
 
 
@@ -219,9 +228,16 @@ find.hotspots <- function(in_df) {
 
 # simple function for now:
 # count the number of overlaps in which patches were considered hotspots
-calc.hotspot_compare <- function(df1, df2) {
-  vec1 <- select(df1, patch)
-  vec2 <- select(df2, patch)
-  # get the Euclidean distance between the patch lists (!!! placeholder)
-  norm(vec1 - vec2, "2")
+calc.hotspot_compare <- function(hotspots.unique, hotspots.compare) {
+  unique.hotspots <- hotspots.unique$patch
+  compare.hotspots <- hotspots.compare$patch
+  
+  TP_count <- sum(compare.hotspots %in% unique.hotspots)
+  
+  # false_count <- 
+  
+  # Use precision as our quantifier:
+  # of the identified hotspots, what proportion match with species diversity?
+  comparison.quantifier <- TP_count / length(compare.hotspots)
+  return(comparison.quantifier)
 }
