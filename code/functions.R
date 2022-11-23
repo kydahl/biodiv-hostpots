@@ -90,8 +90,6 @@ get.full_df <- function(entity_df, numTraits, numPatches, mean.NumEntities, sd.N
                              numPatches, 
                              mean.NumEntities,
                              sd.NumEntities) 
-
-  states_df <- regional_df %>% 
     
   states_df <- full_join(entity_df, regional_df, by = "entityID") %>%
     filter(!is.na(patch))
