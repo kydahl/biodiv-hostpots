@@ -45,13 +45,13 @@ get.patches <- function(entity_df,
     entityID = NA,
     patch = NA
   )
-
+  
   # sample from entities list to fill patches
   for (i in 1:numPatches) {
     regional_df <- add_row(regional_df,
       patch = i,
       entityID = group_assign(
-        entity_df$entityID,
+        unique(entity_df$entityID),
         mean.NumEntities,
         sd.NumEntities
       )
@@ -92,6 +92,8 @@ get.full_df <- function(entity_df, numTraits, numPatches, mean.NumEntities, sd.N
                              mean.NumEntities,
                              sd.NumEntities) 
 
+  states_df <- regional_df %>% 
+    
   states_df <- full_join(entity_df, regional_df, by = "entityID") %>%
     filter(!is.na(patch))
 

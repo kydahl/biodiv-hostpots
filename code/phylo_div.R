@@ -11,7 +11,7 @@
 # 1)  Check 
 # Populus balsamifera
 #  --> the first record has spp. in the author column, is this an error?
-# Some species have spp. or var. in the auhtor column and others in the species column!
+# Some species have spp. or var. in the author column and others in the species column!
 # Fix this!
 
 # 2) I removed spp. and var. from the analyses
@@ -21,6 +21,8 @@
 # 4) I am not sure what the level is at which you calculate diversity. 
 # Below I used uniqueID, but they have only 1 species so this doesn't seem right
 # Within 1 patch there are sometimes duplicates of species, so I am not sure if that is correct
+#  KD: It shouldn't be possible for this to happen. There should only be one 
+#      entry for each "species" in each patch. 
 
 #######################################################
 
@@ -40,10 +42,19 @@ library(stringr)
 
 list_species_unique <- full_data %>%
   as.data.frame()  %>%
-  mutate(Species = stringr::word(Species, 1,2, sep=" ")) %>% # get rid of spp. and var.
-  mutate(Genus = stringr::word(Species, 1,1, sep=" ")) %>%
+  dplyr::mutate(Species = stringr::word(Species, 1,2, sep=" ")) %>% # get rid of spp. and var.
+  dplyr::mutate(Genus = stringr::word(Species, 1,1, sep=" ")) %>%
   dplyr::select(Species, Genus, Family) %>%
+  # group_by(Species) %>% # uncomment to check for how many species are "repeated"
+  # filter(n()>1)
   unique()
+
+# KD: "Alnus viridis" and "Populus balsamifera" have duplicate entries because
+#     they are listed by their subspecies in the original data set:
+#     Alnus viridis ssp. crispa and Alnus viridis ssp. sinuata and
+#     Populus balsamifera and Populus balsamifera ssp. trichocarpa
+#     *** Should we trim off the "ssp." part of the species name before    ***
+#     *** creating the full_data dataframe?                                ***
 
 # dim(list_species_unique)
 # head(list_species_unique)
@@ -94,35 +105,57 @@ if (!require('picante')) install.packages('picante'); library('picante')
 # - create a fake community matrix from list_species_unique 
 # - convert full_df to wide format
 # Attention: Species names should have a dash between genus and species name
-comm <- full_df %>%
+# KD: I think the goal is to have each row be a patch and each column a
+#     species, with a 1 if the species is in that patch. Is that correct?
+#     If so, we can use the code below!
+si <- full_df %>%
   mutate(Species2 = paste(stringr::word(Species, 1,1, sep=" "),
                           stringr::word(Species, 2,2, sep=" "),
                           sep="_")) %>%
-  pivot_wider(names_from = Species2, values_from = value) %>%
-  dplyr::select(-Species, -entityID, -patch, -Status, -Trait, -state) %>%
-  column_to_rownames(var="uniqueID")
-# --> the values do not make sense here, but that is okay
-comm[!is.na(comm)] <- 1 # replace values with 1
-comm[is.na(comm)] <- 0 
+  dplyr::select(Species2, patch) %>% 
+  unique()
 
+comm <- dcast(si, formula = patch ~ Species2, fun.aggregate = length)
 
-# I am not sure  what the communities' ID is: uniqueID or patch.
-# When using patch, there are duplicate species present in a patch,
-# and that causes problems when pivoting to a longer format
 # comm <- full_df %>%
 #   mutate(Species2 = paste(stringr::word(Species, 1,1, sep=" "),
 #                           stringr::word(Species, 2,2, sep=" "),
 #                           sep="_")) %>%
-#   pivot_wider(id_cols=patch, names_from = Species2, values_from = value) %>%
-#   column_to_rownames(var="patch")
-# 
-# full_df %>%
-#   mutate(Species2 = paste(stringr::word(Species, 1,1, sep=" "),
+#   pivot_wider(names_from = Species2, values_from = value) %>%
+#   dplyr::select(-Species, -entityID, -patch, -Status, -Trait, -state) %>%
+#   column_to_rownames(var="uniqueID")
+# # --> the values do not make sense here, but that is okay
+# comm[!is.na(comm)] <- 1 # replace values with 1
+# comm[is.na(comm)] <- 0 
+
+
+# I am not sure  what the communities' ID is: uniqueID or patch.
+# KD: Community ID should be the patch number. UniqueID is just the way of 
+#     referring to a specific species in a specific patch (eg to differentiate
+#     between Abies amabilis in patches 3 and 300)
+# When using patch, there are duplicate species present in a patch,
+# and that causes problems when pivoting to a longer format
+# comm <- full_df %>%
+#   dplyr::mutate(Species2 = paste(stringr::word(Species, 1,1, sep=" "),
 #                           stringr::word(Species, 2,2, sep=" "),
 #                           sep="_")) %>%
-#   dplyr::group_by(patch, Species2) %>%
-#   dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
-#   dplyr::filter(n > 1L) 
+#   pivot_wider(id_cols=patch, names_from = Species2, values_from = value) %>%
+#   column_to_rownames(var="patch")
+
+# KD: This looks for duplicates in the full dataframe. We only get 
+#     Alnus_viridis and Populus_balsamifera now, as expected (see above)
+duplicates_df <- full_df %>%
+  dplyr::mutate(Species2 = paste(stringr::word(Species, 1,1, sep=" "),
+                          stringr::word(Species, 2,2, sep=" "),
+                          sep="_")) %>%
+  # select(patch, Species2) %>% 
+  dplyr::group_by(patch, Species2) %>%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+  dplyr::filter(n > 1L) %>% 
+  # There will be repeats for each unique entry for "Trait", divide by that
+  # number to get the actual number of duplicates
+  dplyr::mutate(actual_num = n / length(unique(full_df$Trait))) %>% 
+  filter(actual_num > 1)
 
 
 tree_complete_pruned <- prune.sample(comm,tree_complete)
@@ -151,6 +184,7 @@ comm <- comm %>%
 pdiv_length <- pd(comm, tree_pruned, include.root=TRUE) 
 pdiv_length2 <- pd(comm, tree_pruned, include.root=FALSE)
 # warnings because this cannot be calculated for communities with 1 species only
+# KD: Warnings resolved! I think because I dealt with the duplicate issues
 
 # 2) phylogenetic species variability richness and evenness (Helmus et al., 2007)
 pdiv_psv <- psv(comm, tree_pruned)

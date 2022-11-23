@@ -52,9 +52,13 @@ data_in <- full_data %>%
     `Number of unique  languages (from Appendix 2B)`,
     # `Number of names (common)`,
     `Number of uses`
-  ) %>% 
+  ) %>%
   rename("Status" = `IUCN Status`) %>% 
   melt(id = c("Species", "Status"),
-       variable.name = "Trait") %>% 
-  mutate(entityID = row_number())
+       variable.name = "Trait") %>%
+  # entityID gives a unique number for each SPECIES
+  mutate(entityID = as.numeric(factor(Species))) %>% 
+  # Add genus and species labels for phylogenetic analysis
+  mutate(Species = stringr::word(Species, 1,2, sep=" ")) %>% # get rid of spp. and var.
+  mutate(Genus = stringr::word(Species, 1,1, sep=" "))
 
