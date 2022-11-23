@@ -76,10 +76,9 @@ assign.states <- function(regional_df) {
       Status == "Decreasing (Least Concern)" ~ 4,
       Status == "Decreasing (Near threatened)" ~ 3,
       Status == "Decreasing (Endangered)" ~ 2,
-      Status == "/" ~ sample(2:6, 1) # !!! placeholder. just assign something random if it's blank...
+      Status == "/" ~ 5 # !!! placeholder. The status being available is kind of like it being unknown?
     ))
 
-  # mutate(state = sample(2:6, dim(regional_df)[1], replace = TRUE)) %>%
 }
 
 ## Create full data.frame of entities and their traits in patches with assigned states
