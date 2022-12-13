@@ -55,6 +55,15 @@ list_species_unique <- full_data %>%
 #     Populus balsamifera and Populus balsamifera ssp. trichocarpa
 #     *** Should we trim off the "ssp." part of the species name before    ***
 #     *** creating the full_data dataframe?                                ***
+# EVC: These duplicates have the same nb of unique names and languages, supposedly they are the same?
+#     They only differ in number of uses.
+#     I am not sure if the tree has spp. and var. available.
+#     I could check this, but first would have to clean up the dataset, i.e. add spp. to species names
+#     in cases where this is not done already. 
+#     E.g. Populus balsamifera should be Populus balsamifera ssp. balsamifera
+#     It is probably also worthwile checking the trait database information to see if they provide
+#     trait infomation for spp. or not
+
 
 # dim(list_species_unique)
 # head(list_species_unique)
@@ -108,6 +117,7 @@ if (!require('picante')) install.packages('picante'); library('picante')
 # KD: I think the goal is to have each row be a patch and each column a
 #     species, with a 1 if the species is in that patch. Is that correct?
 #     If so, we can use the code below!
+# EVC: yes, thanks for improving the code! I added a line turning the first column in rownames
 si <- full_df %>%
   mutate(Species2 = paste(stringr::word(Species, 1,1, sep=" "),
                           stringr::word(Species, 2,2, sep=" "),
@@ -115,7 +125,8 @@ si <- full_df %>%
   dplyr::select(Species2, patch) %>% 
   unique()
 
-comm <- dcast(si, formula = patch ~ Species2, fun.aggregate = length)
+comm <- dcast(si, formula = patch ~ Species2, fun.aggregate = length) %>%
+    column_to_rownames(var="patch")
 
 # comm <- full_df %>%
 #   mutate(Species2 = paste(stringr::word(Species, 1,1, sep=" "),
@@ -185,6 +196,8 @@ pdiv_length <- pd(comm, tree_pruned, include.root=TRUE)
 pdiv_length2 <- pd(comm, tree_pruned, include.root=FALSE)
 # warnings because this cannot be calculated for communities with 1 species only
 # KD: Warnings resolved! I think because I dealt with the duplicate issues
+# EVC: The second calculation still throws warnings, but that is normal because 
+#     there are patches with 1 species only. In these cases PD = NA
 
 # 2) phylogenetic species variability richness and evenness (Helmus et al., 2007)
 pdiv_psv <- psv(comm, tree_pruned)
@@ -213,8 +226,7 @@ pdiv_all <- pdiv_length %>%
 
 
 plot(pdiv_all[,"PD"], pdiv_all[,"SR"])
+plot(pdiv_all[,"PSVs"], pdiv_all[,"SR"])
 plot(pdiv_all[,"PSR"], pdiv_all[,"SR"])
+plot(pdiv_all[,"PSR"], pdiv_all[,"PD"])
 # plot(pdiv_all[,"PSEs"], pdiv_all[,"SR"])
-
-
-# Combine results
