@@ -1,4 +1,4 @@
-Species,Ssp,Var,author,spp_author,Synonym (scientific name),Common (Western) name,Family,Covered in TRY?,Covered in Native American Ethnobotany database? ,Covered in Pierce et al. 2017? ,Covered in knb?,IUCN Status,Endemic? (Y/N),Total Species,Species covered in TRY and NAED,"Species with TRY, NAED, and IUCN Status",TRY data available
+Species,Ssp,Var,author,Ssp_author,Synonym (scientific name),Common (Western) name,Family,Covered in TRY?,Covered in Native American Ethnobotany database? ,Covered in Pierce et al. 2017? ,Covered in knb?,IUCN Status,Endemic? (Y/N),Total Species,Species covered in TRY and NAED,"Species with TRY, NAED, and IUCN Status",TRY data available
 Gymnosperms,,,,,,,,,,,,,,,,,
 Abies amabilis,,,(Douglas ex Louden) Douglas ex Forbes,,/,,Pinaceae,Y,Y,N,Y (germination),Stable (Least Concern),,331,308,143,requested
 Abies grandis,,,(Douglas ex D. Don) Lindl.,,/,,Pinaceae,Y,Y,N,N,Stable (Least Concern),,,,,requested
