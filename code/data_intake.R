@@ -38,7 +38,7 @@ TEK_data <- read_csv("data/TEKdata.csv") %>%
   # Remove NA rows
   filter(!is.na(Species))
 
-full_data <- right_join(base_data, TEK_data)
+full_data <- right_join(base_data, TEK_data) 
 
 # 2) Clean the data for analysis ###############################################
 

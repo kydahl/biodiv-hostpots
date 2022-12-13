@@ -26,10 +26,10 @@ Tsuga mertensiana,,,(Bong.)Carriere,,86,41,19
 Ferns and fern-allies,,,,,,,
 Equisetum arvense,,,L.,,89,43,54
 Equisetum telmateia,,,Ehrh.,,89,43,26
-Equisetum hyemale,affine,,L.,(Engelm.) Calder & Roy L. Taylor,40,26,8
+Equisetum hyemale,ssp. affine,,L.,(Engelm.) Calder & Roy L. Taylor,40,26,8
 Lycopodium clavatum,,,L.,,26,17,11
 Adiantum aleuticum,,,(Rupr.) Paris (syn. A. pedatum L.),,25,16,11
-Athyrium filix-femina,cyclosorum,,(L.) Roth.,(Rupr.) C. Chr.,30,19,1
+Athyrium filix-femina,ssp. cyclosorum,,(L.) Roth.,(Rupr.) C. Chr.,30,19,1
 Blechnum spicant,,,(L.) Sm.,,16,12,17
 Dryopteris expansa,,,(K.B. Presl) Fraser-Jenkins & Jermy,,66,37,7
 Gymnocarpium dryopteris,,,s (L.) Newm.,,4,4,1
@@ -46,11 +46,11 @@ Achlys triphylla,,,(Smith) DC,,7,6,9
 Actaea rubra,,,(Aiton) Willd,,22,13,22
 Agoseris glauca,,,(Pursh) Raf.,,8,5,1
 Allium cernuum,,,Roth,,52,36,69
-Allium schoenoprasum,,sibiricum,(L.) Hartm.,,12,7,6
+Allium schoenoprasum,,var. sibiricum,(L.) Hartm.,,12,7,6
 Allium geyeri,,,S. Watson,,11,8,7
-Alnus incana,tenuifolia,,(L.) Moench,(Nutt.) Breitung,66,35,45
-Alnus viridis,crispa,,(Chaix) DC.,(Aiton) Turrill,66,35,26
-Alnus viridis,sinuata,,(Chaix) DC.,(Regel) A. Löve & D. Löve,66,35,8
+Alnus incana,ssp. tenuifolia,,(L.) Moench,(Nutt.) Breitung,66,35,45
+Alnus viridis,ssp. crispa,,(Chaix) DC.,(Aiton) Turrill,66,35,26
+Alnus viridis,ssp. sinuata,,(Chaix) DC.,(Regel) A. Löve & D. Löve,66,35,8
 Alnus rubra,,,Bong,,56,33,116
 Amelanchier alnifolia,,,Nutt. ex M. Roem.,,131,45,164
 Anaphalis margaritacea,,,(L.) Benth.,,15,10,43
@@ -78,7 +78,7 @@ Asarum caudatum,,,Lindl.,,23,12,28
 Asclepias speciosa,,,Torr.,,5,4,61
 Balsamorhiza sagittata,,,(Pursh) Nutt.,,31,13,109
 Betula nana,,,L.,,13,11,7
-Betula pumila,,glandulifera,Regel,,13,11,3
+Betula pumila,,var. glandulifera,Regel,,13,11,3
 Betula occidentalis,,,Hook.,,8,7,12
 Betula papyrifera,,,Marsh.,,56,35,174
 Boschniakia hookeri,,,Walp.,,8,5,3
@@ -192,7 +192,7 @@ Lysichiton americanus,,,Hultén & H. St. John,,78,44,111
 Mahonia aquifolium,,,(Pursh) Nutt.,,68,29,58
 Mahonia nervosa,,,(Pursh) Nutt.,,68,29,33
 Maianthemum dilatatum,,,(Alph. Wood) A. Nelson & J.F. Macbr.,,42,21,15
-Maianthemum racemosum,amplexicaule,,,(Nutt.) LaFrankie,38,21,3
+Maianthemum racemosum,ssp. amplexicaule,,,(Nutt.) LaFrankie,38,21,3
 Malus fusca,,,(Raf.) C.K. Schneid,,95,33,90
 Mentha arvensis,,,L.,,30,19,208
 Menziesia ferruginea ,,,Sm.,,20,17,9
@@ -226,8 +226,8 @@ Plantago maritima,,,L.,,6,4,2
 Platanthera dilatata,,,(Pursh) Lindl. ex Beck,,8,6,2
 Platanthera stricta,,,Lindl.,,8,6,1
 Platanthera hyperborea,,,(L.) Lindl,,8,6,NA
-Populus balsamifera,balsamifera,,L.,,94,51,17
-Populus balsamifera,trichocarpa,,L.,(Torr. & A. Gray ex Hook.) Brayshaw,94,51,92
+Populus balsamifera,ssp. balsamifera,,L.,,94,51,17
+Populus balsamifera,ssp. trichocarpa,,L.,(Torr. & A. Gray ex Hook.) Brayshaw,94,51,92
 Populus tremuloides,,,Michx,,55,32,117
 Potamogeton natans,,,L.,,9,7,2
 Prunus emarginata,,,(Douglas ex Hook.) D. Dietr.,,80,35,95
@@ -328,7 +328,7 @@ Valeriana sitchensis,,,Bong,,14,7,25
 Veratrum viride,,,Aiton,,59,38,121
 Viburnum edule,,,(Michx.) Raf,,96,41,63
 Viburnum opulus,,,L.,,96,41,15
-Vicia nigricans,gigantea,,,(Hook.) Lassetter & C.R. Gunn.,23,13,8
+Vicia nigricans,ssp. gigantea,,,(Hook.) Lassetter & C.R. Gunn.,23,13,8
 Viola adunca,,,Sm. var. adunca,,8,7,9
 Xerophyllum tenax,,,(Pursh) Nutt.,,27,20,26
 Zigadenus venenosus,,,S. Watson,,17,13,30

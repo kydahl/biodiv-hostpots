@@ -26,10 +26,10 @@ Tsuga mertensiana,,,(Bong.)Carriere,,,mountain hemlock,Pinaceae,Y,Y,N,Y (germina
 Ferns and fern-allies,,,,,,,,,,,,,,,,,requested
 Equisetum arvense,,,L.,,/,,Equisetaceae,Y,Y,Y,,Unknown (Least Concern),,,,,requested
 Equisetum telmateia,,,Ehrh.,,/,,Equisetaceae,Y,Y,Y,,Increasing (Least Concern),,,,,requested
-Equisetum hyemale,affine,,L.,(Engelm.) Calder & Roy L. Taylor,/,,Equisetaceae,Y,Y,N,,/,,,,,requested
+Equisetum hyemale,ssp. affine,,L.,(Engelm.) Calder & Roy L. Taylor,/,,Equisetaceae,Y,Y,N,,/,,,,,requested
 Lycopodium clavatum,,,L.,,/,,Lycopodiaceae,Y,Y,Y,,/,,,,,requested
 Adiantum aleuticum,,,(Rupr.) Paris (syn. A. pedatum L.),,/,,Pteridaceae,Y,Y,N,,/,,,,,requested
-Athyrium filix-femina,cyclosorum,,(L.) Roth.,(Rupr.) C. Chr.,Athyrium filix-foemina (L.) Roth,,Dryopteridaceae,Y,Y,Y (different family specified),,/,,,,,requested
+Athyrium filix-femina,ssp. cyclosorum,,(L.) Roth.,(Rupr.) C. Chr.,Athyrium filix-foemina (L.) Roth,,Dryopteridaceae,Y,Y,Y (different family specified),,/,,,,,requested
 Blechnum spicant,,,(L.) Sm.,,,deer fern,Blechnaceae,Y,Y,Y,,/,,,,,requested
 Dryopteris expansa,,,(K.B. Presl) Fraser-Jenkins & Jermy,,,spiny wood fern,Dryopteridaceae,Y,Y,Y,,/,,,,,requested
 Gymnocarpium dryopteris,,,s (L.) Newm.,,,oak fern,Dryopteridaceae,Y,Y,Y,,/,,,,,requested
@@ -46,11 +46,11 @@ Achlys triphylla,,,(Smith) DC,,/,,Berberidaceae,Y,Y,N,,/,,,,,requested
 Actaea rubra,,,(Aiton) Willd,,/,,Ranunculaceae,Y,Y,N,,/,,,,,requested
 Agoseris glauca,,,(Pursh) Raf.,,/,,Asteraceae,Y,Y,Y,,/,,,,,requested
 Allium cernuum,,,Roth,,,nodding onion,Liliaceae,Y,Y,N,,/,,,,,requested
-Allium schoenoprasum,,sibiricum,(L.) Hartm.,,,wild chives,Liliaceae,Y,Y,N,,Stable (Least Concern),,,,,"requested, but as Allium schoenoprasum since var. type was not found"
+Allium schoenoprasum,,var. sibiricum,(L.) Hartm.,,,wild chives,Liliaceae,Y,Y,N,,Stable (Least Concern),,,,,"requested, but as Allium schoenoprasum since var. type was not found"
 Allium geyeri,,,S. Watson,,,Geyer's onion,Liliaceae,Y,Y,N,,Unknown (Least Concern),,,,,requested
-Alnus incana,tenuifolia,,(L.) Moench,(Nutt.) Breitung,,mountain alder,Betulaceae,Y,Y,Y (not spp.),,Stable (Least Concern) ,,,,,requested
-Alnus viridis,crispa,,(Chaix) DC.,(Aiton) Turrill,,green alder,Betulaceae,Y,Y,Y (not spp.),,/,,,,,not found
-Alnus viridis,sinuata,,(Chaix) DC.,(Regel) A. Löve & D. Löve,,Sitka alder,Betulaceae,Y,Y,Y (not spp.),,/,,,,,not found
+Alnus incana,ssp. tenuifolia,,(L.) Moench,(Nutt.) Breitung,,mountain alder,Betulaceae,Y,Y,Y (not spp.),,Stable (Least Concern) ,,,,,requested
+Alnus viridis,ssp. crispa,,(Chaix) DC.,(Aiton) Turrill,,green alder,Betulaceae,Y,Y,Y (not spp.),,/,,,,,not found
+Alnus viridis,ssp. sinuata,,(Chaix) DC.,(Regel) A. Löve & D. Löve,,Sitka alder,Betulaceae,Y,Y,Y (not spp.),,/,,,,,not found
 Alnus rubra,,,Bong,,,red alder,Betulaceae,Y,Y,N,,Stable (Least Concern),,,,,requested
 Amelanchier alnifolia,,,Nutt. ex M. Roem.,,,saskatoonberry,Rosaceae,Y,Y,N,,Stable (Least Concern),,,,,requested
 Anaphalis margaritacea,,,(L.) Benth.,,,pearly everlasting,Asteraceae,Y,Y,Y,,/,,,,,requested
@@ -78,7 +78,7 @@ Asarum caudatum,,,Lindl.,,,wild ginger,Aristolochiaceae,Y,Y,N,,/,,,,,requested
 Asclepias speciosa,,,Torr.,,,common milkweed,Asclepiadaceae,Y,Y,N,,/,,,,,requested
 Balsamorhiza sagittata,,,(Pursh) Nutt.,,,arrowleaf balsamroot/spring sunflower,Asteraceae,Y,Y,N,,/,,,,,requested
 Betula nana,,,L.,,,scrub birch,Betulaceae,Y,Y,Y,,Stable (Least Concern),,,,,requested
-Betula pumila,,glandulifera,Regel,,,bog birch,Betulaceae,Y,Y,N,,Stable (Least Concern),,,,,found w/o var. glandulifolia
+Betula pumila,,var. glandulifera,Regel,,,bog birch,Betulaceae,Y,Y,N,,Stable (Least Concern),,,,,found w/o var. glandulifolia
 Betula occidentalis,,,Hook.,,,water birch,Betulaceae,Y,Y,N,,Stable (Least Concern),,,,,requested
 Betula papyrifera,,,Marsh.,,,paper birch,Betulaceae,Y,Y,N,,Stable (Least Concern),,,,,requested
 Boschniakia hookeri,,,Walp.,,,groundcone/poque,Orobanchaceae,Y,Y,N,,/,,,,,requested
@@ -192,7 +192,7 @@ Lysichiton americanus,,,Hultén & H. St. John,,,American skunk-cabbage,Araceae,Y
 Mahonia aquifolium,,,(Pursh) Nutt.,,,tall Oregon-grape,Berberidaceae,Y,Y,,,/,,,,,not found
 Mahonia nervosa,,,(Pursh) Nutt.,,,dull-leaved Oregon-grape,Berberidaceae,N,Y,,,/,,,,,not found
 Maianthemum dilatatum,,,(Alph. Wood) A. Nelson & J.F. Macbr.,,,"wild lily-of-thevalley, or false lily-of-the-valley",Liliaceae,Y,Y,,,/,,,,,requested
-Maianthemum racemosum,amplexicaule,,,(Nutt.) LaFrankie,,false Solomon's-seal,Liliaceae,Y,Y,,,/,,,,,requested
+Maianthemum racemosum,ssp. amplexicaule,,,(Nutt.) LaFrankie,,false Solomon's-seal,Liliaceae,Y,Y,,,/,,,,,requested
 Malus fusca,,,(Raf.) C.K. Schneid,,,Pacific crabapple,Rosaceae,Y,Y,,,Stable (Least Concern),,,,,requested
 Mentha arvensis,,,L.,,,field mint/Canada mint,(Lamiaceae,Y,Y,,,Unknown (Least Concern),,,,,requested
 Menziesia ferruginea ,,,Sm.,,,false azalea/fool’s huckleberry,Ericaceae,Y,Y,,,/,,,,,not found
@@ -226,8 +226,8 @@ Plantago maritima,,,L.,,,"seaside plantain, or goose tongue",Plantaginaceae,Y,Y,
 Platanthera dilatata,,,(Pursh) Lindl. ex Beck,,,scented bog orchid,Orchidaceae,Y,Y,,,/,,,,,requested
 Platanthera stricta,,,Lindl.,,,slender bog orchid,Orchidaceae,Y,Y,,,/,,,,,requested
 Platanthera hyperborea,,,(L.) Lindl,,,northern green orchid,Orchidaceae,Y,N,,,Unknown (Least Concern),,,,,requested
-Populus balsamifera,balsamifera,,L.,,,balsam poplar,Salicaceae,Y,Y,,,Stable (Least Concern),,,,,requested
-Populus balsamifera,trichocarpa,,L.,(Torr. & A. Gray ex Hook.) Brayshaw,,black cottonwood,Salicaceae,Y,Y,,,Stable (Least Concern),,,,,requested
+Populus balsamifera,ssp. balsamifera,,L.,,,balsam poplar,Salicaceae,Y,Y,,,Stable (Least Concern),,,,,requested
+Populus balsamifera,ssp. trichocarpa,,L.,(Torr. & A. Gray ex Hook.) Brayshaw,,black cottonwood,Salicaceae,Y,Y,,,Stable (Least Concern),,,,,requested
 Populus tremuloides,,,Michx,,,trembling aspen,Salicaceae,Y,Y,,,Stable (Least Concern),,,,,requested
 Potamogeton natans,,,L.,,,floating pondweed,Potamogetonaceae,Y,Y,,,Stable (Least Concern),,,,,requested
 Prunus emarginata,,,(Douglas ex Hook.) D. Dietr.,,,bitter cherry,Rosaceae,Y,Y,,,Stable (Least Concern),,,,,requested
@@ -328,7 +328,7 @@ Valeriana sitchensis,,,Bong,,,"mountain valerian, or Sitka valerian",Valerianace
 Veratrum viride,,,Aiton,,,"false hellebore, or green hellebore",Liliaceae,Y,Y,,,/,,,,,requested
 Viburnum edule,,,(Michx.) Raf,,,"highbush cranberry, or squashberry",Caprifoliaceae,Y,Y,,,/,,,,,requested
 Viburnum opulus,,,L.,,,"American highbush cranberry, or bush cranberry",Caprifoliaceae,Y,Y,,,/,,,,,requested
-Vicia nigricans,gigantea,,,(Hook.) Lassetter & C.R. Gunn.,,giant vetch,Fabaceae,Y,Y,,,/,,,,,requested
+Vicia nigricans,ssp. gigantea,,,(Hook.) Lassetter & C.R. Gunn.,,giant vetch,Fabaceae,Y,Y,,,/,,,,,requested
 Viola adunca,,,Sm. var. adunca,,,early blue violet,Violaceae,Y,Y,,,/,,,,,requested
 Xerophyllum tenax,,,(Pursh) Nutt.,,,common beargrass,Liliaceae,Y,Y,,,/,,,,,requested
 Zigadenus venenosus,,,S. Watson,,,"death camas, meadow death camas",Liliaceae,Y,Y,,,/,,,,,not found
