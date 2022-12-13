@@ -21,14 +21,14 @@
 # 4) I am not sure what the level is at which you calculate diversity. 
 # Below I used uniqueID, but they have only 1 species so this doesn't seem right
 # Within 1 patch there are sometimes duplicates of species, so I am not sure if that is correct
-#  KD: It shouldn't be possible for this to happen. There should only be one 
-#      entry for each "species" in each patch. 
+#  KD: Thanks for pointing this out! I fixed it
 
 #######################################################
 
 # Data used in this script:
 # - full_data to create phylogenetic tree
 # - full_df to calculate phylogenetic diversity for patches
+source("code/data_intake.R") # gives base_data
 
 #######################################################
 
@@ -39,6 +39,8 @@
 # 3) family
 
 library(stringr)
+
+full_data <- base_data
 
 list_species_unique <- full_data %>%
   as.data.frame()  %>%
@@ -103,6 +105,8 @@ tree_complete <- congeneric.merge(tree$tree.scenario.3, missing_species)
 which(str_detect(tree_complete$tip.label, "Pterospora_andromedea") == TRUE)
 # --> it is not present in the tree
 
+# save tree
+write.tree(tree$tree.scenario.3, file = "data/clean/phylogenetic_tree.csv")
 
 ## ---- Prune tree to species list --------------
 if (!require('picante')) install.packages('picante'); library('picante')
@@ -170,7 +174,8 @@ duplicates_df <- full_df %>%
 
 
 tree_complete_pruned <- prune.sample(comm,tree_complete)
-tree_pruned <- prune.sample(comm,tree$tree.scenario.3)
+tree_pruned <- prune.sample(comm,tree)
+
 
 # check if number of species corresponds with number of species in the species list
 length(tree_complete_pruned$tip.label)
@@ -184,7 +189,7 @@ dim(list_species_unique)
 
 
 ## ---- Calculate phylogentic diversity --------------
-# this tales a while!
+# this takes a while!
 
 # We have to remove species missing in the phylogeny in order for this to work
 comm <- comm %>%
@@ -208,20 +213,20 @@ pdiv_pse <- pse(comm, tree_pruned)
 
 # Combine results
 pdiv_all <- pdiv_length %>%
-  tibble::rownames_to_column("uniqueID") %>%
+  tibble::rownames_to_column("patch") %>%
   full_join(pdiv_length2 %>% dplyr::select(PD) %>%
               rename(PD_unrooted = PD) %>%
-              tibble::rownames_to_column("uniqueID"),
-            by = c("uniqueID")) %>%
+              tibble::rownames_to_column("patch"),
+            by = c("patch")) %>%
   full_join(pdiv_psv %>% dplyr::select(PSVs)  %>%
-              tibble::rownames_to_column("uniqueID"),
-            by = c("uniqueID")) %>%
+              tibble::rownames_to_column("patch"),
+            by = c("patch")) %>%
   full_join(pdiv_psr %>% dplyr::select(PSR)  %>%
-              tibble::rownames_to_column("uniqueID"),
-            by = c("uniqueID")) %>%
+              tibble::rownames_to_column("patch"),
+            by = c("patch")) %>%
   full_join(pdiv_pse %>% dplyr::select(PSEs)  %>%
-              tibble::rownames_to_column("uniqueID"),
-            by = c("uniqueID"))
+              tibble::rownames_to_column("patch"),
+            by = c("patch"))
 
 
 

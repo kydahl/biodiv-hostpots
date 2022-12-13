@@ -2,42 +2,34 @@
 # Functions used in the simulation study
 ################################################################################
 
-## Load libraries---------------------------------------------------------------
+##* Load libraries---------------------------------------------------------------
 library(tidyverse)
 
-## Helper functions-------------------------------------------------------------
+##* Helper functions-------------------------------------------------------------
 # Sample from a discrete uniform distribution
 # Source: https://stats.stackexchange.com/questions/3930/are-there-default-functions-for-discrete-uniform-distributions-in-r
 dunif_sampleone <- function(n) sample(1:n, 1, replace = T)
 
 # Assign entries from df to groups of size 1 to n (chosen uniformly randomly)
-group_assign <- function(in_df, 
+group_assign <- function(in_df,
                          mean.NumEntities,
                          sd.NumEntities) {
-  Num.Entities <- min(max(
-    floor(rnorm(1, mean = mean.NumEntities, sd.NumEntities)),
-    1),
-    length(in_df))
-  
+  Num.Entities <- min(
+    max(
+      floor(rnorm(1, mean = mean.NumEntities, sd.NumEntities)),
+      2 # !!! to prevent single species communities
+    ),
+    length(in_df)
+  )
+
   sample(in_df, size = Num.Entities, replace = FALSE)
 }
 
-## Functions for creating data frames-------------------------------------------
-## Create entities and assign trait values
-get.entities <- function(numEntities, numTraits) {
-  tibble(
-    expand.grid(
-      entityID = 1:numEntities,
-      trait.num = 1:numTraits
-    ),
-    trait.val = rnorm(numEntities * numTraits)
-  )
-}
-
+##* Functions for creating data frames-------------------------------------------
 
 ## Assign entities to patches
 get.patches <- function(entity_df,
-                        numPatches, 
+                        numPatches,
                         mean.NumEntities,
                         sd.NumEntities) {
   # initialize data.frame
@@ -45,7 +37,7 @@ get.patches <- function(entity_df,
     entityID = NA,
     patch = NA
   )
-  
+
   # sample from entities list to fill patches
   for (i in 1:numPatches) {
     regional_df <- add_row(regional_df,
@@ -78,19 +70,18 @@ assign.states <- function(regional_df) {
       Status == "Decreasing (Endangered)" ~ 2,
       Status == "/" ~ 5 # !!! placeholder. The status being available is kind of like it being unknown?
     ))
-
 }
 
 ## Create full data.frame of entities and their traits in patches with assigned states
-get.full_df <- function(entity_df, numTraits, numPatches, mean.NumEntities, sd.NumEntities) {
-  # create entities data.frame and assign trait values
-  # entity_df <- get.entities(numEntities, numTraits)
+get.full_df <- function(entity_df, numPatches, mean.NumEntities, sd.NumEntities) {
   # assign patches and states to entities
-  regional_df <- get.patches(entity_df,
-                             numPatches, 
-                             mean.NumEntities,
-                             sd.NumEntities) 
-    
+  regional_df <- get.patches(
+    entity_df,
+    numPatches,
+    mean.NumEntities,
+    sd.NumEntities
+  )
+
   states_df <- full_join(entity_df, regional_df, by = "entityID") %>%
     filter(!is.na(patch))
 
@@ -131,7 +122,7 @@ get.full_df <- function(entity_df, numTraits, numPatches, mean.NumEntities, sd.N
 }
 
 
-## Vulnerability function-------------------------------------------------------
+##* Vulnerability function (NYI) -----------------------------------------------
 # take traits, current state, and patch number and outputs future state
 
 # simple function for now:
@@ -161,7 +152,7 @@ get.vulnerability <- function(in_df) {
     ungroup()
 }
 
-## Biodiversity metric functions------------------------------------------------
+##* Biodiversity metric functions------------------------------------------------
 # for a patch, look at entities and their states & traits and output
 # biodiversity measure of the patch
 
@@ -185,17 +176,20 @@ num.endemic.metric <- function(in_df) {
     group_by(entityID) %>%
     # remove duplicates due to rows from trait.num
     distinct() %>%
-    mutate(endemic_flag = ifelse(n() == 1, 1, 0)) %>% 
-    ungroup() %>% 
-    group_by(patch) %>% 
-    summarise("biodiv" = sum(endemic_flag, na.rm = TRUE),
-              .groups = "keep")
-    # filter(n() == 1) %>%
-    # ungroup() %>%
-    # # count number of endemics in each patch
-    # count(patch, name = "biodiv")
+    mutate(endemic_flag = ifelse(n() == 1, 1, 0)) %>%
+    ungroup() %>%
+    group_by(patch) %>%
+    summarise(
+      "biodiv" = sum(endemic_flag, na.rm = TRUE),
+      .groups = "keep"
+    )
+  # filter(n() == 1) %>%
+  # ungroup() %>%
+  # # count number of endemics in each patch
+  # count(patch, name = "biodiv")
 }
 
+# General trait counting metric function
 trait.count.metric <- function(in_df, trait_name) {
   out_df <- in_df %>%
     # remove extinct entities
@@ -203,25 +197,144 @@ trait.count.metric <- function(in_df, trait_name) {
     filter(Trait == trait_name) %>%
     select(patch, entityID, value) %>%
     group_by(patch) %>%
-    summarise("biodiv" = sum(value, na.rm = TRUE),
-              .groups = "keep")
+    summarise(
+      "biodiv" = sum(value, na.rm = TRUE),
+      .groups = "keep"
+    )
 }
 
 
-## Hotspot identifier function--------------------------------------------------
+# Calculate phylogenetic diversity metrics --------------------------------
+phylodiv.metrics <- function(in_df) {
+  # Pruning happens based on a community matrix, so either
+  # - create a fake community matrix from list_species_unique 
+  # - convert full_df to wide format
+  # Attention: Species names should have a dash between genus and species name
+  # KD: I think the goal is to have each row be a patch and each column a
+  #     species, with a 1 if the species is in that patch. Is that correct?
+  #     If so, we can use the code below!
+  
+  si <- in_df %>%
+    mutate(Species2 = paste(stringr::word(Species, 1,1, sep=" "),
+                            stringr::word(Species, 2,2, sep=" "),
+                            sep="_")) %>%
+    dplyr::select(Species2, patch) %>% 
+    unique()
+  
+  comm <- dcast(si, formula = patch ~ Species2, fun.aggregate = length, 
+                value.var = "patch")
+  
+  ## ---- Calculate phylogentic diversity --------------
+  # this takes a while!
+  
+  # We have to remove species missing in the phylogeny in order for this to work
+  comm <- comm %>%
+    dplyr::select(-Pterospora_andromedea)
+  
+  tree_pruned <- prune.sample(comm,tree)
+  
+  # 1) sum of the total phylogenetic branch length (Faith, 1992)
+  pdiv_length <- pd(comm, tree_pruned, include.root=TRUE) 
+  pdiv_length2 <- pd(comm, tree_pruned, include.root=FALSE)
+  # warnings because this cannot be calculated for communities with 1 species only
+  # !!! BUG: when there is a single species community, pd with include.root = TRUE
+  #          throws an error. Solution for now: prevent single species communities
+  
+  # 2) phylogenetic species variability richness and evenness (Helmus et al., 2007)
+  pdiv_psv <- psv(comm, tree_pruned)
+  pdiv_psr <- psr(comm, tree_pruned)
+  pdiv_pse <- pse(comm, tree_pruned) 
+  # pdiv_pse only makes sense when working with relative species abundances, which is not the case here.
+  # I set the abundance of each species to 1
+  
+  # Combine results
+  pdiv_all <- pdiv_length %>%
+    tibble::rownames_to_column("patch") %>%
+    full_join(pdiv_length2 %>% dplyr::select(PD) %>%
+                rename(PD_unrooted = PD) %>%
+                tibble::rownames_to_column("patch"),
+              by = c("patch")) %>%
+    full_join(pdiv_psv %>% dplyr::select(PSVs)  %>%
+                tibble::rownames_to_column("patch"),
+              by = c("patch")) %>%
+    full_join(pdiv_psr %>% dplyr::select(PSR)  %>%
+                tibble::rownames_to_column("patch"),
+              by = c("patch")) %>%
+    full_join(pdiv_pse %>% dplyr::select(PSEs)  %>%
+                tibble::rownames_to_column("patch"),
+              by = c("patch"))
+}
+
+
+# Build biodiversity data frame -------------------------------------------
+get.biodiv_df <- function(in_df) {
+  # Metric 1: Species richness
+  num.unique_df <- num.unique.metric(in_df)
+  # hotspots.unique <- find.hotspots(num.unique_df)
+
+  # Metric 2: Number of endemic entities
+  num.endemic_df <- num.endemic.metric(in_df)
+  # hotspots.endemic <- find.hotspots(num.endemic_df)
+
+  # Metric 3: Number of Indigenous names
+  num.indig.name_df <- trait.count.metric(
+    in_df,
+    "Number of unique names (Indigenous)"
+  )
+  # hotspots.indig.name <- find.hotspots(num.indig.name_df)
+
+  # Metric 4: Number of Indigenous languages
+  num.indig.lang_df <- trait.count.metric(
+    in_df,
+    "Number of unique  languages (from Appendix 2B)"
+  )
+  # hotspots.indig.lang <- find.hotspots(num.indig.lang_df)
+
+  # Metric 5: Number of uses
+  num.use_df <- trait.count.metric(
+    in_df,
+    "Number of uses"
+  )
+  # hotspots.use <- find.hotspots(num.use_df)
+  
+  # Phylogenetic diversity metrics
+  PD_df <- phylodiv.metrics(in_df)
+  PD_df$patch <- as.integer(PD_df$patch)
+  
+  # !!! BUG: Getting NA for a couple metrics
+  PD_df <- select(PD_df, -PSVs, -PSR, -PSEs)
+
+  # Put together one big dataframe of biodiversity metrics of each patch
+  biodiv_df <- rename(num.unique_df, NumUnique = biodiv) %>% # Number of unique entities
+    # Number of endemic entities
+    right_join(rename(num.endemic_df, NumEndemic = biodiv), by = "patch") %>%
+    # Number of Indigenous names
+    right_join(rename(num.indig.name_df, NumIndigName = biodiv), by = "patch") %>%
+    # Number of Indigenous languages
+    right_join(rename(num.indig.lang_df, NumIndigLang = biodiv), by = "patch") %>%
+    # Number of uses
+    right_join(rename(num.use_df, NumUse = biodiv), by = "patch") 
+  
+  biodiv_df <- biodiv_df %>% 
+    # add Phylogenetic diversity metrics
+    right_join(PD_df, by = "patch")
+}
+
+
+
+# Hotspot identifier function ---------------------------------------------
 # look at the biodiversity of all patches and determine which patches are
 # "hotspots" relative to the other patches
 
 # simple function for now:
 # give all the patches in the 95% quantile
 find.hotspots <- function(in_df) {
-  
   # Select top 5th percentile
-  in_df[in_df$biodiv > quantile(in_df$biodiv,0.95), ]
+  in_df[in_df$biodiv > quantile(in_df$biodiv, 0.95, na.rm = FALSE), ]
 }
 
 
-## Hotspot comparison function--------------------------------------------------
+# Hotspot comparison function ---------------------------------------------
 # measure the difference in the hotspot maps produced under different
 # biodiversity metrics for the same dataset
 
@@ -230,13 +343,53 @@ find.hotspots <- function(in_df) {
 calc.hotspot_compare <- function(hotspots.unique, hotspots.compare) {
   unique.hotspots <- hotspots.unique$patch
   compare.hotspots <- hotspots.compare$patch
-  
+
   TP_count <- sum(compare.hotspots %in% unique.hotspots)
-  
-  # false_count <- 
-  
+
+  # false_count <-
+
   # Use precision as our quantifier:
   # of the identified hotspots, what proportion match with species diversity?
   comparison.quantifier <- TP_count / length(compare.hotspots)
   return(comparison.quantifier)
+}
+
+
+# Build hotspot comparison data frame ------------------------------------------
+get.biodiv.compare_df <- function(in_df) {
+  # Get biodiversity metrics
+  biodiv_df <- get.biodiv_df(in_df) %>%
+    melt(id = "patch")
+
+  # Pre-allocate table
+  hotspot.compare_df <- tibble(
+    variable = character(),
+    value = numeric()
+  )
+
+  # Build hotspot comparison data frame
+  for (j in unique(biodiv_df$variable)) {
+    # Comparisons are made relative to species richness ("NumUnique")
+    if (j == "NumUnique") {
+      hotspots.unique <- biodiv_df %>%
+        filter(variable == j) %>%
+        select(-variable) %>%
+        rename(biodiv = value) %>%
+        find.hotspots()
+    } else {
+      hotspot_list <- biodiv_df %>%
+        filter(variable == j) %>%
+        select(-variable) %>%
+        rename(biodiv = value) %>%
+        find.hotspots()
+
+      compare_value <- calc.hotspot_compare(hotspot_list, hotspots.unique)
+
+      hotspot.compare_df <- add_row(hotspot.compare_df,
+        variable = j,
+        value = compare_value
+      )
+    }
+  }
+  return(hotspot.compare_df)
 }
