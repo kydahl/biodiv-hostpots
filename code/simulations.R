@@ -60,7 +60,8 @@ numIterations <- 1000
 # Run simulations ---------------------------------------------------------
 
 # Load in initial data
-entity_df <- data_in
+entity_df <- data_in %>%
+  filter(Species != "Pterospora andromedea")
 
 # Create a single simulation for visualizations
 full_df <- full_df <- get.full_df(entity_df, 

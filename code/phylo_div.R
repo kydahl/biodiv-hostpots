@@ -26,9 +26,10 @@
 #######################################################
 
 # Data used in this script:
-# - full_data to create phylogenetic tree
+# - full_data or data_in to create phylogenetic tree
 # - full_df to calculate phylogenetic diversity for patches
-source("code/data_intake.R") # gives base_data
+source("code/data_intake.R") # full_data or data_in
+# Run first lines of "simulations.R" to create full_df
 
 #######################################################
 
@@ -40,13 +41,19 @@ source("code/data_intake.R") # gives base_data
 
 library(stringr)
 
-full_data <- base_data
+# full_data <- base_data
 
-list_species_unique <- full_data %>%
-  as.data.frame()  %>%
-  dplyr::mutate(Species = stringr::word(Species, 1,2, sep=" ")) %>% # get rid of spp. and var.
-  dplyr::mutate(Genus = stringr::word(Species, 1,1, sep=" ")) %>%
-  dplyr::select(Species, Genus, Family) %>%
+# list_species_unique <- full_data %>%
+#   as.data.frame()  %>%
+#   dplyr::mutate(Species = stringr::word(Species, 1,2, sep=" ")) %>% # get rid of spp. and var.
+#   dplyr::mutate(Genus = stringr::word(Species, 1,1, sep=" ")) %>%
+#   dplyr::select(Species, Genus, Family) %>%
+#   # group_by(Species) %>% # uncomment to check for how many species are "repeated"
+#   # filter(n()>1)
+#   unique()
+
+list_species_unique <- data_in %>%
+  dplyr::select(Species_full, Genus, Family) %>%
   # group_by(Species) %>% # uncomment to check for how many species are "repeated"
   # filter(n()>1)
   unique()
@@ -105,6 +112,7 @@ tree_complete <- congeneric.merge(tree$tree.scenario.3, missing_species)
 which(str_detect(tree_complete$tip.label, "Pterospora_andromedea") == TRUE)
 # --> it is not present in the tree
 
+
 # save tree
 write.tree(tree$tree.scenario.3, file = "data/clean/phylogenetic_tree.csv")
 
@@ -126,10 +134,11 @@ si <- full_df %>%
   mutate(Species2 = paste(stringr::word(Species, 1,1, sep=" "),
                           stringr::word(Species, 2,2, sep=" "),
                           sep="_")) %>%
-  dplyr::select(Species2, patch) %>% 
+  mutate(Species_full2 = str_replace_all(Species_full," ","_")) %>%
+  dplyr::select(Species_full2, patch) %>% 
   unique()
 
-comm <- dcast(si, formula = patch ~ Species2, fun.aggregate = length) %>%
+comm <- dcast(si, formula = patch ~ Species_full2, fun.aggregate = length) %>%
     column_to_rownames(var="patch")
 
 # comm <- full_df %>%
@@ -163,8 +172,8 @@ duplicates_df <- full_df %>%
   dplyr::mutate(Species2 = paste(stringr::word(Species, 1,1, sep=" "),
                           stringr::word(Species, 2,2, sep=" "),
                           sep="_")) %>%
-  # select(patch, Species2) %>% 
-  dplyr::group_by(patch, Species2) %>%
+  mutate(Species_full2 = str_replace_all(Species_full," ","_")) %>%
+  dplyr::group_by(patch, Species_full2) %>% # EVC: there are no duplicates when using Species_full2 instead of Species2
   dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
   dplyr::filter(n > 1L) %>% 
   # There will be repeats for each unique entry for "Trait", divide by that
@@ -174,7 +183,7 @@ duplicates_df <- full_df %>%
 
 
 tree_complete_pruned <- prune.sample(comm,tree_complete)
-tree_pruned <- prune.sample(comm,tree)
+tree_pruned <- prune.sample(comm,tree$tree.scenario.3)
 
 
 # check if number of species corresponds with number of species in the species list
@@ -182,6 +191,9 @@ length(tree_complete_pruned$tip.label)
 length(tree_pruned$tip.label)
 dim(list_species_unique)
 # As we know, one species is missing... 
+
+# Check out the species list --> subspecies and variants are present, so this worked?
+tree_pruned$tip.label
 
 ### plot the phylogenies with node ages displayed.
 # plot.phylo(tree_pruned, type="fan", cex = 0.5)
@@ -192,8 +204,9 @@ dim(list_species_unique)
 # this takes a while!
 
 # We have to remove species missing in the phylogeny in order for this to work
-comm <- comm %>%
-  dplyr::select(-Pterospora_andromedea)
+# In the updated version, this is already done in "simulations.R"
+# comm <- comm %>%
+#   dplyr::select(-Pterospora_andromedea)
 
 
 # 1) sum of the total phylogenetic branch length (Faith, 1992)
