@@ -1,0 +1,35 @@
+# Example R code for calculating functional diversity
+
+llibrary(vegan)
+llibrary(ade4)
+llibrary(MASS)
+llibrary(FD)
+llibrary(picante)
+llibrary(ape)
+#
+#traits <- read.table("traits_example.txt", header=T ) #this is a table with species in rows and traits in columns
+
+#Functional Diversity
+traits.dist<-vegdist(traits, method="euclidean")
+
+#to decide which method or linkage to use for dbFB. 
+plot(hclust(traits.dist, method="average"))
+plot(hclust(traits.dist, method="complete"))
+plot(hclust(traits.dist, method="single"))
+plot(hclust(traits.dist, method="ward.D"))
+plot(hclust(traits.dist, method="centroid"))
+plot(hclust(traits.dist, method="median"))
+
+cluster.traits<-dbFD(traits,calc.FGR = TRUE,clust.type = "ward.D2")
+plot(cluster.traits)
+
+#Once you have tested the linkage you want to use you can calculate FD index
+#dbFD uses principal coordinates analysis (PCoA) to return PCoA axes,
+#which are then used as 'traits' to compute FD
+
+#compute multidimensional functional diversity (FD) indices:
+indexFD.traitsF<-dbFD(traits,as.matrix(distance_matrix),calc.FGR = TRUE,calc.FRic= TRUE, calc.CWM= TRUE, calc.FDiv= TRUE, clust.type = "ward.D2") #distance_matrix is species-by-species distance matrix of class dist, in which case NAs are not allowed. I believe this can be create with the species-specific trait data
+str(indexFD.traitsF)
+
+# a text file with all results were created. I chose to cut the dendogram by height (8).
+#Which means 3 groups. This might be decided with the number of species that makes sense to group. 
