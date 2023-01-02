@@ -195,6 +195,8 @@ trait.count.metric <- function(in_df, trait_name) {
     # remove extinct entities
     filter(state > 1) %>%
     filter(Trait == trait_name) %>%
+    # KD: This calculates TOTAL number of traits (which perhaps makes sense for
+    #     uses or names, but probably not for biological traits)
     select(patch, entityID, value) %>%
     group_by(patch) %>%
     summarise(
@@ -202,6 +204,9 @@ trait.count.metric <- function(in_df, trait_name) {
       .groups = "keep"
     )
 }
+
+# If we add abundance, we can compute: Shannon diversity, Evenness, Simpson's 
+# index, rare species indices, ... 
 
 
 # Calculate phylogenetic diversity metrics --------------------------------
@@ -224,7 +229,7 @@ phylodiv.metrics <- function(in_df) {
   comm <- dcast(si, formula = patch ~ Species2, fun.aggregate = length, 
                 value.var = "patch")
   
-  ## ---- Calculate phylogentic diversity --------------
+  ## ---- Calculate phylogenetic diversity --------------
   # this takes a while!
   
   # We have to remove species missing in the phylogeny in order for this to work
