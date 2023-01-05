@@ -36,42 +36,31 @@ trait_data_ref_meta <- read_excel("data/Trait_data_TRY_Diaz_2022/Dataset/Referen
                              sheet = "ReadMe")
 
 #######################################################
-# Clean trait dataset (in the case of data extracted from TRY)
+## ---- Clean trait dataset (in the case of data extracted from TRY) --------------
 
 #######################################################
-# Create community matrix (patch x species)
+## ---- Match the community dataset with the Diaz trait dataset --------------
 
+# Create species list from the community dataset
 si <- full_df %>%
-  # mutate(Species2 = paste(stringr::word(Species, 1,1, sep=" "),
-  #                         stringr::word(Species, 2,2, sep=" "),
-  #                         sep="_")) %>%
-  # mutate(Species_full2 = str_replace_all(Species_full," ","_")) %>%
-  # dplyr::select(Species_full2, patch) %>% 
   dplyr::select(Species_full, patch) %>% 
   dplyr::mutate(Species_full = str_replace_all(Species_full,"ssp.","subsp.")) %>% 
   unique()
 
-# comm <- dcast(si, formula = patch ~ Species_full2, fun.aggregate = length) %>%
-#   column_to_rownames(var="patch")
-comm <- dcast(si, formula = patch ~ Species_full, fun.aggregate = length) %>%
-  column_to_rownames(var="patch")
-
-#######################################################
-# Match the community dataset with trait dataset
-
+# Check which species are present in the trait dataset
 trait_data_sel <- trait_data %>%
   filter(`Species name standardized against TPL` %in% unique(si$Species_full))
 
 length(unique(si$Species_full))
 dim(trait_data_sel)
 # --> there are quite a lot of species missing
-# Are they actually missing or do they have a different name in the Diaz dataset?
+# Are they actually missing or do they have a different name in the Diaz dataset? Let's check
 
 missing_spp <- si %>%
   filter(!Species_full %in% trait_data$`Species name standardized against TPL`) %>%
   select(Species_full) %>%
   unique()
-missing_spp
+missing_spp # 54 missing species
 
 # 1                   Chamaecyparis nootkatensis    synonym "Cupressus nootkatensis" is present
 # 23             Equisetum hyemale subsp. affine    species without subsp. is present
@@ -113,7 +102,7 @@ missing_spp
 # 876                        Platanthera stricta    synoym "Platanthera dilatata" (without var. gracilis or var. viridiflora) is present
 # 900                     Platanthera hyperborea    missing, many other Plantanthera spp. are present. No synonyms present
 # 928     Populus balsamifera subsp. balsamifera    species without subsp. is present
-# 949     Populus balsamifera subsp. trichocarpa    species without subsp. is present
+# 949     Populus balsamifera subsp. trichocarpa    synonym "Populus trichocarpa" is present
 # 974                    Pseudoroegneria spicata    synonym "Elymus spicatus" is present
 # 1006                            Rhodiola rosea    variant "Rhodiola rosea var. rosea" is present
 # 1030                Rhododendron groenlandicum    synonym "Ledum palustre subsp. groenlandicum" is present
@@ -122,10 +111,123 @@ missing_spp
 # 1115                             Rubus pedatus    missing, many other Rubus spp. are present. No synonyms present
 # 1142                           Sedum divergens    missing, many other Sedum spp. are present. No synonyms present
 # 1166                            Sedum oreganum    missing, many other Sedum spp. are present. No synonyms present
-# 1192                   Toxicodendron rydbergii    missing, many other Toxicodendron spp. are present. No synonyms present
+# 1192                   Toxicodendron rydbergii    synonym "Toxicodendron radicans" without (var. rydbergii) is present
 # 1216                       Trillium petiolatum    missing, many other Trillium spp. are present  
 # 1244           Vicia nigricans subsp. gigantea    species without subsp. is present
 # 1267                       Zigadenus venenosus    synonym "Toxicoscordion venenosum" is present
 # 1290                         Zigadenus elegans    synonym "Anticlea elegans" is present
+
+# Replace species names with synonyms if possible
+si_modif <- si %>%
+  mutate(Species_full = ifelse(Species_full == "Chamaecyparis nootkatensis", "Cupressus nootkatensis", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Equisetum hyemale subsp. affine", "Equisetum hyemale", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Adiantum aleuticum", "Adiantum pedatum", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Athyrium filix-femina subsp. cyclosorum", "Athyrium filix-femina", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Polypodium glycyrrhiza", "Polypodium vulgare", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Allium schoenoprasum var. sibiricum", "Allium schoenoprasum", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Alnus viridis subsp. crispa", "Alnus alnobetula subsp. crispa", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Alnus viridis subsp. sinuata", "Alnus alnobetula subsp. sinuata", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Arctous ruber", "Arctous alpina", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Argentina egedii", "Potentilla anserina subsp. groenlandica", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Argentina anserina", "Potentilla anserina", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Betula pumila var. glandulifera", "Betula pumila", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Cornus unalaschkensis", "Cornus canadensis", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Dodecatheon pauciflorum", "Dodecatheon meadia", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Eurybia conspicua", "Aster conspicuus", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Glaux maritima", "Lysimachia maritima", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Lappula occidentalis", "Lappula redowskii", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Hierochloe hirta", "Hierochloe odorata", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Mahonia nervosa", "Berberis nervosa", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Maianthemum racemosum subsp. amplexicaule", "Maianthemum racemosum", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Phyllospadix scouleri", "Phyllospadix iwatensis", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Platanthera stricta", "Platanthera dilatata", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Populus balsamifera subsp. balsamifera", "Populus balsamifera", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Populus balsamifera subsp. trichocarpa", "Populus trichocarpa", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Pseudoroegneria spicata", "Elymus spicatus", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Rhodiola rosea", "Rhodiola rosea var. rosea", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Rhododendron groenlandicum", "Ledum palustre subsp. groenlandicum", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Rhododendron neoglandulosum", "Ledum glandulosum", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Toxicodendron rydbergii", "Toxicodendron radicans", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Vicia nigricans subsp. gigantea", "Vicia nigricans", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Zigadenus venenosus", "Toxicoscordion venenosum", Species_full)) %>%
+  mutate(Species_full = ifelse(Species_full == "Zigadenus elegans", "Anticlea elegans", Species_full))
+  
+
+trait_data_sel <- trait_data %>%
+  filter(`Species name standardized against TPL` %in% unique(si_modif$Species_full))
+
+length(unique(si_modif$Species_full))
+dim(trait_data_sel)
+
+missing_spp <- si_modif %>%
+  filter(!Species_full %in% trait_data$`Species name standardized against TPL`) %>%
+  select(Species_full) %>%
+  unique()
+missing_spp # 22 missing species left
+
+# Eriophorum chamissonis is present in self-collected TRY dataset
+
+# Save the list of missing species
+library(writexl)
+trait_data <- write_xlsx(missing_spp,
+                         "data/clean/Trait_data_TRY_Diaz_2022_PNW_missing.xlsx", col_names=TRUE)
+
+#######################################################
+# Create community matrix (patch x species)
+comm <- dcast(si_modif, formula = patch ~ Species_full, fun.aggregate = length) %>%
+  column_to_rownames(var="patch")
+
+
+#######################################################
+## ---- Calculate functional diversity --------------
+library(FD)
+
+# Select which traits to use for calculations
+trait_data_sel_reduced <- trait_data_sel %>%
+  rename(Species_name = `Species name standardized against TPL`) %>%
+  select(Species_name, `Woodiness`, `Growth Form`, `Leaf area (mm2)`, `Nmass (mg/g)`, `LMA (g/m2)`, `Plant height (m)`, `Diaspore mass (mg)`, `LDMC (g/g)`, `SSD observed (mg/mm3)`, `SSD imputed (mg/mm3)`) %>%
+  # select(Species_name, `Plant height (m)`, `Diaspore mass (mg)`) %>% # trying the dbFD algorithm with traits that are the most complete
+  # select(Species_name, `Growth Form`, `Diaspore mass (mg)`) %>%
+  column_to_rownames(var = "Species_name")
+
+# Save a raw version of the cleaned dataset
+library(writexl)
+trait_data <- write_xlsx(trait_data_sel_reduced <- trait_data_sel %>%
+                           rename(Species_name = `Species name standardized against TPL`) %>%
+                           select(Species_name, `Woodiness`, `Growth Form`, `Leaf area (mm2)`, `Nmass (mg/g)`, `LMA (g/m2)`, `Plant height (m)`, `Diaspore mass (mg)`, `LDMC (g/g)`, `SSD observed (mg/mm3)`, `SSD imputed (mg/mm3)`),
+                         "data/clean/Trait_data_TRY_Diaz_2022_PNW.xlsx", col_names=TRUE)
+
+
+# Since we are experiencing problems with NAs below, we will delete incomplete rows for now
+# This removes many species so we should try to solve this problem differently!
+trait_data_sel_reduced <- trait_data_sel_reduced[complete.cases(trait_data_sel_reduced), ]
+
+# Remove species from comm matrix that are not present in the trait dataset, 
+# just for exploratory purposes at this time, but would be better to extend the dataset
+comm_sel <- comm[, colnames(comm) %in% rownames(trait_data_sel_reduced),]
+dim(comm_sel)
+dim(trait_data_sel_reduced)
+
+# order alphabetically to make sure both datasets have the same order of species
+comm_sel <- comm_sel[, order(colnames(comm_sel))]
+trait_data_sel_reduced <- trait_data_sel_reduced[order(rownames(trait_data_sel_reduced)),]
+
+# Calculate functional diversity
+# FRic = functional richness = convex hull volume (Villéger et al. 2008)
+# Fdiv = functional divergence (Villéger et al. 2008)
+# FDis = functional dispersion: weighted average distance to centroid (Laliberté and Legendre 2010). 
+#        For communities composed of only one species, dbFD returns a FDis value of 0.
+fdiv <- dbFD(trait_data_sel_reduced, as.matrix(comm_sel), w.abun=F, stand.x=T, 
+           calc.FRic=T, m="max", 
+           # calc.FGR=T,  clust.type="ward.D2", # this will ask for a manual decision on how to cut the tree
+           calc.FDiv=T,
+           calc.CWM= F)
+# if not removing incomplete rows --> Error: NA's in the distance matrix.
+# According to the help file, NAs are tolerated, but there are many NAs!
+# The NA error message is related to NAs in the distance matrix which is calculated internally like gowdis(trait_data_sel_reduced)
+# missing trait values can be imputed using the MICE (Multivariate Imputation by Chained Equations) algorithm with 
+# predictive mean matching in the “mice” R package (van Buuren and Groothuis‐Oudshoorn, 2011).
+
+str(fdiv)
 
 #######################################################
