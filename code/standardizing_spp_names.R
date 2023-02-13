@@ -3,7 +3,7 @@ install.packages("BIOMASS")
 library(BIOMASS)
 
 ##enter data###
-veg.df <- read.csv("Master_file.csv") # KD: where is thsi file?
+veg.df <- read.csv("Master_file.csv") # KD: where is this file?
 
 ###### check for typos first ###
 #This function corrects typos for a given taxonomic name using the Taxonomic Name Resolution Service (TNRS).

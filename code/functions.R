@@ -2,6 +2,7 @@
 # Functions used in the simulation study
 ################################################################################
 
+# Kyle Dahlin, September 2022
 ##* Load libraries---------------------------------------------------------------
 library(tidyverse)
 
