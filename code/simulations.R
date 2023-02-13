@@ -19,7 +19,7 @@ source("code/data_intake.R")
 
 
 ## Parameters-------------------------------------------------------------------
-## Set random seed (for debuggin)
+## Set random seed (for debugging)
 # set.seed(8797)
 
 ## Number of patches
@@ -64,10 +64,10 @@ entity_df <- data_in %>%
   filter(Species != "Pterospora andromedea")
 
 # Create a single simulation for visualizations
-full_df <- full_df <- get.full_df(entity_df, 
-                                  numPatches, 
-                                  mean.NumEntities, 
-                                  sd.NumEntities)
+full_df <- get.full_df(entity_df, 
+                       numPatches, 
+                       mean.NumEntities, 
+                       sd.NumEntities)
 
 
 # Get tree data
