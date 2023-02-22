@@ -47,6 +47,10 @@ traits_df <- data_in %>%
   mutate(Genus = stringr::word(Species_name, 1, 1, sep = " ")) %>%
   mutate(Species = stringr::word(Species_name, 2, 2, sep = " ")) %>%
   mutate(Ssp_var = stringr::word(Species_name, 3, 4, sep = " ")) %>%
+  mutate(LeafArea_log = log(`Leaf area (mm2)`)) %>% 
+  mutate(PlantHeight_log = log(`Plant height (m)`)) %>% 
+  mutate(DiasporeMass_log = log(`Diaspore mass (mg)`)) %>% 
+  select(-c("Leaf area (mm2)", "Plant height (m)", "Diaspore mass (mg)")) %>% 
   relocate(Genus, Species, Ssp_var)
 
 # 3) Set up parameters for the imputation function ----
@@ -65,16 +69,16 @@ taxa <- predict(dummies, newdata = taxa)
 # select traits to be imputed
 traits_to_impute <- as.data.frame(traits_df) %>%
   # select("Leaf area (mm2)":"SSD observed (mg/mm3)") 
-  select("Woodiness":"SSD observed (mg/mm3)") %>%
+  select(-c("Genus":"Species_name")) %>%
   mutate(Woodiness = as.factor(Woodiness)) %>%
   mutate(`Growth Form` = as.factor(`Growth Form`))
   # select("Leaf area (mm2)":"SSD observed (mg/mm3)")
 
-# combine dummy vars with traits 
+# combine dummy vars with traits (comment this line out to not use taxa in imputation)
 traits_to_impute<-cbind(traits_to_impute,taxa)
 
 #
-set.seed(82) # for debugging
+# set.seed(82) # for debugging
 
 # run missForest imputation
 PNW_imp <- missForest(traits_to_impute,
@@ -84,8 +88,8 @@ PNW_imp <- missForest(traits_to_impute,
   variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
 )
 
-# add back taxonomic columns back in
-imputed_traits <- cbind(traits_df[,1:4],PNW_imp$ximp[,1:9])
+# add actual taxonomic columns back in and remove dummy variables
+imputed_traits <- cbind(traits_df[,1:4],PNW_imp$ximp[,1:10])
 # imputed_traits <- cbind(traits_df[,1:4],PNW_imp$ximp)
 
 
@@ -98,7 +102,7 @@ traitdist_compare_df <- traits_df %>%
   mutate(type = "original") %>% 
   rbind(imputed_traits %>% 
            mutate(type = "imputed") %>% 
-           select(-c("Woodiness", "Growth Form"))) %>% 
+           select(-c("Woodiness", "Growth Form","SSD imputed (mg/mm3)"))) %>% 
   select(-c("Genus", "Species", "Ssp_var")) %>% 
   melt(id = c("Species_name", "type"))
 
@@ -109,13 +113,15 @@ traitdist_compare_plot <- traitdist_compare_df %>%
   geom_density(linewidth = 2) +
   # iterate over all traits
   facet_wrap( ~ variable, ncol = 3, scales = "free") +
-  ggtitle("Distributions of original and imputed traits (no taxonomic variables)") +
+  ggtitle("Distributions of original and imputed traits (with taxonomic variables)") +
   theme_cowplot(16)
 
-ggsave2(filename = "figures/WTaxa_ImputeCompare.png",
+# ggsave2(filename = "figures/WTaxa_ImputeCompare.png",
+#         width = 16,
+#         height = 9)
+ggsave2(filename = "figures/WTaxa_loggedVariables_ImputeCompare.png",
         width = 16,
         height = 9)
-
 # 6) Illustrate diagnostics to ensure imputation was appropriate ----
 
 
