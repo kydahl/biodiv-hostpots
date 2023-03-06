@@ -99,7 +99,7 @@ traits_to_impute <- as.data.frame(traits_df) %>%
   mutate(`Growth Form` = as.factor(`Growth Form`))
 
 # combine dummy vars with traits (comment this line out to not use taxa in imputation)
-traits_to_impute <- cbind(traits_to_impute, taxa)
+# traits_to_impute <- cbind(traits_to_impute, taxa)
 
 #
 # set.seed(82) # for debugging
@@ -124,6 +124,14 @@ full_df <- traits_df %>%
   select(-c("Genus", "Species", "Ssp_var")) %>%
   melt(id = c("Species_name", "type"))
 
+# Collect the error OOB error for each variable
+error_df <- as.list(PNW_imp$OOBerror) %>% 
+  as_tibble(.name_repair = "universal") %>% 
+  melt() %>% 
+  rename(error_value = value) %>% 
+  mutate(error_type = substr(as.character(variable), start = 1, stop = 3),
+         .keep = "unused") %>% 
+  cbind(variable = colnames(PNW_imp$ximp[,1:7]))
 
 # 5) Perform diagnostics on imputed data ----
 
@@ -165,6 +173,9 @@ traitdist_compare_df_discrete<- traits_df %>%
 # 6) Illustrate diagnostics to ensure imputation was appropriate ----
 
 # * Figure: histograms of original trait data vs. imputed trait data ----
+# Put together annotation data
+annotate_df <- inner_join(error_df, coverage_vals)
+
 # Continuous variables
 traitdist_compare_plot <- traitdist_compare_df %>%
   # select(contains(select_trait), type) %>%
@@ -172,11 +183,12 @@ traitdist_compare_plot <- traitdist_compare_df %>%
   # plot frequency polynomial
   geom_freqpoly(aes(x = value, y = after_stat(density), color = type), linewidth = 2) +
   # annotate plot with coverage percentages of traits
-  geom_text(data = filter(coverage_vals, 
+  geom_text(data = filter(annotate_df, 
                           !(variable %in% c("Woodiness", "Growth Form"))),
-           aes(x = Inf, y = Inf, 
-               label = paste0("coverage  = ", 100*round(coverage, 2), "%")),
-           hjust="right", vjust="top") +
+            aes(x = Inf, y = Inf, 
+                label = paste0("coverage  = ", 100*round(coverage, 2), "%\n",
+                               "error (", error_type, ") = ", signif(error_value,3) )),
+            hjust="right", vjust="top") +
   # geom_density(linewidth = 2) +
   # iterate over all traits
   facet_wrap( ~ variable,
@@ -194,10 +206,11 @@ traitdist_compare_plot_discrete <- traitdist_compare_df_discrete %>%
   geom_col(aes(x = value, y = density, color = type, group = type),
            fill = NA, position = "dodge", lwd = 1) +
   # annotate plot with coverage percentages of traits
-  geom_text(data = filter(coverage_vals, 
+  geom_text(data = filter(annotate_df, 
                           variable %in% c("Woodiness", "Growth Form")),
             aes(x = Inf, y = Inf, 
-                label = paste0("coverage  = ", 100*round(coverage, 2), "%")),
+                label = paste0("coverage  = ", 100*round(coverage, 2), "%\n",
+                               "error (", error_type, ") = ", signif(error_value,3) )),
             hjust="right", vjust="top") +
   # iterate over all traits
   facet_wrap( ~ variable, ncol = 3, scales = "free") +
