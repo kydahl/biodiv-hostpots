@@ -57,12 +57,34 @@ traits_df <- data_in %>%
   # Remove traits that we won't be using in our study
   select(-c("LDMC (g/g)", "SSD observed (mg/mm3)", "SSD imputed (mg/mm3)"))
 
+# * Get some basic information about the data set ----
+# compute the coverage of each trait
+coverage_vals <- traits_df %>% 
+  select(-c("Genus":"Ssp_var")) %>%
+  melt(id = c("Species_name")) %>% 
+  group_by(variable) %>% 
+  mutate(count = n()) %>%
+  mutate(missing_num = sum(is.na(value))) %>%
+  mutate(cover_num = sum(!is.na(value))) %>%
+  mutate(coverage = cover_num / count) %>% 
+  select(variable, missing_num, count, coverage) %>% 
+  unique()
+
 # 3) Set up parameters for the imputation function (missForest) ----
 
+# # missForest parameters
+# # maximum number of iterations to be performed given the stopping criterion isn't met
+# maxiter = 100
+# # number of trees to grow in each forest
+# ntree = 1000
+# # if 'TRUE', gives additional output between iterations
+# verbose = TRUE
+# # if 'TRUE', the OOB error is returned for each variable separately
+# variablewise = TRUE
 
 # 4) Run missForest algorithm to impute missing traits ----
 # get taxonomic columns
-taxa <- select(traits_df, Genus, Species, Ssp_var) # Get order and family level data
+taxa <- select(traits_df, Genus)#, Species, Ssp_var) # Get order and family level data
 test <- rep(1, nrow(taxa))
 taxa <- cbind(taxa, test)
 
@@ -94,11 +116,19 @@ PNW_imp <- missForest(traits_to_impute,
 imputed_traits <- cbind(traits_df[, 1:4], PNW_imp$ximp[, 1:7])
 # imputed_traits <- cbind(traits_df[,1:4],PNW_imp$ximp)
 
+# Make a tidy dataframe of all traits
+full_df <- traits_df %>% 
+  # keep track of which traits were original values
+  mutate(type = "original") %>%
+  rbind(imputed_traits %>% mutate(type = "imputed")) %>%
+  select(-c("Genus", "Species", "Ssp_var")) %>%
+  melt(id = c("Species_name", "type"))
+
 
 # 5) Perform diagnostics on imputed data ----
 
-# Figure: histograms of original trait data vs. imputed trait data
-
+# * Calculate distributions of trait values for the original and imputed data sets ----
+# Continuous variables
 traitdist_compare_df <- traits_df %>%
   select(-c("Woodiness", "Growth Form")) %>%
   mutate(type = "original") %>%
@@ -109,6 +139,7 @@ traitdist_compare_df <- traits_df %>%
   select(-c("Genus", "Species", "Ssp_var")) %>%
   melt(id = c("Species_name", "type"))
 
+# Discrete variables
 traitdist_compare_df_discrete<- traits_df %>%
   select(c("Genus":"Growth Form")) %>%
   mutate(type = "original") %>%
@@ -129,35 +160,54 @@ traitdist_compare_df_discrete<- traits_df %>%
           mutate(density = count / sum(count)) 
   )
 
+
+
+# 6) Illustrate diagnostics to ensure imputation was appropriate ----
+
+# * Figure: histograms of original trait data vs. imputed trait data ----
+# Continuous variables
 traitdist_compare_plot <- traitdist_compare_df %>%
   # select(contains(select_trait), type) %>%
-  ggplot(aes(value, color = type)) +
-  geom_freqpoly(linewidth = 2) +
+  ggplot(aes()) +
+  # plot frequency polynomial
+  geom_freqpoly(aes(x = value, y = after_stat(density), color = type), linewidth = 2) +
+  # annotate plot with coverage percentages of traits
+  geom_text(data = filter(coverage_vals, 
+                          !(variable %in% c("Woodiness", "Growth Form"))),
+           aes(x = Inf, y = Inf, 
+               label = paste0("coverage  = ", 100*round(coverage, 2), "%")),
+           hjust="right", vjust="top") +
   # geom_density(linewidth = 2) +
   # iterate over all traits
-  facet_wrap( ~ variable, ncol = 3, scales = "free") +
+  facet_wrap( ~ variable,
+              ncol = 3,
+              scales = "free") +
   ggtitle("Distributions of continuous traits") +
-  theme_cowplot(16)
+  theme_cowplot(16) +
+  theme(axis.title.x = element_blank())
 
+
+# Discrete  variables
 traitdist_compare_plot_discrete <- traitdist_compare_df_discrete %>%
   group_by(type, variable) %>% 
-  # select(contains(select_trait), type) %>%
-  ggplot(aes(x = value, y = density, color = type, group = type)) +
-  # geom_point() +
-  # geom_freqpoly(linewidth = 2) +
-  geom_col(fill = NA, position = "dodge") +
-  # geom_density(linewidth = 2) +
+  ggplot() +
+  geom_col(aes(x = value, y = density, color = type, group = type),
+           fill = NA, position = "dodge", lwd = 1) +
+  # annotate plot with coverage percentages of traits
+  geom_text(data = filter(coverage_vals, 
+                          variable %in% c("Woodiness", "Growth Form")),
+            aes(x = Inf, y = Inf, 
+                label = paste0("coverage  = ", 100*round(coverage, 2), "%")),
+            hjust="right", vjust="top") +
   # iterate over all traits
   facet_wrap( ~ variable, ncol = 3, scales = "free") +
   ggtitle("Distributions of discrete traits") +
   theme_cowplot(16) +
   theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+    axis.title.x = element_blank()
   )
 
-# ggsave2(filename = "figures/WTaxa_ImputeCompare.png",
-#         width = 16,
-#         height = 9)
 ggsave2(
   filename = "figures/ImputedDistributions_Continuous.png",
   plot = traitdist_compare_plot,
@@ -172,7 +222,10 @@ ggsave2(
   height = 9
 )
 
-# 6) Illustrate diagnostics to ensure imputation was appropriate ----
-
-
 # 7) Output imputed data frame ----
+data_out <-imputed_traits %>%
+  select(-c("Genus", "Species", "Ssp_var")) %>%
+  mutate(LeafArea = exp(LeafArea_log), .keep = "unused") %>% 
+  mutate(PlantHeight = exp(PlantHeight_log), .keep = "unused") %>% 
+  mutate(DiasporeMass = exp(DiasporeMass_log), .keep = "unused") %>% 
+  melt(id = "Species_name")
