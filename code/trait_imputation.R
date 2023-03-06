@@ -15,12 +15,13 @@
 ##           7) Output imputed data frame
 ##
 ##
-## Inputs:  data -
+## Inputs:  data/clean/Trait_data_TRY_Diaz_2022_PNW.xlsx
+##          - trait data from the TRY database used in Diaz 2022
 ##
 ##          code -
 ##
 ##
-## Outputs: data -
+## Outputs: data/clean/imputed_traits.csv - full list of imputed traits
 ##
 ## Written and maintained by: Kyle Dahlin, kydahlin@gmail.com
 ## Initialized February 2023
@@ -43,11 +44,6 @@ data_in <- read_excel("data/clean/Trait_data_TRY_Diaz_2022_PNW.xlsx") %>%
 
 # Modify original data
 traits_df <- data_in %>%
-  # # put in "tidy" form with traits as row entries
-  # melt(
-  #   id = "Species_name", variable.name = "trait_name",
-  #   value.name = "trait_value"
-  # ) %>%
   # expand binomial
   mutate(LeafArea_log = log(`Leaf area (mm2)`)) %>%
   mutate(PlantHeight_log = log(`Plant height (m)`)) %>%
@@ -125,7 +121,7 @@ full_df <- traits_df %>%
   melt(id = c("Species_name", "type"))
 
 # Collect the error OOB error for each variable
-error_df <- as.list(PNW_imp$OOBerror) %>% 
+error_df <- as.list(PNW_imp$OOBerror[1:7]) %>% 
   as_tibble(.name_repair = "universal") %>% 
   melt() %>% 
   rename(error_value = value) %>% 
@@ -168,8 +164,6 @@ traitdist_compare_df_discrete<- traits_df %>%
           mutate(density = count / sum(count)) 
   )
 
-
-
 # 6) Illustrate diagnostics to ensure imputation was appropriate ----
 
 # * Figure: histograms of original trait data vs. imputed trait data ----
@@ -182,6 +176,8 @@ traitdist_compare_plot <- traitdist_compare_df %>%
   ggplot(aes()) +
   # plot frequency polynomial
   geom_freqpoly(aes(x = value, y = after_stat(density), color = type), linewidth = 2) +
+  # # uncomment this to show density curves instead
+  # geom_density(linewidth = 2) +
   # annotate plot with coverage percentages of traits
   geom_text(data = filter(annotate_df, 
                           !(variable %in% c("Woodiness", "Growth Form"))),
@@ -189,7 +185,6 @@ traitdist_compare_plot <- traitdist_compare_df %>%
                 label = paste0("coverage  = ", 100*round(coverage, 2), "%\n",
                                "error (", error_type, ") = ", signif(error_value,3) )),
             hjust="right", vjust="top") +
-  # geom_density(linewidth = 2) +
   # iterate over all traits
   facet_wrap( ~ variable,
               ncol = 3,
@@ -221,6 +216,7 @@ traitdist_compare_plot_discrete <- traitdist_compare_df_discrete %>%
     axis.title.x = element_blank()
   )
 
+# Save figures
 ggsave2(
   filename = "figures/ImputedDistributions_Continuous.png",
   plot = traitdist_compare_plot,
@@ -242,3 +238,7 @@ data_out <-imputed_traits %>%
   mutate(PlantHeight = exp(PlantHeight_log), .keep = "unused") %>% 
   mutate(DiasporeMass = exp(DiasporeMass_log), .keep = "unused") %>% 
   melt(id = "Species_name")
+# !!! KD: this isn't in the exact same form as the other data sets. I can change this later
+
+write_csv(data_out,
+          file = "data/clean/imputed_traits.csv")
