@@ -118,16 +118,33 @@ full_df <- traits_df %>%
   mutate(type = "original") %>%
   rbind(imputed_traits %>% mutate(type = "imputed")) %>%
   select(-c("Genus", "Species", "Ssp_var")) %>%
-  melt(id = c("Species_name", "type"))
+  melt(id = c("Species_name", "type")) %>% 
+  mutate(value = as.numeric(value))
 
 # Collect the error OOB error for each variable
+
+var_df <- full_df %>% 
+  filter(type == "imputed") %>% 
+  select(-c("Species_name", "type")) %>% 
+  # filter(!variable %in% c("Woodiness", "Growth Form")) %>% 
+  group_by(variable) %>% 
+  summarise(variance = case_when(
+    (variable %in% c("Woodiness", "Growth Form")) ~ 0,
+    (!variable %in% c("Woodiness", "Growth Form")) ~ var(value)
+    )) %>% 
+  unique()
+
 error_df <- as.list(PNW_imp$OOBerror[1:7]) %>% 
   as_tibble(.name_repair = "universal") %>% 
   melt() %>% 
   rename(error_value = value) %>% 
   mutate(error_type = substr(as.character(variable), start = 1, stop = 3),
          .keep = "unused") %>% 
-  cbind(variable = colnames(PNW_imp$ximp[,1:7]))
+  cbind(variable = colnames(PNW_imp$ximp[,1:7])) %>% 
+  # compute NRMSE from MSE
+  inner_join(var_df, by = "variable") %>% 
+  mutate(RMSE = sqrt(error_value)) %>% 
+  mutate(NRMSE = RMSE / variance)
 
 # 5) Perform diagnostics on imputed data ----
 
@@ -183,7 +200,7 @@ traitdist_compare_plot <- traitdist_compare_df %>%
                           !(variable %in% c("Woodiness", "Growth Form"))),
             aes(x = Inf, y = Inf, 
                 label = paste0("coverage  = ", 100*round(coverage, 2), "%\n",
-                               "error (", error_type, ") = ", signif(error_value,3) )),
+                               "error (NRMSE) = ", signif(NRMSE, 3) )),
             hjust="right", vjust="top") +
   # iterate over all traits
   facet_wrap( ~ variable,
