@@ -1,3 +1,32 @@
+################################################################################
+# Processing data from the TRY database
+################################################################################
+
+## Project: Identifying Climate change vulnerable biodiversity hotspots
+##
+## Purpose: Process data to be used to inform simulations
+##
+## Contents: 1) Set-up, load in necessary packages and data-sets
+##           2) Load in trait data and put it in workable form
+##           3) Set up parameters for the imputation function
+##           4) Run missForest algorithm to impute missing traits
+##           5) Perform diagnostics on imputed data
+##           6) Illustrate diagnostics to ensure imputation was appropriate
+##           7) Output imputed data frame
+##
+##
+## Inputs:  data/clean/Trait_data_TRY_Diaz_2022_PNW.xlsx
+##          - trait data from the TRY database used in Diaz 2022
+##          
+##
+##          code -
+##
+##
+## Outputs: data/clean/imputed_traits.csv - full list of imputed traits
+##
+## Written and maintained by: Kyle Dahlin, kydahlin@gmail.com
+## Initialized February 2023
+## _____________________________________________________________________________
 #see next steps in the bottom of this script
 
 #load the libraries

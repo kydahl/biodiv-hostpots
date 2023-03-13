@@ -30,13 +30,13 @@ full_df <- data_in %>%
 # Trait data compiled by Diáz et al. 2020 (based on TRY)
 # https://www.nature.com/articles/s41597-022-01774-9 
 library(readxl)
-trait_data <- read_excel("data/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx", 
+trait_data <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx", 
                          sheet = 1)
-trait_data_meta <- read_excel("data/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx", 
+trait_data_meta <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx", 
                               sheet = 2)
-trait_data_ref <- read_excel("data/Trait_data_TRY_Diaz_2022/Dataset/References.xlsx", 
+trait_data_ref <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/References.xlsx", 
                              sheet = "References")
-trait_data_ref_meta <- read_excel("data/Trait_data_TRY_Diaz_2022/Dataset/References.xlsx", 
+trait_data_ref_meta <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/References.xlsx", 
                              sheet = 2)
 
 #######################################################
