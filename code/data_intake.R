@@ -35,6 +35,7 @@
 library(tidyverse)
 library(reshape2)
 library(readxl)
+library(taxize)
 
 ## Helper functions
 # Function to determine if a given data column is empty
@@ -42,46 +43,50 @@ dataCheck_func <- function(x) {
   sum(!is.na(x)) > 0
 }
 
-# Create synonym data frame
-synonym_list <- select(full_data, Species_full) %>% 
-  mutate(Synonym = case_when(
-    Species_full == "Chamaecyparis nootkatensis" ~ "Cupressus nootkatensis",
-    Species_full == "Equisetum hyemale ssp. affine" ~ "Equisetum hyemale",
-    Species_full == "Adiantum aleuticum" ~ "Adiantum pedatum",
-    Species_full == "Athyrium filix-femina ssp. cyclosorum" ~ "Athyrium filix-femina",
-    Species_full == "Polypodium glycyrrhiza" ~ "Polypodium vulgare",
-    Species_full == "Allium schoenoprasum var. sibiricum" ~ "Allium schoenoprasum",
-    Species_full == "Alnus viridis ssp. crispa" ~ "Alnus alnobetula ssp. crispa",
-    Species_full == "Alnus viridis ssp. sinuata" ~ "Alnus alnobetula ssp. sinuata",
-    Species_full == "Arctous ruber" ~ "Arctous alpina",
-    Species_full == "Argentina egedii" ~ "Potentilla anserina ssp. groenlandica",
-    Species_full == "Argentina anserina" ~ "Potentilla anserina",
-    Species_full == "Betula pumila var. glandulifera" ~ "Betula pumila",
-    Species_full == "Cornus unalaschkensis" ~ "Cornus canadensis",
-    Species_full == "Dodecatheon pauciflorum" ~ "Dodecatheon meadia", # Dodecatheon pauciflorum not in full data set
-    Species_full == "Eurybia conspicua" ~ "Aster conspicuus", 
-    Species_full == "Glaux maritima" ~ "Lysimachia maritima", 
-    Species_full == "Lappula occidentalis" ~ "Lappula redowskii", 
-    Species_full == "Hierochloe hirta" ~ "Hierochloe odorata", # Hierochloe hirta not in full data set
-    Species_full == "Mahonia nervosa" ~ "Berberis nervosa", 
-    Species_full == "Maianthemum racemosum ssp. amplexicaule" ~ "Maianthemum racemosum", 
-    Species_full == "Phyllospadix scouleri" ~ "Phyllospadix iwatensis", 
-    Species_full == "Platanthera stricta" ~ "Platanthera dilatata", 
-    Species_full == "Populus balsamifera ssp. balsamifera" ~ "Populus balsamifera", 
-    Species_full == "Populus balsamifera ssp. trichocarpa" ~ "Populus trichocarpa", 
-    Species_full == "Pseudoroegneria spicata" ~ "Elymus spicatus", 
-    Species_full == "Rhodiola rosea" ~ "Rhodiola rosea var. rosea", 
-    Species_full == "Rhododendron groenlandicum" ~ "Ledum palustre ssp. groenlandicum", # Rhododendron groenlandicum not in full data set
-    Species_full == "Rhododendron neoglandulosum" ~ "Ledum glandulosum", # Rhododendron neoglandulosum not in full data set
-    Species_full == "Toxicodendron rydbergii" ~ "Toxicodendron radicans", 
-    Species_full == "Vicia nigricans ssp. gigantea" ~ "Vicia nigricans", 
-    Species_full == "Zigadenus venenosus" ~ "Toxicoscordion venenosum", 
-    Species_full == "Zigadenus elegans" ~ "Anticlea elegans",
-    TRUE ~ Species_full
-  ))
+# # Create synonym data frame
+# synonym_list <- select(full_data, Species_full) %>% 
+#   mutate(Synonym = case_when(
+#     Species_full == "Chamaecyparis nootkatensis" ~ "Cupressus nootkatensis",
+#     Species_full == "Equisetum hyemale ssp. affine" ~ "Equisetum hyemale",
+#     Species_full == "Adiantum aleuticum" ~ "Adiantum pedatum",
+#     Species_full == "Athyrium filix-femina ssp. cyclosorum" ~ "Athyrium filix-femina",
+#     Species_full == "Polypodium glycyrrhiza" ~ "Polypodium vulgare",
+#     Species_full == "Allium schoenoprasum var. sibiricum" ~ "Allium schoenoprasum",
+#     Species_full == "Alnus viridis ssp. crispa" ~ "Alnus alnobetula ssp. crispa",
+#     Species_full == "Alnus viridis ssp. sinuata" ~ "Alnus alnobetula ssp. sinuata",
+#     Species_full == "Arctous ruber" ~ "Arctous alpina",
+#     Species_full == "Argentina egedii" ~ "Potentilla anserina ssp. groenlandica",
+#     Species_full == "Argentina anserina" ~ "Potentilla anserina",
+#     Species_full == "Betula pumila var. glandulifera" ~ "Betula pumila",
+#     Species_full == "Cornus unalaschkensis" ~ "Cornus canadensis",
+#     Species_full == "Dodecatheon pauciflorum" ~ "Dodecatheon meadia", # Dodecatheon pauciflorum not in full data set
+#     Species_full == "Eurybia conspicua" ~ "Aster conspicuus", 
+#     Species_full == "Glaux maritima" ~ "Lysimachia maritima", 
+#     Species_full == "Lappula occidentalis" ~ "Lappula redowskii", 
+#     Species_full == "Hierochloe hirta" ~ "Hierochloe odorata", # Hierochloe hirta not in full data set
+#     Species_full == "Mahonia nervosa" ~ "Berberis nervosa", 
+#     Species_full == "Maianthemum racemosum ssp. amplexicaule" ~ "Maianthemum racemosum", 
+#     Species_full == "Phyllospadix scouleri" ~ "Phyllospadix iwatensis", 
+#     Species_full == "Platanthera stricta" ~ "Platanthera dilatata", 
+#     Species_full == "Populus balsamifera ssp. balsamifera" ~ "Populus balsamifera", 
+#     Species_full == "Populus balsamifera ssp. trichocarpa" ~ "Populus trichocarpa", 
+#     Species_full == "Pseudoroegneria spicata" ~ "Elymus spicatus", 
+#     Species_full == "Rhodiola rosea" ~ "Rhodiola rosea var. rosea", 
+#     Species_full == "Rhododendron groenlandicum" ~ "Ledum palustre ssp. groenlandicum", # Rhododendron groenlandicum not in full data set
+#     Species_full == "Rhododendron neoglandulosum" ~ "Ledum glandulosum", # Rhododendron neoglandulosum not in full data set
+#     Species_full == "Toxicodendron rydbergii" ~ "Toxicodendron radicans", 
+#     Species_full == "Vicia nigricans ssp. gigantea" ~ "Vicia nigricans", 
+#     Species_full == "Zigadenus venenosus" ~ "Toxicoscordion venenosum", 
+#     Species_full == "Zigadenus elegans" ~ "Anticlea elegans",
+#     TRUE ~ Species_full
+#   ))
+# 
+# # Save synonym list for reference later  
+# write_csv(synonym_list,"data/clean/synonym_list.csv")
 
-# Save synonym list for reference later  
-write_csv(synonym_list,"data/clean/synonym_list.csv")
+# Load synonym list
+
+synonym_list <- read_csv("data/clean/synonym_list.csv")
 
 # 1) Load in main species list --------------------------------------------
 
@@ -108,6 +113,7 @@ TEK_data <- read_csv("data/raw/TEKdata_20230222.csv") %>%
   filter(!Species %in% clade_labels) %>%
   # Remove NA rows
   filter(!is.na(Species))
+# species in base_data but not in TEK_dataL Hierochloe, Ledum groenlandicum, and Ledum glandulosum
 
 full_data <- right_join(base_data, TEK_data) %>%
   # Create a column with the full species scientific species name
@@ -145,19 +151,63 @@ full_data <- right_join(base_data, TEK_data) %>%
 # https://www.nature.com/articles/s41597-022-01774-9 
 Diaz_data <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx", 
                          sheet = 1)
-# Diaz_data_meta <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx", 
-#                               sheet = 2)
-# Diaz_data_ref <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/References.xlsx", 
-#                              sheet = "References")
-# Diaz_data_ref_meta <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/References.xlsx", 
-#                                   sheet = 2)
 
-# Check which species are present in the trait dataset
-Diaz_data_sel <- Diaz_data %>%
-  filter(`Species name standardized against TPL` %in% unique(si$Species_full))
+###* Resolve Diaz species names using Global Names Resolver ----
+# # Partition the list of species (otherwise it's too large to pass to gnr_resolve())
+# Diaz_species_list <- Diaz_data$`Species name standardized against TPL`
+# species_num <- length(Diaz_species_list)
+# num_seq <- 1+0:(species_num %% 1000) * 1000
+# 
+# # Select name sources
+# src <- c("EOL", "The International Plant Names Index", #these are examples, so choose the database of interest
+#          "Index Fungorum", "ITIS", "Catalogue of Life",
+#          "Tropicos - Missouri Botanical Garden")
+# # Initialize list of synonyms
+# Diaz_synonyms <- tibble(name_in = as.character(),
+#                         name_out = as.character())
+# # Collect synonyms
+# for (ii in 1:length(num_seq)) {
+#   temp_seq <- num_seq[ii]:min(num_seq[ii+1], length(Diaz_species_list))
+#   temp_species_list <- Diaz_species_list[temp_seq]
+#   temp_species_out <- gnr_resolve(temp_species_list, 
+#                                   data_source_ids = c(1,2,5,150, 165,167), 
+#                                   with_canonical_ranks=T,
+#                                   best_match_only = TRUE) %>% 
+#     select(name_in = user_supplied_name, name_out = matched_name2)
+#   Diaz_synonyms <- rbind(Diaz_synonyms,temp_species_out)
+# }
+# # Save list of synonyms
+# write_csv(Diaz_synonyms, 'data/clean/Diaz_synonyms.csv')
+
+# Load list of synonyms
+Diaz_synonyms <- read_csv('data/clean/Diaz_synonyms.csv')
+
+Diaz_data_renamed <- Diaz_synonyms %>% 
+  mutate(`Species name standardized against TPL` = name_in, .keep = "unused") %>% 
+  right_join(Diaz_data) %>% 
+  mutate(Species_full = name_out, .keep = "unused") %>% 
+  select(-`Species name standardized against TPL`)
+
+# Get list of species missing from Diaz data
+Diaz_species_list <- Diaz_data_renamed$Species_full
+full_species_list <- full_data$Species_full
+full_species_short <- full_data$Species
+
+# 23 missing if using full species epithet
+missing_from_Diaz <- full_species_list[which(!(full_species_list %in% Diaz_species_list))]
+
+# 39 missing is using shortened species epithet
+missing_from_Diaz_short <- full_species_short[which(!(full_species_short %in% Diaz_species_list))]
+
+# Reduce Diaz data to species present in the main dataset
+Diaz_data_sel <- Diaz_data_renamed %>%
+  # Remove non-focal species
+  filter(Species_full %in% c(full_data$Species_full, full_data$Species)) # including regular species names only leads to the additional inclusion of Alnus incana
+
 
 # 3) Load in and process TRY data sets ------------------------------------
 
+# We include these to obtain trait data for the 23 (or 39) missing from Diaz
 
 
 # 4) Combine data sets -----------------------------------------------------
