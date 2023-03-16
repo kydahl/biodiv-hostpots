@@ -202,13 +202,27 @@ missing_from_Diaz_short <- full_species_short[which(!(full_species_short %in% Di
 # Reduce Diaz data to species present in the main dataset
 Diaz_data_sel <- Diaz_data_renamed %>%
   # Remove non-focal species
-  filter(Species_full %in% c(full_data$Species_full, full_data$Species)) # including regular species names only leads to the additional inclusion of Alnus incana
+  filter(Species_full %in% c(full_data$Species_full, full_data$Species)) %>% # including regular species names only leads to the additional inclusion of Alnus incana
+  # reduce to relevant set of traits
+  select()
 
 
 # 3) Load in and process TRY data sets ------------------------------------
 
 # We include these to obtain trait data for the 23 (or 39) missing from Diaz
+#load TRY data 
+#TRY data is separated by trait (these data is in our Google Drive folder in databases)
+#Note that csv files starting with "TRY" followed by a trait name are a subset of the data provided for all TRY species present in their database. Only species present in "Trait_data_TRY_Diaz_2022_PNW.csv" were kept, in addition to possible synonmys found in funct_div.R 
+#the full TRY data with all species is called TRY.zip
 
+TRY_plant_height <- read.csv("TRY_plant_height_growth.csv")
+TRY_leafN <- read.csv("TRY_leafN.csv") 
+TRY_LDMC <- read.csv("TRY_LDMC.csv") 
+TRY_leafarea <- read.csv("TRY_leafarea.csv") #wait to handle this data because we need to know what Diaz used for leaf area mesuarements
+TRY_rooting_depth <- read.csv("TRY_rooting_depth.csv") #this trait was recommended for inclusion in the recommended traits paper
+TRY_stem_density <- read.csv("TRY_stem_density.csv")  #this trait was recommended for inclusion in the recommended traits paper
+TRY_plant_woodiness <- read.csv("TRY_plant_woodiness.csv")  #this trait was recommended for inclusion in the recommended traits paper
+TRY_plant_veg_reproduction <- read_csv("TRY_vegetative_reproduction.csv")  #this trait was recommended for inclusion in the recommended traits paper
 
 # 4) Combine data sets -----------------------------------------------------
 
