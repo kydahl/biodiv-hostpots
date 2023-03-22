@@ -106,7 +106,7 @@ base_data <- read_csv("data/raw/PNW_Species_w_Metadata.csv") %>%
   # Remove NA rows
   filter(!is.na(Species))
 
-TEK_data <- read_csv("data/raw/TEKdata_20230222.csv") %>%
+TEK_data <- read_csv("data/raw/TEKdata.csv") %>%
   # Remove any empty data columns
   select_if(dataCheck_func) %>%
   # Remove rows corresponding to family labels
