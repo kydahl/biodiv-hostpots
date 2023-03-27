@@ -42,46 +42,47 @@ dataCheck_func <- function(x) {
   sum(!is.na(x)) > 0
 }
 
-# Create synonym data frame
-synonym_list <- select(full_data, Species_full) %>% 
-  mutate(Synonym = case_when(
-    Species_full == "Chamaecyparis nootkatensis" ~ "Cupressus nootkatensis",
-    Species_full == "Equisetum hyemale ssp. affine" ~ "Equisetum hyemale",
-    Species_full == "Adiantum aleuticum" ~ "Adiantum pedatum",
-    Species_full == "Athyrium filix-femina ssp. cyclosorum" ~ "Athyrium filix-femina",
-    Species_full == "Polypodium glycyrrhiza" ~ "Polypodium vulgare",
-    Species_full == "Allium schoenoprasum var. sibiricum" ~ "Allium schoenoprasum",
-    Species_full == "Alnus viridis ssp. crispa" ~ "Alnus alnobetula ssp. crispa",
-    Species_full == "Alnus viridis ssp. sinuata" ~ "Alnus alnobetula ssp. sinuata",
-    Species_full == "Arctous ruber" ~ "Arctous alpina",
-    Species_full == "Argentina egedii" ~ "Potentilla anserina ssp. groenlandica",
-    Species_full == "Argentina anserina" ~ "Potentilla anserina",
-    Species_full == "Betula pumila var. glandulifera" ~ "Betula pumila",
-    Species_full == "Cornus unalaschkensis" ~ "Cornus canadensis",
-    Species_full == "Dodecatheon pauciflorum" ~ "Dodecatheon meadia", # Dodecatheon pauciflorum not in full data set
-    Species_full == "Eurybia conspicua" ~ "Aster conspicuus", 
-    Species_full == "Glaux maritima" ~ "Lysimachia maritima", 
-    Species_full == "Lappula occidentalis" ~ "Lappula redowskii", 
-    Species_full == "Hierochloe hirta" ~ "Hierochloe odorata", # Hierochloe hirta not in full data set
-    Species_full == "Mahonia nervosa" ~ "Berberis nervosa", 
-    Species_full == "Maianthemum racemosum ssp. amplexicaule" ~ "Maianthemum racemosum", 
-    Species_full == "Phyllospadix scouleri" ~ "Phyllospadix iwatensis", 
-    Species_full == "Platanthera stricta" ~ "Platanthera dilatata", 
-    Species_full == "Populus balsamifera ssp. balsamifera" ~ "Populus balsamifera", 
-    Species_full == "Populus balsamifera ssp. trichocarpa" ~ "Populus trichocarpa", 
-    Species_full == "Pseudoroegneria spicata" ~ "Elymus spicatus", 
-    Species_full == "Rhodiola rosea" ~ "Rhodiola rosea var. rosea", 
-    Species_full == "Rhododendron groenlandicum" ~ "Ledum palustre ssp. groenlandicum", # Rhododendron groenlandicum not in full data set
-    Species_full == "Rhododendron neoglandulosum" ~ "Ledum glandulosum", # Rhododendron neoglandulosum not in full data set
-    Species_full == "Toxicodendron rydbergii" ~ "Toxicodendron radicans", 
-    Species_full == "Vicia nigricans ssp. gigantea" ~ "Vicia nigricans", 
-    Species_full == "Zigadenus venenosus" ~ "Toxicoscordion venenosum", 
-    Species_full == "Zigadenus elegans" ~ "Anticlea elegans",
-    TRUE ~ Species_full
-  ))
+# # Create synonym data frame
+# synonym_list <- select(full_data, Species_full) %>% 
+#   mutate(Synonym = case_when(
+#     Species_full == "Chamaecyparis nootkatensis" ~ "Cupressus nootkatensis",
+#     Species_full == "Equisetum hyemale ssp. affine" ~ "Equisetum hyemale",
+#     Species_full == "Adiantum aleuticum" ~ "Adiantum pedatum",
+#     Species_full == "Athyrium filix-femina ssp. cyclosorum" ~ "Athyrium filix-femina",
+#     Species_full == "Polypodium glycyrrhiza" ~ "Polypodium vulgare",
+#     Species_full == "Allium schoenoprasum var. sibiricum" ~ "Allium schoenoprasum",
+#     Species_full == "Alnus viridis ssp. crispa" ~ "Alnus alnobetula ssp. crispa",
+#     Species_full == "Alnus viridis ssp. sinuata" ~ "Alnus alnobetula ssp. sinuata",
+#     Species_full == "Arctous ruber" ~ "Arctous alpina",
+#     Species_full == "Argentina egedii" ~ "Potentilla anserina ssp. groenlandica",
+#     Species_full == "Argentina anserina" ~ "Potentilla anserina",
+#     Species_full == "Betula pumila var. glandulifera" ~ "Betula pumila",
+#     Species_full == "Cornus unalaschkensis" ~ "Cornus canadensis",
+#     Species_full == "Dodecatheon pauciflorum" ~ "Dodecatheon meadia", # Dodecatheon pauciflorum not in full data set
+#     Species_full == "Eurybia conspicua" ~ "Aster conspicuus", 
+#     Species_full == "Glaux maritima" ~ "Lysimachia maritima", 
+#     Species_full == "Lappula occidentalis" ~ "Lappula redowskii", 
+#     Species_full == "Hierochloe hirta" ~ "Hierochloe odorata", # Hierochloe hirta not in full data set
+#     Species_full == "Mahonia nervosa" ~ "Berberis nervosa", 
+#     Species_full == "Maianthemum racemosum ssp. amplexicaule" ~ "Maianthemum racemosum", 
+#     Species_full == "Phyllospadix scouleri" ~ "Phyllospadix iwatensis", 
+#     Species_full == "Platanthera stricta" ~ "Platanthera dilatata", 
+#     Species_full == "Populus balsamifera ssp. balsamifera" ~ "Populus balsamifera", 
+#     Species_full == "Populus balsamifera ssp. trichocarpa" ~ "Populus trichocarpa", 
+#     Species_full == "Pseudoroegneria spicata" ~ "Elymus spicatus", 
+#     Species_full == "Rhodiola rosea" ~ "Rhodiola rosea var. rosea", 
+#     Species_full == "Rhododendron groenlandicum" ~ "Ledum palustre ssp. groenlandicum", # Rhododendron groenlandicum not in full data set
+#     Species_full == "Rhododendron neoglandulosum" ~ "Ledum glandulosum", # Rhododendron neoglandulosum not in full data set
+#     Species_full == "Toxicodendron rydbergii" ~ "Toxicodendron radicans", 
+#     Species_full == "Vicia nigricans ssp. gigantea" ~ "Vicia nigricans", 
+#     Species_full == "Zigadenus venenosus" ~ "Toxicoscordion venenosum", 
+#     Species_full == "Zigadenus elegans" ~ "Anticlea elegans",
+#     TRUE ~ Species_full
+#   ))
 
 # Save synonym list for reference later  
-write_csv(synonym_list,"data/clean/synonym_list.csv")
+# write_csv(synonym_list,"data/clean/synonym_list.csv")
+synonym_list <- read_csv("data/clean/synonym_list.csv")
 
 # 1) Load in main species list --------------------------------------------
 
@@ -124,7 +125,7 @@ full_data <- right_join(base_data, TEK_data) %>%
   # replace double white spaces with one space
   dplyr::mutate(Species_full_author = str_replace_all(Species_full_author,"  "," ")) %>% 
   # remove white spaces at the end of a string
-  dplyr::mutate(Species_full_author = trimws(Species_full_author, which=c("right")))  %>%  
+  dplyr::mutate(Species_full_author = trimws(Species_full_author, which=c("right"))) %>%  
   # deal with synonyms
   right_join(synonym_list) %>% 
   # keep track of old name
