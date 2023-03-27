@@ -42,51 +42,137 @@ library(taxize)
 dataCheck_func <- function(x) {
   sum(!is.na(x)) > 0
 }
+ 
+# Function: replace species names with those from the GNR resolver
+synonym_func <- function(in_df) {
+  out_df <- in_df %>% 
+    # Create a column with the full species scientific species name
+    # i.e. indicating whether a record is a ssp. or a var. or not
+    dplyr::mutate(Var = str_replace_na(Var, replacement = "")) %>%
+    dplyr::mutate(Ssp = str_replace_na(Ssp, replacement = "")) %>%
+    dplyr::mutate(Ssp_author = str_replace_na(Ssp_author, replacement = "")) %>%
+    dplyr::mutate(Species_full = paste(Species, Var, Ssp)) %>%
+    dplyr::mutate(Species_full_author = paste(Species, Var, author, Ssp, Ssp_author)) %>%
+    # replace double white spaces with one space
+    dplyr::mutate(Species_full = str_replace_all(Species_full, "  ", " ")) %>%
+    # remove white spaces at the end of a string
+    dplyr::mutate(Species_full = trimws(Species_full, which = c("right"))) %>%
+    # replace double white spaces with one space
+    dplyr::mutate(Species_full_author = str_replace_all(Species_full_author, "  ", " ")) %>%
+    # remove white spaces at the end of a string
+    dplyr::mutate(Species_full_author = trimws(Species_full_author, which = c("right"))) 
+  
+  # Partition the list of species (otherwise it's too large to pass to gnr_resolve())
+  species_list <- out_df$Species_full
+  species_num <- length(species_list)
+  num_seq <- 1+0:(species_num %/% 1000) * 1000
 
-# # Create synonym data frame
-# synonym_list <- select(full_data, Species_full) %>%
+  # Select name sources
+  src <- c("EOL", "The International Plant Names Index", #these are examples, so choose the database of interest
+           "Index Fungorum", "ITIS", "Catalogue of Life",
+           "Tropicos - Missouri Botanical Garden")
+  # Initialize list of synonyms
+  synonyms_list <- tibble(name_in = as.character(),
+                          name_out = as.character())
+  # Collect synonyms
+  for (ii in num_seq) {
+    temp_seq <- ii+0:999
+    temp_species_list <- species_list[temp_seq]
+    temp_species_out <- gnr_resolve(temp_species_list,
+                                    data_source_ids = c(1,2,5,150, 165,167),
+                                    with_canonical_ranks=T,
+                                    best_match_only = TRUE) %>%
+      select(name_in = user_supplied_name, name_out = matched_name2)
+    synonyms_list <- rbind(synonyms_list,temp_species_out)
+  }
+  
+  # Add our custom curated listed of synonyms
+  # Load synonym list created by Elisa Van Cleemput
+  custom_synonyms_list <- read_csv("data/clean/synonym_list.csv", show_col_types = FALSE)
+  
+  # Check if there are disagreements between our custom list and GNR
+  GNR_synonyms <- rename(synonyms_list, original_name = name_in, Synonym_GNR = name_out)
+  compare_synonyms_df <- left_join(custom_synonyms_list, GNR_synonyms)
+  syn_disagree_df <- filter(compare_synonyms_df, Synonym != Synonym_GNR)
+  cat(paste0("There are ", dim(syn_disagree_df)[1], " synonym disagreements. \n
+               Check the file data/clean/synonym_disagreements.csv for details."))
+  write_csv(syn_disagree_df, "data/clean/synonym_disagreements.csv")
+  
+  out_df2 <- out_df %>% 
+    # add column of synonym names
+    left_join(rename(synonyms_list, Species_full = name_in, Synonym = name_out),
+              by = "Species_full") %>%
+    # keep track of original name
+    mutate(original_name = Species_full) %>%
+    # rename species to their main synonym
+    mutate(Species_full = Synonym) %>%
+    # set binomial to synonym binomial
+    mutate(Species = stringr::word(Synonym, 1, 2))
+  
+  # add column of synonym names
+  out_df2 <- out_df %>% 
+    left_join(rename(synonym_list, Species_full = original_name),
+            by = "Species_full") %>%
+    # keep track of original name
+    mutate(original_name = Species_full) %>%
+    # rename species to their main synonym
+    mutate(Species_full = Synonym) %>%
+    # set binomial to synonym binomial
+    mutate(Species = stringr::word(Synonym, 1, 2)) %>%
+    # remove any repeated entries
+    group_by(Species_full) %>% # Cornus canadensis and Platanthera dilatata (4 entries -> 2)
+    distinct(Species_full, N_Names, N_Langs, N_Uses, .keep_all = TRUE)
+  
+}
+
+
+
+# # # Create synonym data frame
+# # # Put together by Elisa Van Cleemput
+# synonym_list <- select(full_data, original_name) %>%
 #   mutate(Synonym = case_when(
-#     Species_full == "Chamaecyparis nootkatensis" ~ "Cupressus nootkatensis",
-#     Species_full == "Equisetum hyemale ssp. affine" ~ "Equisetum hyemale",
-#     Species_full == "Adiantum aleuticum" ~ "Adiantum pedatum",
-#     Species_full == "Athyrium filix-femina ssp. cyclosorum" ~ "Athyrium filix-femina",
-#     Species_full == "Polypodium glycyrrhiza" ~ "Polypodium vulgare",
-#     Species_full == "Allium schoenoprasum var. sibiricum" ~ "Allium schoenoprasum",
-#     Species_full == "Alnus viridis ssp. crispa" ~ "Alnus alnobetula ssp. crispa",
-#     Species_full == "Alnus viridis ssp. sinuata" ~ "Alnus alnobetula ssp. sinuata",
-#     Species_full == "Arctous ruber" ~ "Arctous alpina",
-#     Species_full == "Argentina egedii" ~ "Potentilla anserina ssp. groenlandica",
-#     Species_full == "Argentina anserina" ~ "Potentilla anserina",
-#     Species_full == "Betula pumila var. glandulifera" ~ "Betula pumila",
-#     Species_full == "Cornus unalaschkensis" ~ "Cornus canadensis",
-#     Species_full == "Dodecatheon pauciflorum" ~ "Dodecatheon meadia", # Dodecatheon pauciflorum not in full data set
-#     Species_full == "Eurybia conspicua" ~ "Aster conspicuus",
-#     Species_full == "Glaux maritima" ~ "Lysimachia maritima",
-#     Species_full == "Lappula occidentalis" ~ "Lappula redowskii",
-#     Species_full == "Hierochloe hirta" ~ "Hierochloe odorata", # Hierochloe hirta not in full data set
-#     Species_full == "Mahonia nervosa" ~ "Berberis nervosa",
-#     Species_full == "Maianthemum racemosum ssp. amplexicaule" ~ "Maianthemum racemosum",
-#     Species_full == "Phyllospadix scouleri" ~ "Phyllospadix iwatensis",
-#     Species_full == "Platanthera stricta" ~ "Platanthera dilatata",
-#     Species_full == "Populus balsamifera ssp. balsamifera" ~ "Populus balsamifera",
-#     Species_full == "Populus balsamifera ssp. trichocarpa" ~ "Populus trichocarpa",
-#     Species_full == "Pseudoroegneria spicata" ~ "Elymus spicatus",
-#     Species_full == "Rhodiola rosea" ~ "Rhodiola rosea var. rosea",
-#     Species_full == "Rhododendron groenlandicum" ~ "Ledum palustre ssp. groenlandicum", # Rhododendron groenlandicum not in full data set
-#     Species_full == "Rhododendron neoglandulosum" ~ "Ledum glandulosum", # Rhododendron neoglandulosum not in full data set
-#     Species_full == "Toxicodendron rydbergii" ~ "Toxicodendron radicans",
-#     Species_full == "Vicia nigricans ssp. gigantea" ~ "Vicia nigricans",
-#     Species_full == "Zigadenus venenosus" ~ "Toxicoscordion venenosum",
-#     Species_full == "Zigadenus elegans" ~ "Anticlea elegans",
-#     TRUE ~ Species_full
+#     original_name == "Chamaecyparis nootkatensis" ~ "Cupressus nootkatensis",
+#     original_name == "Equisetum hyemale ssp. affine" ~ "Equisetum hyemale",
+#     original_name == "Adiantum aleuticum" ~ "Adiantum pedatum",
+#     original_name == "Athyrium filix-femina ssp. cyclosorum" ~ "Athyrium filix-femina",
+#     original_name == "Polypodium glycyrrhiza" ~ "Polypodium vulgare",
+#     original_name == "Allium schoenoprasum var. sibiricum" ~ "Allium schoenoprasum",
+#     original_name == "Alnus viridis ssp. crispa" ~ "Alnus alnobetula ssp. crispa",
+#     original_name == "Alnus viridis ssp. sinuata" ~ "Alnus alnobetula ssp. sinuata",
+#     original_name == "Arctous ruber" ~ "Arctous alpina",
+#     original_name == "Argentina egedii" ~ "Potentilla anserina ssp. groenlandica",
+#     original_name == "Argentina anserina" ~ "Potentilla anserina",
+#     original_name == "Betula pumila var. glandulifera" ~ "Betula pumila",
+#     original_name == "Cornus unalaschkensis" ~ "Cornus canadensis",
+#     original_name == "Dodecatheon pauciflorum" ~ "Dodecatheon meadia", # Dodecatheon pauciflorum not in full data set
+#     original_name == "Eurybia conspicua" ~ "Aster conspicuus",
+#     original_name == "Glaux maritima" ~ "Lysimachia maritima",
+#     original_name == "Lappula occidentalis" ~ "Lappula redowskii",
+#     original_name == "Hierochloe hirta" ~ "Hierochloe odorata", # Hierochloe hirta not in full data set
+#     original_name == "Mahonia nervosa" ~ "Berberis nervosa",
+#     original_name == "Maianthemum racemosum ssp. amplexicaule" ~ "Maianthemum racemosum",
+#     original_name == "Phyllospadix scouleri" ~ "Phyllospadix iwatensis",
+#     original_name == "Platanthera stricta" ~ "Platanthera dilatata",
+#     original_name == "Populus balsamifera ssp. balsamifera" ~ "Populus balsamifera",
+#     original_name == "Populus balsamifera ssp. trichocarpa" ~ "Populus trichocarpa",
+#     original_name == "Pseudoroegneria spicata" ~ "Elymus spicatus",
+#     original_name == "Rhodiola rosea" ~ "Rhodiola rosea var. rosea",
+#     original_name == "Rhododendron groenlandicum" ~ "Ledum palustre ssp. groenlandicum", # Rhododendron groenlandicum not in full data set
+#     original_name == "Rhododendron neoglandulosum" ~ "Ledum glandulosum", # Rhododendron neoglandulosum not in full data set
+#     original_name == "Toxicodendron rydbergii" ~ "Toxicodendron radicans",
+#     original_name == "Vicia nigricans ssp. gigantea" ~ "Vicia nigricans",
+#     original_name == "Zigadenus venenosus" ~ "Toxicoscordion venenosum",
+#     original_name == "Zigadenus elegans" ~ "Anticlea elegans",
+#     TRUE ~ original_name
 #   ))
-
-# Save synonym list for reference later
+# # 
+# # # Save synonym list for reference later
 # write_csv(synonym_list,"data/clean/synonym_list.csv")
-synonym_list <- read_csv("data/clean/synonym_list.csv")
+
+# Load synonym list created by Elisa Van Cleemput
+synonym_list <- read_csv("data/clean/synonym_list.csv", show_col_types = FALSE)
 
 # 1) Load in main species list --------------------------------------------
-
 clade_labels <- c(
   "Gymnosperms", "Ferns and fern-allies",
   "Flowering plants (angiosperms)",
@@ -95,24 +181,13 @@ clade_labels <- c(
 )
 
 # Read in data set
-base_data <- read_csv("data/raw/PNW_Species_w_Metadata.csv") %>%
+base_data <- read_csv("data/raw/PNW_Species_w_Metadata.csv", show_col_types = FALSE) %>%
   # Remove anu empty data columns
   select_if(dataCheck_func) %>%
   # Remove rows corresponding to family labels
   filter(!Species %in% clade_labels) %>%
-  # Remove NA rows
-  filter(!is.na(Species))
-
-TEK_data <- read_csv("data/raw/TEKdata.csv") %>%
-  # Remove any empty data columns
-  select_if(dataCheck_func) %>%
-  # Remove rows corresponding to family labels
-  filter(!Species %in% clade_labels) %>%
-  # Remove NA rows
-  filter(!is.na(Species))
-# species in base_data but not in TEK_dataL Hierochloe, Ledum groenlandicum, and Ledum glandulosum
-
-full_data <- right_join(base_data, TEK_data) %>%
+  # Remove rows with NA as species name
+  filter(!is.na(Species))%>%
   # Create a column with the full species scientific species name
   # i.e. indicating whether a record is a ssp. or a var. or not
   dplyr::mutate(Var = str_replace_na(Var, replacement = "")) %>%
@@ -127,22 +202,67 @@ full_data <- right_join(base_data, TEK_data) %>%
   # replace double white spaces with one space
   dplyr::mutate(Species_full_author = str_replace_all(Species_full_author, "  ", " ")) %>%
   # remove white spaces at the end of a string
-  dplyr::mutate(Species_full_author = trimws(Species_full_author, which = c("right"))) %>%
-  # deal with synonyms
-  right_join(synonym_list) %>%
-  # keep track of old name
-  mutate(old_name = Species_full) %>%
-  # rename to main synonym
+  dplyr::mutate(Species_full_author = trimws(Species_full_author, which = c("right"))) 
+
+TEK_data <- read_csv("data/raw/TEKdata.csv", show_col_types = FALSE) %>%
+  # Remove rows corresponding to family labels
+  filter(!Species %in% clade_labels) %>%
+  # Remove rows with NA as species name
+  filter(!is.na(Species))%>%
+  # Create a column with the full species scientific species name
+  # i.e. indicating whether a record is a ssp. or a var. or not
+  dplyr::mutate(Var = str_replace_na(Var, replacement = "")) %>%
+  dplyr::mutate(Ssp = str_replace_na(Ssp, replacement = "")) %>%
+  dplyr::mutate(Ssp_author = str_replace_na(Ssp_author, replacement = "")) %>%
+  dplyr::mutate(Species_full = paste(Species, Var, Ssp)) %>%
+  dplyr::mutate(Species_full_author = paste(Species, Var, author, Ssp, Ssp_author)) %>%
+  # replace double white spaces with one space
+  dplyr::mutate(Species_full = str_replace_all(Species_full, "  ", " ")) %>%
+  # remove white spaces at the end of a string
+  dplyr::mutate(Species_full = trimws(Species_full, which = c("right"))) %>%
+  # replace double white spaces with one space
+  dplyr::mutate(Species_full_author = str_replace_all(Species_full_author, "  ", " ")) %>%
+  # remove white spaces at the end of a string
+  dplyr::mutate(Species_full_author = trimws(Species_full_author, which = c("right"))) %>% 
+  # Rename TEK columns for easier reference
+  rename(N_Names = `Number of unique names (Indigenous)`,
+         N_Langs = `Number of unique  languages (from Appendix 2B)`,
+         N_Uses = `Number of uses`)
+  
+# species in base_data but not in TEK_data: L Hierochloe, Ledum groenlandicum, and Ledum glandulosum
+
+full_data <- full_join(base_data, TEK_data) %>%
+  # select columns relevant for analysis
+  dplyr::select(Species:Family, Species_full:N_Uses) %>% 
+  # remove species for which we lack TEK data
+  filter(!is.na(N_Names)) %>%
+  # add column of synonym names
+  left_join(rename(synonym_list, Species_full = original_name),
+            by = "Species_full") %>%
+  # keep track of original name
+  mutate(original_name = Species_full) %>%
+  # rename species to their main synonym
   mutate(Species_full = Synonym) %>%
   # set binomial to synonym binomial
   mutate(Species = stringr::word(Synonym, 1, 2)) %>%
-  group_by(Species_full) %>%
-  # combine number of uses for synonymous species
-  mutate(`Number of uses` = case_when(
-    n() > 1 ~ sum(`Number of uses`)
-  )) %>%
   # remove any repeated entries
-  unique()
+  group_by(Species_full) %>% # Cornus canadensis and Platanthera dilatata (4 entries -> 2)
+  distinct(Species_full, N_Names, N_Langs, N_Uses, .keep_all = TRUE)
+
+# Check for synonymous species with multiple entries
+duplicate_df <- full_data %>% 
+  group_by(Species_full) %>% 
+  filter(n()>1)
+
+# List which species were in our original TEK dataset that are missing from the full dataset
+full_species <- full_data$Species_full
+TEK_species <- TEK_data$Species_full
+
+lost_species <- TEK_species[which(!(TEK_species %in% full_species))]
+
+# Check that these were all renamed to synonyms
+all(lost_species %in% full_data$original_name) # No
+true_lost_species <- lost_species[which(!(lost_species %in% full_data$original_name))]
 
 # 2) Load in and process Diaz data set ------------------------------------
 
