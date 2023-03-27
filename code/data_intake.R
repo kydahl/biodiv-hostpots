@@ -129,7 +129,8 @@ synonym_func <- function(in_df) {
 
 # # # Create synonym data frame
 # # # Put together by Elisa Van Cleemput
-# synonym_list <- select(full_data, original_name) %>%
+# synonym_list <- select(base_data, Species_full) %>%
+#   rename(original_name = Species_full) %>% 
 #   mutate(Synonym = case_when(
 #     original_name == "Chamaecyparis nootkatensis" ~ "Cupressus nootkatensis",
 #     original_name == "Equisetum hyemale ssp. affine" ~ "Equisetum hyemale",
