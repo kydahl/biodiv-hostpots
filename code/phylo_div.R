@@ -77,7 +77,6 @@ list_species_unique <- data_in %>%
 # dim(list_species_unique)
 # head(list_species_unique)
 
-
 ## ---- Generate a phylogeny for the species list --------------
 # library("devtools")
 # devtools::install_github("jinyizju/V.PhyloMaker2")
