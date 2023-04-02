@@ -14,8 +14,12 @@
 
 # Data used in this script:
 # - full_df 
-source("code/data_intake.R") 
-# Run first lines of "simulations.R" to create full_df
+source("code/data_intake.R")
+source("code/functions.R") 
+source("code/parameters.R") 
+full_df <- data_in %>%  
+  filter(Species != "Pterospora andromedea") %>% 
+  get.full_df(numPatches, mean.NumEntities, sd.NumEntities)
 
 # - trait data 
 
@@ -26,14 +30,14 @@ source("code/data_intake.R")
 # Trait data compiled by Diáz et al. 2020 (based on TRY)
 # https://www.nature.com/articles/s41597-022-01774-9 
 library(readxl)
-trait_data <- read_excel("data/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx", 
+trait_data <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx", 
                          sheet = 1)
-trait_data_meta <- read_excel("data/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx", 
-                              sheet = "ReadMe")
-trait_data_ref <- read_excel("data/Trait_data_TRY_Diaz_2022/Dataset/References.xlsx", 
+trait_data_meta <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx", 
+                              sheet = 2)
+trait_data_ref <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/References.xlsx", 
                              sheet = "References")
-trait_data_ref_meta <- read_excel("data/Trait_data_TRY_Diaz_2022/Dataset/References.xlsx", 
-                             sheet = "ReadMe")
+trait_data_ref_meta <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/References.xlsx", 
+                             sheet = 2)
 
 #######################################################
 ## ---- Clean trait dataset (in the case of data extracted from TRY) --------------
@@ -197,14 +201,18 @@ trait_data <- write_xlsx(trait_data_sel_reduced <- trait_data_sel %>%
                            select(Species_name, `Woodiness`, `Growth Form`, `Leaf area (mm2)`, `Nmass (mg/g)`, `LMA (g/m2)`, `Plant height (m)`, `Diaspore mass (mg)`, `LDMC (g/g)`, `SSD observed (mg/mm3)`, `SSD imputed (mg/mm3)`),
                          "data/clean/Trait_data_TRY_Diaz_2022_PNW.xlsx", col_names=TRUE)
 
-
 # Since we are experiencing problems with NAs below, we will delete incomplete rows for now
 # This removes many species so we should try to solve this problem differently!
-trait_data_sel_reduced <- trait_data_sel_reduced[complete.cases(trait_data_sel_reduced), ]
+# trait_data_sel_reduced <- trait_data_sel_reduced[complete.cases(trait_data_sel_reduced), ] 
+# KD: I think this removes all species!
+
+# KD: I added this because I think the function below can only work with numeric
+#     variables
+trait_data_sel_reduced <- select(trait_data_sel_reduced, -c("Woodiness", "Growth Form"))
 
 # Remove species from comm matrix that are not present in the trait dataset, 
 # just for exploratory purposes at this time, but would be better to extend the dataset
-comm_sel <- comm[, colnames(comm) %in% rownames(trait_data_sel_reduced),]
+comm_sel <- comm[, colnames(comm) %in% rownames(trait_data_sel_reduced)]
 dim(comm_sel)
 dim(trait_data_sel_reduced)
 
@@ -227,6 +235,9 @@ fdiv <- dbFD(trait_data_sel_reduced, as.matrix(comm_sel), w.abun=F, stand.x=T,
 # The NA error message is related to NAs in the distance matrix which is calculated internally like gowdis(trait_data_sel_reduced)
 # missing trait values can be imputed using the MICE (Multivariate Imputation by Chained Equations) algorithm with 
 # predictive mean matching in the “mice” R package (van Buuren and Groothuis‐Oudshoorn, 2011).
+# KD: I've also used the 'missForest' package to impute traits for primate species. 
+#     With this package, it's one line of code to use random forests to fill in
+#     missing traits.
 
 str(fdiv)
 

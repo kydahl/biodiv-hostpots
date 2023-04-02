@@ -6,7 +6,6 @@ Abies lasiocarpa,,,(Hook.) Nutt,,54,31,105
 Chamaecyparis nootkatensis,,,(D. Don) Spach,,42,47,62
 Juniperus communis,,,L.,,66,34,112
 Juniperus scopulorum,,,Sarg.,,20,18,131
-Juniperus maritima,,,Adams,,20,18,NA
 Larix laricina,,,(Du Roi) K. Koch,,11,6,55
 Larix occidentalis,,,Nutt.,,15,10,45
 Picea engelmannii,,,Parry ex Engelm,,43,26,24
@@ -122,21 +121,17 @@ Cornus nuttallii,,,Audubon ex Torr. & A. Gray,,24,14,30
 Cornus sericea,,,L.,,76,40,21
 Corylus cornuta,,,Marhs.,,63,29,25
 Crataegus douglasii,,,Lindl.,,68,25,41
-Dasiphora fruticosa,,,(L.) Rydb.,,10,6,NA
 Delphinium nuttallianum,,,Pritz. ex Walp,,6,4,2
 Dicentra formosa,,,(Haw.) Walp.,,6,4,4
 Dodecatheon hendersonii,,,A. Gray,,15,9,3
-Dodecatheon pauciflorum,,,(Durand) Greene,,15,9,NA
 Dodecatheon pulchellum,,,(Raf.) Merr.,,15,9,1
 Dodecatheon jeffreyi,,,Van Houtte,,15,9,2
 Drosera rotundifolia,,,L.,,6,3,2
-Drosera anglica,,,Huds.,,6,3,NA
 Elaeagnus commutata,,,Bernh. ex Rydb,,25,11,43
 Empetrum nigrum,,,L.,,42,18,31
 Epilobium angustifolium,,,L.,,85,43,4
 Ericameria nauseosa,,,(Pall. ex Pursh) G.L. Nesom & Baird,,17,8,41
 Eriophorum angustifolium,,,Honck.,,26,8,6
-Eriophorum chamissonis,,,C.A. May.,,26,8,NA
 Erythronium grandiflorum,,,Pursh.,,13,13,25
 Eurybia conspicua,,,(Lindl.) G.L. Nesom,,8,5,8
 Fragaria chiloensis,,,(L.) Mill.,,113,51,25
@@ -161,8 +156,7 @@ Lappula occidentalis,,,(S. Watson) Greene,,7,5,1
 Hedysarum alpinum,,,L.,,15,7,12
 Heracleum maximum,,,Bartram,,102,50,189
 Heuchera cylindrica,,,Douglas ex Hook.,,17,12,22
-Heuchera chlorantha,,,Piper,,17,12,NA
-Hierochloe hirta,,,(Schrank) Borbás,,14,8,NA
+Hierochloe odorata,,,(L) Beauv.,,14,8,92
 Hordeum jubatum,,,L.,,17,11,6
 Holodiscus discolor,,,(Pursh) Maxim,,36,26,65
 Juncus effusus,,,L.,,9,6,20
@@ -225,7 +219,6 @@ Plantago major,,,L.,,37,23,93
 Plantago maritima,,,L.,,6,4,2
 Platanthera dilatata,,,(Pursh) Lindl. ex Beck,,8,6,2
 Platanthera stricta,,,Lindl.,,8,6,1
-Platanthera hyperborea,,,(L.) Lindl,,8,6,NA
 Populus balsamifera,ssp. balsamifera,,L.,,94,51,17
 Populus balsamifera,ssp. trichocarpa,,L.,(Torr. & A. Gray ex Hook.) Brayshaw,94,51,92
 Populus tremuloides,,,Michx,,55,32,117
@@ -243,8 +236,8 @@ Ranunculus acris,,,L.,,10,4,14
 Ranunculus occidentalis,,,Nutt.,,10,4,2
 Rhodiola rosea,,,L.,,10,4,12
 Rhododendron albiflorum,,,Hook.,,5,3,12
-Rhododendron groenlandicum,,,(Oeder) K.A. Kron & W.S. Judd,,92,43,NA
-Rhododendron neoglandulosum,,,Harmaja (syn. L. glandulosum Nutt.),,92,43,NA
+Ledum groenlandicum,,,(Oeder) K.A. Kron & W.S. Judd,,92,43,96
+Ledum glandulosum,,,Harmaja (syn. L. glandulosum Nutt.),,92,43,2
 Rhus glabra,,,L.,,7,6,108
 Ribes aureum,,,Pursh,,9,6,22
 Ribes bracteosum,,,Douglas ex Hook.,,52,26,24
@@ -276,7 +269,6 @@ Rubus ursinus,,,Cham. & Schltdl.,,65,27,24
 Rumex aquaticus,,,L. var. fenestratus (Greene) Dorn,,35,24,25
 Sagittaria latifolia,,,Willd.,,34,17,34
 Sagittaria cuneata,,,Sheldon,,34,17,13
-Salix barclayi,,,Andersson,,118,49,NA
 Salix bebbiana,,,Sarg.,,118,49,22
 Salix discolor,,,Muhl.,,118,49,27
 Salix hookeriana,,,Barratt ex Hook. ,,118,49,10
@@ -290,7 +282,6 @@ Schoenoplectus acutus,,,(Muhl. ex Bigelow) A. Löve & D. Löve,,59,31,70
 Schoenoplectus americanus,,,(Pers.) Volkart ex Schinz & R. Keller,,8,6,15
 Scirpus microcarpus,,,J. Presl & C. Presl,,22,16,9
 Sedum divergens,,,S. Watson,,16,11,11
-Sedum oreganum,,,Nutt.,,16,11,NA
 Shepherdia canadensis,,,(L.) Nutt.,,94,46,127
 Sium suave,,,Walter,,12,10,21
 Solidago canadensis,,,L.,,13,5,29
@@ -298,9 +289,7 @@ Sorbus sitchensis,,,M. Roem.,,50,27,13
 Sorbus scopulina,,,Greene,,50,27,5
 Spiraea betulifolia,,,Pall,,17,10,13
 Spiraea douglasii,,,Hook.,,14,13,5
-Stachys chamissonis,,,Benth. var. cooleyae (A. Heller) G. Mulligan & D. Munro,,10,11,NA
 Streptopus amplexifolius,,,(L.) DC.,,42,19,24
-Streptopus streptopoides,,,(Ledeb.) Frye & Rigg,,42,19,NA
 Symphoricarpos albus,,,(L.) S.F. Blake,,84,34,79
 Thalictrum occidentale,,,Gray,,3,3,14
 Toxicodendron rydbergii,,,(Small ex Rydb.) Greene,,21,9,3
@@ -311,7 +300,6 @@ Trillium petiolatum,,,Pursh,,16,11,1
 Triteleia grandiflora,,,Lindl,,9,6,11
 Typha latifolia,,,L.,,107,43,254
 Urtica dioica,,,L.,,84,53,63
-Vaccinium alaskaense,,,Howell,,54,24,NA
 Vaccinium caespitosum,,,Michx.,,59,29,25
 Vaccinium membranaceum,,,Douglas ex Torr.,,85,41,43
 Vaccinium myrtilloides,,,Michx.,,37,18,40

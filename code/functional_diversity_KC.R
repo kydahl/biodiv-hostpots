@@ -1,11 +1,11 @@
 # Example R code for calculating functional diversity
 
-llibrary(vegan)
-llibrary(ade4)
-llibrary(MASS)
-llibrary(FD)
-llibrary(picante)
-llibrary(ape)
+library(vegan)
+library(ade4)
+library(MASS)
+library(FD)
+library(picante)
+library(ape)
 #
 #traits <- read.table("traits_example.txt", header=T ) #this is a table with species in rows and traits in columns
 

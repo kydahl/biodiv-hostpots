@@ -1,6 +1,6 @@
 ##############################################################################
 ###                                                                        ###
-###                       Calculating Phylogenetic diversity               ###
+###                 Calculating Phylogenetic diversity                     ###
 ###                                                                        ###
 ##############################################################################
 
@@ -29,9 +29,10 @@
 # - full_data or data_in to create phylogenetic tree
 # - full_df to calculate phylogenetic diversity for patches
 source("code/data_intake.R") # full_data or data_in
-# Run first lines of "simulations.R" to create full_df
+source("code/functions.R") # to create community data frame
+source("code/parameters.R") # to get parameters for creating community data frame
+# KD: don't need to run "simulations.R" anymore. full_df is created in this script
 
-#######################################################
 
 ## ---- Prepare species list to create a phylogenetic tree --------------
 # --> phylo.maker needs a dataframe with three columns
@@ -121,6 +122,11 @@ if (!require('picante')) install.packages('picante'); library('picante')
 # https://cran.r-project.org/web/packages/picante/vignettes/picante-intro.pdf
 # Other package and function: https://search.r-project.org/CRAN/refmans/abdiv/html/faith_pd.html
 
+# Create our simulated patch communities
+full_df <- data_in %>%  
+  filter(Species != "Pterospora andromedea") %>% 
+  get.full_df(numPatches, mean.NumEntities, sd.NumEntities)
+
 # Pruning happens based on a community matrix, so either
 # - create a fake community matrix from list_species_unique 
 # - convert full_df to wide format
@@ -195,8 +201,8 @@ dim(list_species_unique)
 tree_pruned$tip.label
 
 ### plot the phylogenies with node ages displayed.
-# plot.phylo(tree_pruned, type="fan", cex = 0.5)
-# plot.phylo(tree_pruned, type="tidy", cex = 0.5)
+plot.phylo(tree_pruned, type="fan", cex = 0.5)
+plot.phylo(tree_pruned, type="tidy", cex = 0.5)
 
 
 ## ---- Calculate phylogentic diversity --------------

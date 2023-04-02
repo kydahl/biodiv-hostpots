@@ -2,6 +2,7 @@
 # Functions used in the simulation study
 ################################################################################
 
+# Kyle Dahlin, September 2022
 ##* Load libraries---------------------------------------------------------------
 library(tidyverse)
 
@@ -356,6 +357,16 @@ calc.hotspot_compare <- function(hotspots.unique, hotspots.compare) {
   # Use precision as our quantifier:
   # of the identified hotspots, what proportion match with species diversity?
   comparison.quantifier <- TP_count / length(compare.hotspots)
+  
+  # Use Jaccard similarity coefficient instead:
+  #  = number of hotspots shared in both lists / total number of hotspots identified
+  # measures the amount of overlap, without considering one list the "true" list
+  # This is not substantially different from above - you just also include 
+  # "false negatives" in the denominator. But may be more familiar to ecology
+  # and biology folks.
+  total.hotspots <- length(compare.hotspots)+length(unique.hotspots)-TP_count
+  Jaccard.sim.coef <- TP_count / total.hotspots
+  
   return(comparison.quantifier)
 }
 
