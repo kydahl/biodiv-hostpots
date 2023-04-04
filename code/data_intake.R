@@ -36,6 +36,11 @@ library(tidyverse)
 library(reshape2)
 library(readxl)
 library(taxize)
+library(multidplyr) # temporary: seeing if this helps
+
+# Set up parallel
+cluster <- new_cluster(parallel::detectCores() - 1)
+cluster_library(cluster, "dplyr")
 
 ## Helper functions
 # Function to determine if a given data column is empty
@@ -67,10 +72,6 @@ synonym_func <- function(in_df) {
   } else {
     out_df <- in_df
   }
-  # Partition the list of species (otherwise it's too large to pass to gnr_resolve())
-  species_list <- unique(out_df$Species_full)
-  species_num <- length(species_list)
-  num_seq <- 1 + 0:(species_num %/% 1000) * 1000
 
   # Select name sources
   src <- c(
@@ -83,6 +84,11 @@ synonym_func <- function(in_df) {
     name_in = as.character(),
     name_out = as.character()
   )
+  # Partition the list of species (otherwise it's too large to pass to gnr_resolve())
+  species_list <- unique(out_df$Species_full)
+  species_num <- length(species_list)
+  num_seq <- 1 + 0:(species_num %/% 1000) * 1000
+
   # Collect synonyms
   for (ii in num_seq) {
     temp_seq <- ii + 0:999
@@ -120,7 +126,7 @@ synonym_func <- function(in_df) {
     # rename species to their main synonym
     mutate(Species_full = Synonym) %>%
     # update the family name
-    mutate(Family = stringr::word(Species_full, 1,1)) %>% 
+    mutate(Family = stringr::word(Species_full, 1, 1)) %>%
     # set binomial to synonym binomial
     mutate(Species = stringr::word(Species_full, 1, 2))
 }
@@ -192,7 +198,7 @@ TEK_data <- read_csv("data/raw/TEKdata.csv", show_col_types = FALSE) %>%
   # Remove rows corresponding to family labels
   filter(!Species %in% clade_labels) %>%
   # Remove rows with NA as species name
-  filter(!is.na(Species)) %>% 
+  filter(!is.na(Species)) %>%
   # Rename TEK columns for easier reference
   rename(
     N_Names = `Number of unique names (Indigenous)`,
@@ -207,19 +213,7 @@ full_data <- full_join(base_data, TEK_data) %>%
   filter(!is.na(N_Names)) %>%
   synonym_func() %>%
   # select columns relevant for analysis
-  dplyr::select(Species:Family, N_Names:original_name) #%>%
-# # add column of synonym names
-# left_join(rename(synonym_list, Species_full = original_name),
-#           by = "Species_full") %>%
-# # keep track of original name
-# mutate(original_name = Species_full) %>%
-# # rename species to their main synonym
-# mutate(Species_full = Synonym) %>%
-# # set binomial to synonym binomial
-# mutate(Species = stringr::word(Synonym, 1, 2)) # %>%
-# # # remove any repeated entries
-# group_by(Species_full) %>% # Cornus canadensis and Platanthera dilatata (4 entries -> 2)
-# distinct(Species_full, N_Names, N_Langs, N_Uses, .keep_all = TRUE)
+  dplyr::select(Species:Family, N_Names:original_name)
 
 # Check for synonymous species with multiple entries
 duplicate_df <- full_data %>%
@@ -250,7 +244,7 @@ Diaz_synonyms <- read_csv("data/clean/Diaz_synonyms.csv", show_col_types = FALSE
 Diaz_data_renamed <- Diaz_data %>%
   rename(Species_full = `Species name standardized against TPL`) %>%
   # Resolve Diaz species names using Global Names Resolver
-  synonym_func() 
+  synonym_func()
 
 # Get list of species missing from Diaz data
 Diaz_species_list <- Diaz_data_renamed$Species_full
@@ -269,9 +263,11 @@ Diaz_data_sel <- Diaz_data_renamed %>%
   # Remove non-focal species
   filter(Species_full %in% c(full_data$Species_full)) %>% # including regular species names only leads to the additional inclusion of Alnus incana
   # reduce to relevant set of traits
-  select("Species_full":"Family", "Woodiness", "Growth Form", "Leaf area (mm2)",
-         "Nmass (mg/g)", "LMA (g/m2)", "Plant height (m)", "Diaspore mass (mg)",
-         "LDMC (g/g)")
+  select(
+    "Species_full":"Family", "Woodiness", "Growth Form", "Leaf area (mm2)",
+    "Nmass (mg/g)", "LMA (g/m2)", "Plant height (m)", "Diaspore mass (mg)",
+    "LDMC (g/g)"
+  )
 
 # Join Diaz data and full data
 combined_data <- full_join(full_data, Diaz_data_sel, by = c("Species_full", "Family"))
@@ -332,15 +328,18 @@ plant_veg_reproduction_trait_names <- unique(TRY_plant_veg_reproduction$TraitNam
 TRY_data <- rbind(
   TRY_plant_height, TRY_leafN, TRY_LDMC, TRY_leafarea,
   TRY_rooting_depth, TRY_stem_density, TRY_plant_woodiness,
-  TRY_plant_veg_reproduction) %>%
-  rename(Species_full = AccSpeciesName) %>% 
+  TRY_plant_veg_reproduction
+) %>%
+  rename(Species_full = AccSpeciesName) %>%
   # deal with synonyms
-  synonym_func() %>% 
+  synonym_func() %>%
   # subset to just the species we're interested in
-  filter(Species_full %in% c(full_data$Species_full)) %>% 
+  filter(Species_full %in% c(full_data$Species_full)) %>%
   # select only column names we care about
-  dplyr::select("Species_full", "TraitName", "DataName", "OriglName":"UnitName",
-                "Comment", "Synonym":"Species")
+  dplyr::select(
+    "Species_full", "TraitName", "DataName", "OriglName":"UnitName",
+    "Comment", "Synonym":"Species"
+  )
 
 # Get list of species which are in base data but not TRY data set
 TRY_species <- unique(TRY_data$Species_full)
@@ -349,7 +348,82 @@ full_species <- unique(c(full_data$Species_full, full_data$Species))
 missing_TRY <- full_species[which(!(full_species %in% TRY_species))]
 
 # Combine TRY data entries (i.e. take means etc.)
-TRY_data_processed <- c()
+TRY_data_processed <- TRY_data %>%
+  filter(
+    # Disregard these two traits
+    !(TraitName %in% c(
+      "Plant growth rate relative (plant relative growth rate, RGR)",
+      "Plant vegetative reproduction: clonality of ramets"
+    )),
+    # Only include single values or measures of central tendency
+    ValueKindName %in% c(
+      "Mean", "Best estimate", "Site specific mean",
+      "Species mean", "Median", "Single", NA
+    ),
+    # Disregard rows with no values provided
+    !is.na(OrigValueStr)
+  ) %>%
+  dplyr::select("Species_full":"ValueKindName", "UnitName":"Species") %>%
+  group_by(Species_full, TraitName) %>%
+  partition(cluster) %>%
+  mutate(processed_value = case_when(
+    # Keep the value if its a measure of central tendency
+    ValueKindName %in% c("Mean", "Site specific mean", "Species mean", "Median") ~ OrigValueStr,
+    # Take the mean of single values
+    ValueKindName == "Single" ~ as.character(mean(as.double(OrigValueStr))),
+    TRUE ~ OrigValueStr
+  )) %>%
+  # additional processing for "Plant woodiness" trait
+  mutate(processed_value = case_when(
+    TraitName == "Plant woodiness" ~ case_when(
+      OrigValueStr %in% c("non-woody", "h", "H", "N", "0") ~ "non-woody",
+      OrigValueStr == "1" ~ ifelse(Comment == "0=nonwoody; 1=woody", "woody", "semi-woody"),
+      OrigValueStr %in% c("woody", "w", "W", "Y") ~ "woody",
+      OrigValueStr %in% c("semi-woody") ~ "semi-woody",
+      OrigValueStr == "2" ~ "soft wood",
+      OrigValueStr == "3" ~ "dense wood"
+    ),
+    TRUE ~ processed_value
+  )) %>%
+  collect() %>%
+  select(-OrigValueStr) %>%
+  distinct() %>%
+  arrange(Species_full, TraitName)
+
+test_df <- TRY_data_processed %>%
+  dplyr::select(Species_full, TraitName, processed_value) %>%  
+  mutate(TraitName = case_when(
+    TraitName %in% c("Plant woodiness") ~ "Woodiness",
+    TraitName %in% c(
+      "Leaf area (in case of compound leaves: leaflet, petiole included)",
+      "Leaf area (in case of compound leaves: leaflet, petiole excluded)",
+      "Leaf area (in case of compound leaves: leaf, petiole included)",
+      "Leaf area (in case of compound leaves: leaf, petiole excluded)",
+      "Leaf area (in case of compound leaves: leaflet, undefined if petiole is in- or excluded)"
+    ) ~ "Leaf area (mm2)",
+    TraitName %in% c(
+      "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded",
+      "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole included",
+      "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded"
+    ) ~ "SLA",
+    TraitName %in% c("Leaf nitrogen (N) content per leaf dry mass") ~ "Nmass (mg/g)",
+    # TraitName %in% c() ~ "LMA (g/m2)",
+    TraitName %in% c("Plant height vegetative") ~ "Plant height (m)",
+    # TraitName %in% c() ~ "Diaspore mass (mg)",
+    TraitName %in% c("Leaf dry mass per leaf fresh mass (leaf dry matter content, LDMC)") ~ "LDMC (g/g)",
+    # Extra ones I added just to make the trait names shorter
+    TraitName %in% c("Stem specific density (SSD, stem dry mass per stem fresh volume) or wood density") ~ "SSD",
+    TraitName %in% c("Root rooting depth") ~ "RRD",
+    TraitName %in% c("Leaf nitrogen (N) content per leaf area") ~ "LNLA",
+    TRUE ~ TraitName # Just "Root rooting depth" and "Leaf nitrogen (N) content per leaf dry mass" right now
+  )) %>% 
+  group_by(Species_full, TraitName) %>%
+  reframe(mean = ifelse(TraitName == "Plant woodiness",
+    unique(processed_value),
+    as.character(mean(as.double(processed_value)))
+  )) %>%
+  distinct() %>%
+  pivot_wider(id_cols = Species_full, names_from = TraitName, values_from = mean)
 
 
 final_data <- full_join(combined_data, TRY_data, by = c("Species_full", "Family"))
