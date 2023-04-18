@@ -72,9 +72,14 @@ plot(st_geometry(Ecoregions2), axes=T)
 
 # According to Lynette, the following Ecoregions consitute the PNW: 7.1, 6.1,6.2,10.1,3.2,3.1,3.3,2.2,2.3,5.4 (meeting notes April 5 2023)
 Ecoregions2_PNW <- Ecoregions2 %>%
-  # filter(LEVEL2 == "7.1")
   filter(LEVEL2 %in% c("2.2", "2.3", "3.1", "3.2", "3.3", "5.4","6.1", "6.2", "7.1", "10.1"))
-plot(Ecoregions2_PNW["LEVEL2"])
+# plot(Ecoregions2_PNW["LEVEL2"])
+
+
+Ecoregions3_PNW <- Ecoregions3 %>%
+  filter(LEVEL2 %in% c("2.2", "2.3", "3.1", "3.2", "3.3", "5.4","6.1", "6.2", "7.1", "10.1"))
+# plot(Ecoregions3_PNW["LEVEL3"])
+
 
 ## ---- Exploring BIEN occurence --------------
 i <- 1
@@ -116,12 +121,20 @@ species_occ_sf <- species_occ %>%
 
 library(ggplot2)
 library(maps)
+library(grafify)
+# plot_grafify_palette(palette="all_grafify")
 world_cropped <- sf::st_as_sf(map('world', plot = FALSE, fill = TRUE)) %>%
   st_transform(st_crs(Ecoregions2_PNW))%>%
   st_crop((Ecoregions2_PNW))
 ggplot() +
   geom_sf(data=world_cropped) +
   geom_sf(data=Ecoregions2_PNW, aes(fill=LEVEL2)) +
+  scale_fill_grafify(palette="all_grafify") + # long palettes: all_grafify, kelly, safe
+  geom_sf(data=species_occ_sf, color="black") +
+  theme_bw()
+ggplot() +
+  geom_sf(data=world_cropped) +
+  geom_sf(data=Ecoregions3_PNW, aes(fill=LEVEL3)) +
   geom_sf(data=species_occ_sf, color="black") + 
   theme_bw()
 
@@ -130,10 +143,12 @@ ggplot() +
 # system.time (species_occ_eco2 <- st_join(species_occ_sf, Ecoregions2_PNW, join = st_within))
 # Fast option, using sp objects
 system.time (species_occ_eco2 <- over(as_Spatial(species_occ_sf), as_Spatial(Ecoregions2_PNW)))
+# system.time (species_occ_eco3 <- over(as_Spatial(species_occ_sf), as_Spatial(Ecoregions3_PNW)))
 
 unique(species_occ_sf$scrubbed_species_binomial)
 unique(species_occ_eco2$LEVEL1)
 unique(species_occ_eco2$LEVEL2)
+# unique(species_occ_eco3$LEVEL3)
 
 
 #######################################################
