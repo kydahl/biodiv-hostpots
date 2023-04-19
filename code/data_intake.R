@@ -417,6 +417,9 @@ final_data <-# Join Diaz and original data sets
   full_join(TRY_data_processed_wide,
             by = c("Species_full", "Species", "Family"))
 
+# Write the final data
+write_csv(final_data, "data/clean/final_dataset.csv")
+
 
 # List of species for which we have zero numeric trait data besides TEK
 test_data <- final_data %>% 
@@ -427,6 +430,7 @@ test_data <- final_data %>%
 # Get coverage of traits
 coverage_df <- final_data %>% 
   summarise(across(everything(), ~ sum(!is.na(.))/dim(final_data)[1]))
+
 write_csv(coverage_df,"data/clean/coverage_pcts.csv")
 
 # 5) Put data set into workable form for imputation and phylogeny steps --------
