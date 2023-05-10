@@ -8,6 +8,7 @@
 ######################################################## Explore BIEN data
 
 # Load packages
+library(tidyverse)
 if (!require('BIEN')) install.packages('BIEN'); library('BIEN')
 # vignette("BIEN")
 # vignette("BIEN_tutorial")
@@ -62,7 +63,7 @@ head(species_list)
 # # 2 missing species left
 # species_list <- species_list_PNW_modif_long
 
-final_data <- read_csv("data/clean/final_dataset.csv")
+final_data <- read_csv("../data/clean/final_dataset.csv")
 dim(final_data) # 318
 length(unique(final_data$Species)) # 316, so 2 species have the same "base name"
 
@@ -80,7 +81,7 @@ species_list <- final_data_in_BIEN # We will use this dataframe in part 3)
 # http://www.cec.org/north-american-environmental-atlas/terrestrial-ecoregions-level-iii/
 
 # Ecoregions2 <- read_sf("data/raw/NA_Terrestrial_Ecoregions_v2_Level_II_Shapefile/NA_TerrestrialEcoregions_LII/data/NA_Terrestrial_Ecoregions_v2_level2.shp")
-Ecoregions3 <- read_sf("data/raw/NA_Terrestrial_Ecoregions_v2_Level_III_Shapefile/NA_TerrestrialEcoregions_LIII/data/NA_Terrestrial_Ecoregions_v2_level3.shp")
+Ecoregions3 <- read_sf("../data/raw/NA_Terrestrial_Ecoregions_v2_Level_III_Shapefile/NA_TerrestrialEcoregions_LIII/data/NA_Terrestrial_Ecoregions_v2_level3.shp")
 # Ecoregions dataset 3 contains information about level 1, 2 and 3
 
 # Explore metadata
