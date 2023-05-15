@@ -8,7 +8,8 @@
 ######################################################## Explore BIEN data
 
 # Load packages
-library(tidyverse)
+library(sp) # for "over"
+library(tidyverse) # for "read_csv"
 if (!require('BIEN')) install.packages('BIEN'); library('BIEN')
 # vignette("BIEN")
 # vignette("BIEN_tutorial")
@@ -63,7 +64,7 @@ head(species_list)
 # # 2 missing species left
 # species_list <- species_list_PNW_modif_long
 
-final_data <- read_csv("../data/clean/final_dataset.csv")
+final_data <- read_csv("data/clean/final_dataset.csv")
 dim(final_data) # 318
 length(unique(final_data$Species)) # 316, so 2 species have the same "base name"
 
@@ -81,7 +82,7 @@ species_list <- final_data_in_BIEN # We will use this dataframe in part 3)
 # http://www.cec.org/north-american-environmental-atlas/terrestrial-ecoregions-level-iii/
 
 # Ecoregions2 <- read_sf("data/raw/NA_Terrestrial_Ecoregions_v2_Level_II_Shapefile/NA_TerrestrialEcoregions_LII/data/NA_Terrestrial_Ecoregions_v2_level2.shp")
-Ecoregions3 <- read_sf("../data/raw/NA_Terrestrial_Ecoregions_v2_Level_III_Shapefile/NA_TerrestrialEcoregions_LIII/data/NA_Terrestrial_Ecoregions_v2_level3.shp")
+Ecoregions3 <- read_sf("data/raw/NA_Terrestrial_Ecoregions_v2_Level_III_Shapefile/NA_TerrestrialEcoregions_LIII/data/NA_Terrestrial_Ecoregions_v2_level3.shp")
 # Ecoregions dataset 3 contains information about level 1, 2 and 3
 
 # Explore metadata
@@ -123,7 +124,7 @@ extract_species_occ <- function(species, Ecoregions){
   # Extract species occurrences from BIEN database
   # This can take a while
   species_occ <- BIEN::BIEN_occurrence_species(species,
-                                         cultivated=F, natives.only=T)
+                                               cultivated=F, natives.only=T)
   
   if (nrow(species_occ) == 0){
     print("The species is has no occurrence data")
@@ -179,8 +180,27 @@ extract_species_occ <- function(species, Ecoregions){
 
 # Extract species occurence and PNW regions for each species
 # This takes a while!
-system.time(species_occurences <- apply(species_list, 1, function(x) extract_species_occ(x, Ecoregions3_PNW)))
+library(doParallel)
+numCores <- detectCores() - 2
+cl <- makeCluster(numCores)
+clusterExport(cl, c("Ecoregions3_PNW","extract_species_occ"))
+clusterEvalQ(cl, {
+  library(sp)
+  library(tidyverse)
+  library(BIEN)
+  library(sf)
+  library(ggplot2)
+  library(maps)
+  library(grafify)
+})
+
+system.time(species_occurences <- parApply(cl, species_list, 1, function(x) extract_species_occ(x, Ecoregions3_PNW)))
+# system.time(species_occurences <- apply(species_list, 1, function(x) extract_species_occ(x, Ecoregions3_PNW)))
 names(species_occurences) <- species_list$Species
+
+write_rds(species_occurences, "data/clean/species_occurences.rds", compress = 'gz')
+
+species_occurences <- read_rds("data/clean/species_occurences.rds")
 
 # FYI:
 # - no occurrence data for Chamaecyparis nootkatensis
@@ -193,7 +213,7 @@ names(species_occurences) <- species_list$Species
 # Concatenate information from all species
 # Create a dataframe showing in which ecoregions each species occurs
 # I have to think about how to do this best, but the data is stored in here
- # unique(species_occ_Lb$scrubbed_species_binomial)
+# unique(species_occ_Lb$scrubbed_species_binomial)
 unique(species_occ_eco$LEVEL1)
 unique(species_occ_eco$LEVEL2)
 unique(species_occ_eco$LEVEL3)
@@ -211,7 +231,7 @@ world_cropped <- sf::st_as_sf(map('world', plot = FALSE, fill = TRUE)) %>%
 
 
 for (i in 1:nrow(species_list)){
- 
+  
   # Extract species occurrence:
   species_occ <- test(species_list[i,])
   
