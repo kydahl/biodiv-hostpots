@@ -8,7 +8,8 @@
 ######################################################## Explore BIEN data
 
 # Load packages
-library(tidyverse)
+library(sp) # for "over"
+library(tidyverse) # for "read_csv"
 if (!require('BIEN')) install.packages('BIEN'); library('BIEN')
 # vignette("BIEN")
 # vignette("BIEN_tutorial")
