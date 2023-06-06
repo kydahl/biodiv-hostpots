@@ -431,7 +431,6 @@ test_data <- final_data %>%
   rowwise() %>%
   mutate(n_notNA = sum(!is.na(c_across(where(is.numeric))))) %>%
   filter(n_notNA == 3) # All species should have at least 3 trait values (from TEK data)
-# for 47 species, we ONLY have TEK data
 
 # Get coverage of traits
 coverage_df <- final_data %>%

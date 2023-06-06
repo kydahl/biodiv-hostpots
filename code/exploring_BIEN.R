@@ -81,7 +81,7 @@ species_list <- final_data_in_BIEN # We will use this dataframe in part 3)
 # http://www.cec.org/north-american-environmental-atlas/terrestrial-ecoregions-level-ii/
 # http://www.cec.org/north-american-environmental-atlas/terrestrial-ecoregions-level-iii/
 
-# Ecoregions2 <- read_sf("data/raw/NA_Terrestrial_Ecoregions_v2_Level_II_Shapefile/NA_TerrestrialEcoregions_LII/data/NA_Terrestrial_Ecoregions_v2_level2.shp")
+Ecoregions2 <- read_sf("data/raw/NA_Terrestrial_Ecoregions_v2_Level_II_Shapefile/NA_TerrestrialEcoregions_LII/data/NA_Terrestrial_Ecoregions_v2_level2.shp")
 Ecoregions3 <- read_sf("data/raw/NA_Terrestrial_Ecoregions_v2_Level_III_Shapefile/NA_TerrestrialEcoregions_LIII/data/NA_Terrestrial_Ecoregions_v2_level3.shp")
 # Ecoregions dataset 3 contains information about level 1, 2 and 3
 
@@ -101,8 +101,8 @@ Ecoregions3 <- read_sf("data/raw/NA_Terrestrial_Ecoregions_v2_Level_III_Shapefil
 #######################################################
 # According to Lynette, the following Ecoregions consitute the PNW: 7.1, 6.1,6.2,10.1,3.2,3.1,3.3,2.2,2.3,5.4 (meeting notes April 5 2023)
 # This is based on XXX
-# Ecoregions2_PNW <- Ecoregions2 %>%
-#   filter(LEVEL2 %in% c("2.2", "2.3", "3.1", "3.2", "3.3", "5.4","6.1", "6.2", "7.1", "10.1"))
+Ecoregions2_PNW <- Ecoregions2 %>%
+  filter(LEVEL2 %in% c("2.2", "2.3", "3.1", "3.2", "3.3", "5.4","6.1", "6.2", "7.1", "10.1"))
 # plot(Ecoregions2_PNW["LEVEL2"])
 
 Ecoregions3_PNW <- Ecoregions3 %>%
@@ -110,13 +110,13 @@ Ecoregions3_PNW <- Ecoregions3 %>%
 # plot(Ecoregions3_PNW["LEVEL3"])
 
 #######################################################
-# 3) Loop through all species and extract the ecoregion(s) the occur in
+# 3) Loop through all species and extract the locations and ecoregion(s) they occur in
 #######################################################
 # This idea is based on Echeverría-Londoño et al. 2018: 
 # "We overlaid the BIEN 2.0 plant species maps on a 100 × 100 km grid map with a 
 # Lambert Azimuthal Equal Area projection to obtain a presence/absence matrix of species for each grid cell."
 
-# function ot extract species occurence and PNW regions for each species
+# function to extract species occurence and PNW regions for each species
 extract_species_occ <- function(species, Ecoregions){
   
   print(paste0("Extracting information for species ", species))
@@ -198,150 +198,118 @@ system.time(species_occurences <- parApply(cl, species_list, 1, function(x) extr
 # system.time(species_occurences <- apply(species_list, 1, function(x) extract_species_occ(x, Ecoregions3_PNW)))
 names(species_occurences) <- species_list$Species
 
+# save the output
 write_rds(species_occurences, "data/clean/species_occurences.rds", compress = 'gz')
+
+# FYI:
+# - NA for Chamaecyparis nootkatensis,  Pinus albicaulis, Asarum caudatum, Calypso bulbosa, 
+#          Goodyera oblongifolia, Opuntia fragilis, Opuntia polyacantha, Platanthera dilatata, Platanthera stricta
+
+
+#######################################################
+# 4) Concatenate information from all species in a nice data frame
+#######################################################
+species_occurences <- read_rds("data/clean/species_occurences.rds")
+
+species_occurences_eco = lapply(species_occurences, function(x) x[["species_occ_eco"]])
+# Remove species that have no occurrence data
+species_occurences_eco = species_occurences_eco[-(which(sapply(species_occurences_eco,is.logical),arr.ind=TRUE))]
+
+# Create species list for each Ecoregion 1
+species_occurences_L1 = lapply(species_occurences_eco, function(x) unique(x["LEVEL1"])) %>%
+  bind_rows(.id = "groups") %>%
+  rename(Species = groups) %>% 
+  `rownames<-`( NULL ) %>%
+  drop_na()
+
+# Create species list for each Ecoregion 2
+species_occurences_L2 = lapply(species_occurences_eco, function(x) unique(x["LEVEL2"])) %>%
+  bind_rows(.id = "groups") %>%
+  rename(Species = groups) %>% 
+  `rownames<-`( NULL ) %>%
+  drop_na()
+
+# Create species list for each Ecoregion 3
+species_occurences_L3 = lapply(species_occurences_eco, function(x) unique(x["LEVEL3"])) %>%
+  bind_rows(.id = "groups") %>%
+  rename(Species = groups) %>% 
+  `rownames<-`( NULL ) %>%
+  drop_na()
+
+dim(species_occurences_L1)
+unique(species_occurences_L1$LEVEL1)
+dim(species_occurences_L2)
+unique(species_occurences_L2$LEVEL2)
+dim(species_occurences_L3)
+unique(species_occurences_L3$LEVEL3)
+
+# Remind from 1) and 3) that some species are missing!
+length(unique(species_occurences_L2$Species))
+
+# save the output
+write_csv(species_occurences_L1, "data/clean/species_occurences_L1.csv")
+write_csv(species_occurences_L2, "data/clean/species_occurences_L2.csv")
+write_csv(species_occurences_L3, "data/clean/species_occurences_L3.csv")
+
+#######################################################
+# 5) Visualize where species occur in the PNW
+#######################################################
 
 species_occurences <- read_rds("data/clean/species_occurences.rds")
 
-# FYI:
-# - no occurrence data for Chamaecyparis nootkatensis
-# - no records for longitude and latitude for Pinus albicaulis
+species_occurences_Lb = lapply(species_occurences, function(x) x[["species_occ_Lb"]])
+# Remove species that have no occurrence data
+species_occurences_Lb = species_occurences_Lb[-(which(sapply(species_occurences_Lb,is.logical),arr.ind=TRUE))]
 
-
-# save the output
-
-
-# Concatenate information from all species
-# Create a dataframe showing in which ecoregions each species occurs
-# I have to think about how to do this best, but the data is stored in here
-# unique(species_occ_Lb$scrubbed_species_binomial)
-unique(species_occ_eco$LEVEL1)
-unique(species_occ_eco$LEVEL2)
-unique(species_occ_eco$LEVEL3)
-
-#######################################################
-# 4) Visualize where species occur in the PNW
-#######################################################
-
-# I will revisit this section once we have data extracted for all species. 
-
-
+# Crop world map to the PNW
 world_cropped <- sf::st_as_sf(map('world', plot = FALSE, fill = TRUE)) %>%
   st_transform(st_crs(Ecoregions2_PNW))%>%
   st_crop((Ecoregions2_PNW))
 
+# Remark:  need to crop names(species_occurences_Lb)[i] to make sure that all points fall within the PNW 
 
-for (i in 1:nrow(species_list)){
+# Visualize occurrence points of each species
+for (i in 1:length(species_occurences_Lb)){
+  print(paste0("Mapping ", names(species_occurences_Lb)[i]))
   
-  # Extract species occurrence:
-  species_occ <- test(species_list[i,])
-  
-  # Visualize species occurrences
   g1 <- ggplot() +
     geom_sf(data=world_cropped) +
-    geom_sf(data=Ecoregions2_PNW, aes(fill=LEVEL2)) +
-    scale_fill_grafify(palette="all_grafify") + # long palettes: all_grafify, kelly, safe
-    geom_sf(data=test2$`Abies amabilis`$species_occ_Lb, color="black") +
+    geom_sf(data=Ecoregions2_PNW, aes(fill=LEVEL1)) +
+    scale_fill_grafify(palette="bright") + 
+    geom_sf(data=species_occurences_Lb[[i]], color="black") +
     theme_bw()
   g2 <- ggplot() +
     geom_sf(data=world_cropped) +
+    geom_sf(data=Ecoregions2_PNW, aes(fill=LEVEL2)) +
+    scale_fill_grafify(palette="all_grafify") + # long palettes: all_grafify, kelly, safe
+    geom_sf(data=species_occurences_Lb[[i]], color="black") +
+    theme_bw()
+  g3 <- ggplot() +
+    geom_sf(data=world_cropped) +
     geom_sf(data=Ecoregions3_PNW, aes(fill=LEVEL3)) +
-    geom_sf(data=species_occ_sf, color="black") +
+    scale_fill_grafify(palette="kelly") + 
+    geom_sf(data=species_occurences_Lb[[i]], color="black") +
     theme_bw()
   
-  # Compile ecoregion coverage in a dataframe
-  #   
+  ggsave(paste0(dir_fig, "/Ecoregion_L1/", names(species_occurences_Lb)[i],".png"), g1, dpi=300,
+         width = 7, height = 7, units = "in")
+  ggsave(paste0(dir_fig, "/Ecoregion_L2/", names(species_occurences_Lb)[i],".png"), g2, dpi=300,
+         width = 7, height = 7, units = "in")
+  ggsave(paste0(dir_fig, "/Ecoregion_L3/", names(species_occurences_Lb)[i],".png"), g3, dpi=300,
+         width = 9, height = 7, units = "in")
+  
+  ggsave(paste0(dir_fig, "/Ecoregion_L1/", names(species_occurences_Lb)[i],".pdf"), g1, dpi=300,
+         width = 7, height = 7, units = "in")
+  ggsave(paste0(dir_fig, "/Ecoregion_L2/", names(species_occurences_Lb)[i],".pdf"), g2, dpi=300,
+         width = 7, height = 7, units = "in")
+  ggsave(paste0(dir_fig, "/Ecoregion_L3/", names(species_occurences_Lb)[i],".pdf"), g3, dpi=300,
+         width = 9, height = 7, units = "in")
+  
 }
 
 
-
-# started around 2:30 PM - end 2:40???
-names(test2) <- species_list[1:2,]$Species
-
-system.time(test3 <- lapply(
-  split(species_list[1:2,],1:nrow(species_list[1:2,])),
-  function(x) do.call(test, x)))
-
-# Save this result and then proceede to mapping so that this data can always be visualized differently afterwards
-
-result <- lapply(
-  split(df,1:nrow(df)),
-  function(x) do.call(power.t.test,x, Ecoregions3_PNW)
-)
-
-
-
-
-
-
-
-
-dir_fig
-
-species_occ <- BIEN_occurrence_species(species=species_list[i,1],
-                                       cultivated=F, natives.only=T)
-# species_occ2 <- BIEN_occurrence_species(species=species_list_PNW_modif_long[i,1], all.taxonomy=T, new.world=T, native.status=T)
-# str(species_occ)
-
-# Quickly visualize points on a map
-library(maps)
-map('world', fill = TRUE, col= "grey", bg = "light blue") 
-points(cbind(species_occ$longitude,
-             species_occ$latitude),
-       col = "red",
-       pch = 20,
-       cex = 1) 
-# points(cbind(species_occ2$longitude,
-#              species_occ2$latitude),
-#        col = "blue",
-#        pch = 20,
-#        cex = 1) 
-
-## ---- Overlap BIEN occurence with PNW map --------------
-
-# I assume that the BIEN dataset is in WGS84 (EPSG: 4326) but I can't find documentation on that
-# According to this code it is in WGS84 indeed:
-# https://github.com/NiDEvA/R-protocols/blob/main/R_Protocol_get%26curate_data.R#L330
-species_occ_sf <- species_occ %>% 
-  st_as_sf(coords = c("longitude","latitude")) %>%
-  st_set_crs(4326) %>%
-  st_transform(st_crs(Ecoregions2_PNW))
-
-# plot(Ecoregions2_PNW["LEVEL2"], axes=T)
-# plot(species_occ_sf_Lb[1], pch=20, col="red", add=T)
-# For some reason this visualization doesn't work. I don't know why
-
-library(ggplot2)
-library(maps)
-library(grafify)
-# plot_grafify_palette(palette="all_grafify")
-world_cropped <- sf::st_as_sf(map('world', plot = FALSE, fill = TRUE)) %>%
-  st_transform(st_crs(Ecoregions2_PNW))%>%
-  st_crop((Ecoregions2_PNW))
-ggplot() +
-  geom_sf(data=world_cropped) +
-  geom_sf(data=Ecoregions2_PNW, aes(fill=LEVEL2)) +
-  scale_fill_grafify(palette="all_grafify") + # long palettes: all_grafify, kelly, safe
-  geom_sf(data=species_occ_sf, color="black") +
-  theme_bw()
-ggplot() +
-  geom_sf(data=world_cropped) +
-  geom_sf(data=Ecoregions3_PNW, aes(fill=LEVEL3)) +
-  geom_sf(data=species_occ_sf, color="black") + 
-  theme_bw()
-
-# Extract ecoregion(s) where species occurs 
-# Slow option, using sf objects:
-# system.time (species_occ_eco2 <- st_join(species_occ_sf, Ecoregions2_PNW, join = st_within))
-# Fast option, using sp objects
-system.time (species_occ_eco2 <- over(as_Spatial(species_occ_sf), as_Spatial(Ecoregions2_PNW)))
-# system.time (species_occ_eco3 <- over(as_Spatial(species_occ_sf), as_Spatial(Ecoregions3_PNW)))
-
-unique(species_occ_sf$scrubbed_species_binomial)
-unique(species_occ_eco2$LEVEL1)
-unique(species_occ_eco2$LEVEL2)
-# unique(species_occ_eco3$LEVEL3)
-
+# Notes:
+# Anaphalis margaritacea does not occur in the PNW according to occurrence data
 
 #######################################################
-## ---- --------------
 
