@@ -265,8 +265,6 @@ world_cropped <- sf::st_as_sf(map('world', plot = FALSE, fill = TRUE)) %>%
   st_transform(st_crs(Ecoregions2_PNW))%>%
   st_crop((Ecoregions2_PNW))
 
-# Remark:  need to crop names(species_occurences_Lb)[i] to make sure that all points fall within the PNW 
-
 # Visualize occurrence points of each species
 for (i in 15:length(species_occurences_Lb)){
   print(paste0("Mapping ", names(species_occurences_Lb)[i]))
