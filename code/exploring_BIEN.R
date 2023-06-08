@@ -254,7 +254,6 @@ write_csv(species_occurences_L3, "data/clean/species_occurences_L3.csv")
 #######################################################
 # 5) Visualize where species occur in the PNW
 #######################################################
-
 species_occurences <- read_rds("data/clean/species_occurences.rds")
 
 species_occurences_Lb = lapply(species_occurences, function(x) x[["species_occ_Lb"]])
@@ -266,45 +265,50 @@ world_cropped <- sf::st_as_sf(map('world', plot = FALSE, fill = TRUE)) %>%
   st_transform(st_crs(Ecoregions2_PNW))%>%
   st_crop((Ecoregions2_PNW))
 
-# Remark:  need to crop names(species_occurences_Lb)[i] to make sure that all points fall within the PNW 
-
 # Visualize occurrence points of each species
-for (i in 1:length(species_occurences_Lb)){
+for (i in 15:length(species_occurences_Lb)){
   print(paste0("Mapping ", names(species_occurences_Lb)[i]))
   
-  g1 <- ggplot() +
-    geom_sf(data=world_cropped) +
-    geom_sf(data=Ecoregions2_PNW, aes(fill=LEVEL1)) +
-    scale_fill_grafify(palette="bright") + 
-    geom_sf(data=species_occurences_Lb[[i]], color="black") +
-    theme_bw()
-  g2 <- ggplot() +
-    geom_sf(data=world_cropped) +
-    geom_sf(data=Ecoregions2_PNW, aes(fill=LEVEL2)) +
-    scale_fill_grafify(palette="all_grafify") + # long palettes: all_grafify, kelly, safe
-    geom_sf(data=species_occurences_Lb[[i]], color="black") +
-    theme_bw()
-  g3 <- ggplot() +
-    geom_sf(data=world_cropped) +
-    geom_sf(data=Ecoregions3_PNW, aes(fill=LEVEL3)) +
-    scale_fill_grafify(palette="kelly") + 
-    geom_sf(data=species_occurences_Lb[[i]], color="black") +
-    theme_bw()
+  # Crop species occurrences to the PNW (this takes a while)
+  species_occurences_Lb_PNW <- species_occurences_Lb[[i]] %>%
+    st_intersection((Ecoregions2_PNW))
   
-  ggsave(paste0(dir_fig, "/Ecoregion_L1/", names(species_occurences_Lb)[i],".png"), g1, dpi=300,
-         width = 7, height = 7, units = "in")
-  ggsave(paste0(dir_fig, "/Ecoregion_L2/", names(species_occurences_Lb)[i],".png"), g2, dpi=300,
-         width = 7, height = 7, units = "in")
-  ggsave(paste0(dir_fig, "/Ecoregion_L3/", names(species_occurences_Lb)[i],".png"), g3, dpi=300,
-         width = 9, height = 7, units = "in")
-  
-  ggsave(paste0(dir_fig, "/Ecoregion_L1/", names(species_occurences_Lb)[i],".pdf"), g1, dpi=300,
-         width = 7, height = 7, units = "in")
-  ggsave(paste0(dir_fig, "/Ecoregion_L2/", names(species_occurences_Lb)[i],".pdf"), g2, dpi=300,
-         width = 7, height = 7, units = "in")
-  ggsave(paste0(dir_fig, "/Ecoregion_L3/", names(species_occurences_Lb)[i],".pdf"), g3, dpi=300,
-         width = 9, height = 7, units = "in")
-  
+  if (nrow(species_occurences_Lb_PNW) == 0){
+    print("This species has no occurrence data in the PNW.")
+  } else {
+    g1 <- ggplot() +
+      geom_sf(data=world_cropped) +
+      geom_sf(data=Ecoregions2_PNW, aes(fill=LEVEL1)) +
+      scale_fill_grafify(palette="bright") + 
+      geom_sf(data=species_occurences_Lb_PNW, color="black") +
+      theme_bw()
+    g2 <- ggplot() +
+      geom_sf(data=world_cropped) +
+      geom_sf(data=Ecoregions2_PNW, aes(fill=LEVEL2)) +
+      scale_fill_grafify(palette="all_grafify") + # long palettes: all_grafify, kelly, safe
+      geom_sf(data=species_occurences_Lb_PNW, color="black") +
+      theme_bw()
+    g3 <- ggplot() +
+      geom_sf(data=world_cropped) +
+      geom_sf(data=Ecoregions3_PNW, aes(fill=LEVEL3)) +
+      scale_fill_grafify(palette="kelly") + 
+      geom_sf(data=species_occurences_Lb_PNW, color="black") +
+      theme_bw()
+    
+    ggsave(paste0(dir_fig, "/Ecoregion_L1/", names(species_occurences_Lb)[i],".png"), g1, dpi=300,
+           width = 7, height = 7, units = "in")
+    ggsave(paste0(dir_fig, "/Ecoregion_L2/", names(species_occurences_Lb)[i],".png"), g2, dpi=300,
+           width = 7, height = 7, units = "in")
+    ggsave(paste0(dir_fig, "/Ecoregion_L3/", names(species_occurences_Lb)[i],".png"), g3, dpi=300,
+           width = 9, height = 7, units = "in")
+    
+    ggsave(paste0(dir_fig, "/Ecoregion_L1/", names(species_occurences_Lb)[i],".pdf"), g1, dpi=300,
+           width = 7, height = 7, units = "in")
+    ggsave(paste0(dir_fig, "/Ecoregion_L2/", names(species_occurences_Lb)[i],".pdf"), g2, dpi=300,
+           width = 7, height = 7, units = "in")
+    ggsave(paste0(dir_fig, "/Ecoregion_L3/", names(species_occurences_Lb)[i],".pdf"), g3, dpi=300,
+           width = 9, height = 7, units = "in")
+  }
 }
 
 
