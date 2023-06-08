@@ -66,11 +66,11 @@ head(species_list)
 
 final_data <- read_csv("data/clean/final_dataset.csv")
 dim(final_data) # 318
-length(unique(final_data$Species)) # 316, so 2 species have the same "base name"
+length(unique(final_data$Species_full)) # 316, so 2 species have the same "base name"
 
 final_data_in_BIEN <- final_data %>%
-  filter(Species %in% unique(species_list$species)) %>%
-  select(Species) %>%
+  filter(Species_full %in% unique(species_list$species)) %>%
+  select(Species_full) %>%
   unique()
 dim(final_data_in_BIEN) # 315, so 3 missing species
 
@@ -96,7 +96,7 @@ Ecoregions3 <- read_sf("data/raw/NA_Terrestrial_Ecoregions_v2_Level_III_Shapefil
 # plot(st_geometry(Ecoregions2), axes=T)
 
 
-#######################################################
+######################################################
 ### 2) Define the PNW
 #######################################################
 # According to Lynette, the following Ecoregions consitute the PNW: 7.1, 6.1,6.2,10.1,3.2,3.1,3.3,2.2,2.3,5.4 (meeting notes April 5 2023)
