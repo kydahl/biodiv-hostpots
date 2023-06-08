@@ -1,4 +1,4 @@
-################################################################################
+#####################################################################################
 # Imputing missing trait data
 ################################################################################
 
@@ -36,10 +36,12 @@ library(caret)
 library(missForest)
 
 # 2) Load in trait data and put it in workable form ----
-data_in <- read_excel("data/clean/Trait_data_TRY_Diaz_2022_PNW.xlsx") %>%
-  mutate(Genus = stringr::word(Species_name, 1, 1, sep = " ")) %>%
-  mutate(Species = stringr::word(Species_name, 2, 2, sep = " ")) %>%
-  mutate(Ssp_var = stringr::word(Species_name, 3, 4, sep = " ")) %>%
+data_in <- read_csv("data/clean/final_dataset.csv") %>% 
+  select("Species_full","Family","LDMC (g/g)", "Plant height (m)", 
+         "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness") %>% 
+  mutate(Genus = stringr::word(Species_full, 1, 1, sep = " ")) %>%
+  mutate(Species = stringr::word(Species_full, 2, 2, sep = " ")) %>%
+  mutate(Ssp_var = stringr::word(Species_full, 3, 4, sep = " ")) %>%
   relocate(Genus, Species, Ssp_var)
 
 # Modify original data
@@ -47,17 +49,17 @@ traits_df <- data_in %>%
   # expand binomial
   mutate(LeafArea_log = log(`Leaf area (mm2)`)) %>%
   mutate(PlantHeight_log = log(`Plant height (m)`)) %>%
-  mutate(DiasporeMass_log = log(`Diaspore mass (mg)`)) %>%
+  # mutate(DiasporeMass_log = log(`Diaspore mass (mg)`)) %>%
   # Remove original variables replaced by "logged" versions
-  select(-c("Leaf area (mm2)", "Plant height (m)", "Diaspore mass (mg)")) %>%
+  select(-c("Leaf area (mm2)", "Plant height (m)")) #%>% #, "Diaspore mass (mg)")) %>%
   # Remove traits that we won't be using in our study
-  select(-c("LDMC (g/g)", "SSD observed (mg/mm3)", "SSD imputed (mg/mm3)"))
+  # select(-c("LDMC (g/g)", "SSD observed (mg/mm3)", "SSD imputed (mg/mm3)"))
 
 # * Get some basic information about the data set ----
 # compute the coverage of each trait
 coverage_vals <- traits_df %>% 
   select(-c("Genus":"Ssp_var")) %>%
-  melt(id = c("Species_name")) %>% 
+  melt(id = c("Species_full")) %>% 
   group_by(variable) %>% 
   mutate(count = n()) %>%
   mutate(missing_num = sum(is.na(value))) %>%
@@ -90,42 +92,52 @@ taxa <- predict(dummies, newdata = taxa)
 
 # select traits to be imputed
 traits_to_impute <- as.data.frame(traits_df) %>%
-  select(-c("Genus":"Species_name")) %>%
-  mutate(Woodiness = as.factor(Woodiness)) %>%
-  mutate(`Growth Form` = as.factor(`Growth Form`))
+  select(-c("Genus":"Species_full")) %>%
+  mutate(Family = as.factor(Family)) %>%  #%>%
+  select(-Family) %>% 
+  mutate(Woodiness = as.factor(Woodiness)) #%>%
+  # mutate(`Growth Form` = as.factor(`Growth Form`))
 
 # combine dummy vars with traits (comment this line out to not use taxa in imputation)
-# traits_to_impute <- cbind(traits_to_impute, taxa)
+traits_to_impute <- cbind(traits_to_impute, taxa)
 
 #
 # set.seed(82) # for debugging
 
 # run missForest imputation
 PNW_imp <- missForest(traits_to_impute,
-                      maxiter = 100, # maximum number of iterations to be performed given the stopping criterion isn't met
+                      maxiter = 1000, # maximum number of iterations to be performed given the stopping criterion isn't met
                       ntree = 1000, # number of trees to grow in each forest
                       verbose = TRUE, # if 'TRUE', gives additional output between iterations
                       variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
 )
 
 # add actual taxonomic columns back in and remove dummy variables
-imputed_traits <- cbind(traits_df[, 1:4], PNW_imp$ximp[, 1:7])
-# imputed_traits <- cbind(traits_df[,1:4],PNW_imp$ximp)
+imputed_traits <- cbind(traits_df[, 1:5], PNW_imp$ximp[, 1:5]) %>% 
+  mutate("Plant height (m)" = exp(PlantHeight_log), .keep = "unused") %>% 
+  mutate("Leaf area (mm2)" = exp(LeafArea_log), .keep = "unused")
+
+imputed_data <- right_join(
+  select(final_data, -c("LDMC (g/g)":Woodiness)),
+  select(imputed_traits, -c(Genus:Ssp_var))
+)
+
+write_csv(imputed_data, "data/clean/final_dataset_IMPUTED.csv")
 
 # Make a tidy dataframe of all traits
 full_df <- traits_df %>% 
   # keep track of which traits were original values
   mutate(type = "original") %>%
   rbind(imputed_traits %>% mutate(type = "imputed")) %>%
-  select(-c("Genus", "Species", "Ssp_var")) %>%
-  melt(id = c("Species_name", "type")) %>% 
+  select(-c("Genus", "Species", "Ssp_var", "Family")) %>%
+  melt(id = c("Species_full", "type")) %>% 
   mutate(value = as.numeric(value))
 
 # Collect the error OOB error for each variable
 
 var_df <- full_df %>% 
   filter(type == "imputed") %>% 
-  select(-c("Species_name", "type")) %>% 
+  select(-c("Species_full", "type")) %>% 
   # filter(!variable %in% c("Woodiness", "Growth Form")) %>% 
   group_by(variable) %>% 
   summarise(variance = case_when(
@@ -134,13 +146,13 @@ var_df <- full_df %>%
     )) %>% 
   unique()
 
-error_df <- as.list(PNW_imp$OOBerror[1:7]) %>% 
+error_df <- as.list(PNW_imp$OOBerror[1:5]) %>% 
   as_tibble(.name_repair = "universal") %>% 
   melt() %>% 
   rename(error_value = value) %>% 
   mutate(error_type = substr(as.character(variable), start = 1, stop = 3),
          .keep = "unused") %>% 
-  cbind(variable = colnames(PNW_imp$ximp[,1:7])) %>% 
+  cbind(variable = colnames(PNW_imp$ximp[,1:5])) %>% 
   # compute NRMSE from MSE
   inner_join(var_df, by = "variable") %>% 
   mutate(RMSE = sqrt(error_value)) %>% 
@@ -151,30 +163,28 @@ error_df <- as.list(PNW_imp$OOBerror[1:7]) %>%
 # * Calculate distributions of trait values for the original and imputed data sets ----
 # Continuous variables
 traitdist_compare_df <- traits_df %>%
-  select(-c("Woodiness", "Growth Form")) %>%
+  select(-c("Woodiness")) %>%
   mutate(type = "original") %>%
   rbind(imputed_traits %>%
           mutate(type = "imputed") %>%
-          select(-c("Woodiness", "Growth Form"))
+          select(-c("Woodiness"))
   ) %>%
-  select(-c("Genus", "Species", "Ssp_var")) %>%
-  melt(id = c("Species_name", "type"))
+  select(-c("Genus", "Species", "Ssp_var", "Family")) %>%
+  melt(id = c("Species_full", "type"))
 
 # Discrete variables
 traitdist_compare_df_discrete<- traits_df %>%
-  select(c("Genus":"Growth Form")) %>%
+  select(c("Species_full", "Woodiness")) %>%
   mutate(type = "original") %>%
-  select(-c("Genus", "Species", "Ssp_var")) %>%
-  melt(id = c("Species_name", "type")) %>% 
+  melt(id = c("Species_full", "type")) %>% 
   group_by(type, variable, value) %>% 
   filter(!is.na(value)) %>% 
   summarise(count = n()) %>% 
   mutate(density = count / sum(count)) %>% 
   rbind(imputed_traits %>%
-          select(c("Genus":"Growth Form")) %>% 
+          select(c("Species_full", "Woodiness")) %>%
           mutate(type = "imputed") %>% 
-          select(-c("Genus", "Species", "Ssp_var")) %>%
-          melt(id = c("Species_name", "type"))%>% 
+          melt(id = c("Species_full", "type"))%>% 
           filter(!is.na(value)) %>% 
           group_by(type, variable, value) %>% 
           summarise(count = sum(!is.na(value))) %>% 
@@ -254,7 +264,7 @@ data_out <-imputed_traits %>%
   mutate(LeafArea = exp(LeafArea_log), .keep = "unused") %>% 
   mutate(PlantHeight = exp(PlantHeight_log), .keep = "unused") %>% 
   mutate(DiasporeMass = exp(DiasporeMass_log), .keep = "unused") %>% 
-  melt(id = "Species_name")
+  melt(id = "Species_full")
 # !!! KD: this isn't in the exact same form as the other data sets. I can change this later
 
 write_csv(data_out,

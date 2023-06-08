@@ -78,7 +78,7 @@ synonym_func <- function(in_df) {
   } else {
     out_df <- in_df
   }
-
+  
   # Select sources for species name resolution
   src <- c(
     "EOL", "The International Plant Names Index", # these are examples, so choose the database of interest
@@ -95,25 +95,25 @@ synonym_func <- function(in_df) {
   species_list <- unique(out_df$Species_full)
   species_num <- length(species_list)
   num_seq <- 1 + 0:(species_num %/% 1000) * 1000
-
+  
   # Collect synonyms
   for (ii in num_seq) {
     temp_seq <- ii + 0:999
     temp_species_list <- species_list[temp_seq]
     temp_species_out <- gnr_resolve(temp_species_list,
-      data_source_ids = c(1, 2, 5, 150, 165, 167),
-      with_canonical_ranks = T,
-      best_match_only = TRUE
+                                    data_source_ids = c(1, 2, 5, 150, 165, 167),
+                                    with_canonical_ranks = T,
+                                    best_match_only = TRUE
     ) %>%
       select(name_in = user_supplied_name, name_out = matched_name2)
     synonyms_list <- rbind(synonyms_list, temp_species_out)
   }
   num_name_changes <- dim(filter(synonyms_list, name_in != name_out))[1]
   print(paste0("There are ", num_name_changes, " necessary name changes."))
-
+  
   # Load synonym list created by Elisa Van Cleemput
   custom_synonyms_list <- read_csv("data/clean/synonym_list.csv", show_col_types = FALSE)
-
+  
   # Check if there are disagreements between EVC's list and GNR
   GNR_synonyms <- rename(synonyms_list, original_name = name_in, Synonym_GNR = name_out)
   compare_synonyms_df <- left_join(custom_synonyms_list, GNR_synonyms)
@@ -121,11 +121,11 @@ synonym_func <- function(in_df) {
   cat(paste0("There are ", dim(syn_disagree_df)[1], " synonym disagreements between GNR_resolve and our custom synonym list. \n
                Check the file data/clean/synonym_disagreements.csv for details."))
   write_csv(syn_disagree_df, "data/clean/synonym_disagreements.csv")
-
+  
   final_df <- out_df %>%
     # add column of synonym names
     left_join(rename(synonyms_list, Species_full = name_in, Synonym = name_out),
-      by = "Species_full"
+              by = "Species_full"
     ) %>%
     # keep track of original name
     mutate(original_name = Species_full) %>%
@@ -198,7 +198,7 @@ full_data <- full_join(base_data, TEK_data) %>%
 # Load in trait data compiled by Diáz et al. 2020 (based on TRY)
 # https://www.nature.com/articles/s41597-022-01774-9
 Diaz_data <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx",
-  sheet = 1
+                        sheet = 1
 )
 
 # Assign GNR synonyms to species in Diaz data
@@ -209,7 +209,7 @@ Diaz_data_renamed <- Diaz_data %>%
   # use a pre-saved list
   rename(original_name = Species_full) %>%
   left_join(read_csv("data/clean/Diaz_synonyms.csv", show_col_types = FALSE) %>%
-    rename(original_name = name_in), by = "original_name") %>%
+              rename(original_name = name_in), by = "original_name") %>%
   rename(Species_full = name_out) %>%
   # update the family name with the synonym family
   mutate(Family = stringr::word(Species_full, 1, 1)) %>%
@@ -245,7 +245,8 @@ Diaz_data_sel <- Diaz_data_renamed %>%
     "Nmass (mg/g)", "LMA (g/m2)", "Plant height (m)", "Diaspore mass (mg)",
     "LDMC (g/g)"
   ) %>%
-  rename(original_name_Diaz = original_name)
+  rename(original_name_Diaz = original_name) %>%
+  mutate(origin = "Diaz")
 
 # 3) Load in and process TRY data sets ------------------------------------
 
@@ -256,60 +257,60 @@ Diaz_data_sel <- Diaz_data_renamed %>%
 # the full TRY data with all species is called TRY.zip
 
 TRY_plant_height <- read_csv("data/raw/TRY_data_Feb2023/TRY_plant_height_growth.csv",
-  show_col_types = FALSE
+                             show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 plant_height_trait_names <- unique(TRY_plant_height$TraitName)
 
 TRY_leafN <- read_csv("data/raw/TRY_data_Feb2023/TRY_leafN.csv",
-  show_col_types = FALSE
+                      show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 leafN_trait_names <- unique(TRY_leafN$TraitName)
 
 TRY_LDMC <- read_csv("data/raw/TRY_data_Feb2023/TRY_LDMC.csv",
-  show_col_types = FALSE
+                     show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 LDMC_trait_names <- unique(TRY_LDMC$TraitName)
 
 # wait to handle this data because we need to know what Diaz used for leaf area measurements
 TRY_leafarea <- read_csv("data/raw/TRY_data_Feb2023/TRY_leafarea.csv",
-  show_col_types = FALSE
+                         show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 leafarea_trait_names <- unique(TRY_leafarea$TraitName)
 
 # this trait was recommended for inclusion in the recommended traits paper
 TRY_rooting_depth <- read_csv("data/raw/TRY_data_Feb2023/TRY_rooting_depth.csv",
-  show_col_types = FALSE
+                              show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 rooting_depth_trait_names <- unique(TRY_rooting_depth$TraitName)
 
 # this trait was recommended for inclusion in the recommended traits paper
 TRY_stem_density <- read_csv("data/raw/TRY_data_Feb2023/TRY_stem_density.csv",
-  show_col_types = FALSE
+                             show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 stem_density_trait_names <- unique(TRY_stem_density$TraitName)
 
 # this trait was recommended for inclusion in the recommended traits paper
 TRY_plant_woodiness <- read_csv("data/raw/TRY_data_Feb2023/TRY_plant_woodiness.csv",
-  show_col_types = FALSE
+                                show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 plant_woodiness_trait_names <- unique(TRY_plant_woodiness$TraitName)
 
 # this trait was recommended for inclusion in the recommended traits paper
 TRY_plant_veg_reproduction <- read_csv("data/raw/TRY_data_Feb2023/TRY_vegetative_reproduction.csv",
-  show_col_types = FALSE
+                                       show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 plant_veg_reproduction_trait_names <- unique(TRY_plant_veg_reproduction$TraitName)
 
 # combine TRY trait data sets
-TRY_data <- rbind( 
+TRY_data <- rbind(
   TRY_plant_height, TRY_leafN, TRY_LDMC, TRY_leafarea,
   TRY_rooting_depth, TRY_stem_density, TRY_plant_woodiness,
   TRY_plant_veg_reproduction
@@ -351,89 +352,138 @@ TRY_data_processed <- TRY_data %>%
   dplyr::select(DatasetID, Species_full, TraitName:ValueKindName, Comment:Species) %>%
   group_by(DatasetID, Species_full, TraitName, ValueKindName) %>%
   partition(cluster) %>%
+  # Additional processing needed for the "Plant woodiness" categorical trait (KD: not sure we need such fine grain detail for this trait)
+  mutate(OrigValueStr = case_when(
+    TraitName == "Plant woodiness" ~ case_when(
+      OrigValueStr %in% c("non-woody", "h", "H", "N", "0") ~ 0, # "non-woody",
+      OrigValueStr == "1" ~ ifelse(Comment == "0=nonwoody; 1=woody", 2, 1), # "woody", "semi-woody"),
+      OrigValueStr %in% c("woody", "w", "W", "Y") ~ 2, # "woody",
+      OrigValueStr %in% c("semi-woody") ~ 1, # "semi-woody",
+      OrigValueStr == "2" ~ 2, # "soft wood",
+      OrigValueStr == "3" ~ 2, # "dense wood"
+    ),
+    TRUE ~ as.double(OrigValueStr)
+  )) %>%
   mutate(processed_value = case_when(
     # Leave the value alone if its already a measure of central tendency
     ValueKindName %in% c("Mean", "Site specific mean", "Species mean", "Median") ~ OrigValueStr,
     # Take the mean of single values
-    ValueKindName == "Single" ~ as.character(mean(as.double(OrigValueStr))),
+    ValueKindName == "Single" ~ (mean(as.double(OrigValueStr))),
     TRUE ~ OrigValueStr
-  )) %>%
-  # Additional processing needed for the "Plant woodiness" categorical trait (KD: not sure we need such fine grain detail for this trait)
-  mutate(processed_value = case_when(
-    TraitName == "Plant woodiness" ~ case_when(
-      OrigValueStr %in% c("non-woody", "h", "H", "N", "0") ~ "non-woody",
-      OrigValueStr == "1" ~ ifelse(Comment == "0=nonwoody; 1=woody", "woody", "semi-woody"),
-      OrigValueStr %in% c("woody", "w", "W", "Y") ~ "woody",
-      OrigValueStr %in% c("semi-woody") ~ "semi-woody",
-      OrigValueStr == "2" ~ "soft wood",
-      OrigValueStr == "3" ~ "dense wood"
-    ),
-    TRUE ~ processed_value
   )) %>%
   collect() %>%
   select(-OrigValueStr) %>%
   distinct() %>%
-  ungroup() %>% 
-  select(Species_full, TraitName, processed_value, Synonym, original_name, Family, Species) %>% 
+  ungroup() %>%
+  select(Species_full, TraitName, processed_value, Synonym, original_name, Family, Species) %>%
   arrange(Species_full, TraitName)
 
 TRY_data_processed_wide <- TRY_data_processed %>%
   # Rename and combine "synonymous" traits (KD: I've combined these for now, until we decide on which to keep)
   # These trait names are chosen to be similar to those used in Diaz
   mutate(TraitName = case_when(
-    TraitName %in% c("Plant woodiness") ~ "TRY_Woodiness",
+    TraitName %in% c("Plant woodiness") ~ "Woodiness",
     # Combine all the measures of leaf area
     TraitName %in% c(
       "Leaf area (in case of compound leaves: leaflet, petiole excluded)",
       "Leaf area (in case of compound leaves: leaf, petiole excluded)"
-    ) ~ "TRY_Leaf area (mm2)",
+    ) ~ "Leaf area (mm2)",
     # Combine all the measures of leaf area per leaf dry mass
     TraitName %in% c(
       "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded"
-    ) ~ "TRY_SLA",
-    TraitName %in% c("Leaf nitrogen (N) content per leaf dry mass") ~ "TRY_Nmass (mg/g)",
+    ) ~ "SLA",
+    TraitName %in% c("Leaf nitrogen (N) content per leaf dry mass") ~ "Nmass (mg/g)",
     # TraitName %in% c() ~ "LMA (g/m2)",
-    TraitName %in% c("Plant height vegetative") ~ "TRY_Plant height (m)",
+    TraitName %in% c("Plant height vegetative") ~ "Plant height (m)",
     # TraitName %in% c() ~ "Diaspore mass (mg)",
-    TraitName %in% c("Leaf dry mass per leaf fresh mass (leaf dry matter content, LDMC)") ~ "TRY_LDMC (g/g)",
+    TraitName %in% c("Leaf dry mass per leaf fresh mass (leaf dry matter content, LDMC)") ~ "LDMC (g/g)",
     # Extra ones I added just to make the trait names shorter
-    TraitName %in% c("Stem specific density (SSD, stem dry mass per stem fresh volume) or wood density") ~ "TRY_SSD",
-    TraitName %in% c("Root rooting depth") ~ "TRY_RRD",
-    TraitName %in% c("Leaf nitrogen (N) content per leaf area") ~ "TRY_LNLA",
+    TraitName %in% c("Stem specific density (SSD, stem dry mass per stem fresh volume) or wood density") ~ "SSD",
+    TraitName %in% c("Root rooting depth") ~ "RRD",
+    TraitName %in% c("Leaf nitrogen (N) content per leaf area") ~ "LNLA",
     TRUE ~ TraitName # Just "Root rooting depth" and "Leaf nitrogen (N) content per leaf dry mass" right now
   )) %>%
-  group_by(Species_full, Family, Species, original_name, TraitName) %>%
-  # !!! If trait isn't categorical (i.e. Plant woodiness), take a grand mean across all the previously processed data entries
-  reframe(mean = ifelse(TraitName == "Plant woodiness",
-    unique(processed_value),
-    as.character(mean(as.double(processed_value)))
+  mutate(processed_value = as.double(processed_value)) %>%
+  pivot_wider(
+    id_cols = c(Species_full, Family, Species, original_name),
+    names_from = TraitName, values_from = processed_value,
+    values_fn = mean
+  ) %>%
+  # Translate Woodiness back to a character
+  mutate(Woodiness = case_when(
+    round(Woodiness) == 0 ~ "non-woody",
+    round(Woodiness) == 1 ~ "semi-woody",
+    round(Woodiness) == 2 ~ "woody"
   )) %>%
-  distinct() %>%
-  pivot_wider(id_cols = c(Species_full, Family, Species, original_name), names_from = TraitName, values_from = mean) %>%
-  rename(original_name_TRY = original_name)
+  rename(original_name = original_name) %>%
+  mutate(origin = "TRY")
+
+
 
 
 # 4) Combine data sets -----------------------------------------------------
 
-final_data <- # Join Diaz and original data sets
-  full_join(full_data, Diaz_data_sel, by = c("Species_full", "Family")) %>%
-  # Join TRY data set
-  full_join(TRY_data_processed_wide,
-    by = c("Species_full", "Species", "Family")
-  )
+# Join Diaz and TRY data sets, preferring data entries from Diaz
+
+final_data <- full_join(
+  Diaz_data_sel,
+  TRY_data_processed_wide,
+  by = c("Species_full", "Family", "origin",
+         "LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness"
+  )) %>%
+  arrange(Species_full, origin) %>%
+  select(c(
+    "Species_full", "Family", "origin",
+    "LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness"
+  )) %>%
+  # if there is data for a trait from both the Diaz and TRY data sets, just use the value from Diaz
+  pivot_longer(
+    cols = c("LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness"),
+    names_to = "trait", values_to = "value",
+    values_transform = list(value = as.character)
+  ) %>%
+  # for each species, for each trait,
+  pivot_wider(
+    names_from = "origin",
+    values_from = "value"
+  ) %>%
+  # if value is not NA for origin = "TRY" and origin = "Diaz",
+  # set value to value from "Diaz"
+  group_by(Species_full, Family, trait) %>%
+  select(c("Species_full", "Family", "trait", "Diaz", "TRY")) %>%
+  mutate(
+    value = case_when(
+      !is.na(Diaz) & !is.na(TRY) ~ Diaz,
+      is.na(Diaz) & !is.na(TRY) ~ TRY,
+      !is.na(Diaz) & is.na(TRY) ~ Diaz,
+      TRUE ~ NA
+    ),
+    # delete origin column
+    .keep = "unused"
+  ) %>%
+  pivot_wider(names_from = "trait") %>%
+  # Change numeric variables back to type double
+  mutate_at(vars(`LDMC (g/g)`:`Leaf area (mm2)`), as.double) %>% 
+  # Add back in species which lack trait data along with TEK data
+  full_join(select(full_data,
+                   c("Species_full", "Family",
+                     "N_Names", "N_Langs", "N_Uses")), 
+            by = c("Species_full", "Family")) %>% 
+  ungroup()
 
 # Write the final data
 write_csv(final_data, "data/clean/final_dataset.csv")
-
+# final_data <- read_csv("data/clean/final_dataset.csv")
 
 # List of species for which we have zero numeric trait data besides TEK
 test_data <- final_data %>%
   rowwise() %>%
-  mutate(n_notNA = sum(!is.na(c_across(where(is.numeric))))) %>%
+  mutate(n_notNA = sum(!is.na(c_across(where(is.double))))) %>%
   filter(n_notNA == 3) # All species should have at least 3 trait values (from TEK data)
 
 # Get coverage of traits
 coverage_df <- final_data %>%
+  ungroup() %>% 
   summarise(across(everything(), ~ sum(!is.na(.)) / dim(final_data)[1]))
 
 write_csv(coverage_df, "data/clean/coverage_pcts.csv")
@@ -442,24 +492,9 @@ write_csv(coverage_df, "data/clean/coverage_pcts.csv")
 
 # Reduce dataset to only include data used in simulations
 data_in <- final_data %>%
-  dplyr::select(
-    -(Species:Family), -(Species_full_author:`Number of traits with values`),
-    -original_name_TRY
-  ) %>%
-  # Only keep columns used in analysis
-  # select(
-  #   # `Species`,
-  #   `Species_full`, # EVC: use this instead of Species
-  #   `Family`,
-  #   `IUCN Status`,
-  #   `Number of unique names (Indigenous)`,
-  #   `Number of unique  languages (from Appendix 2B)`,
-  #   # `Number of names (common)`,
-  #   `Number of uses`
-  # ) %>%
-  # rename("Status" = `IUCN Status`) %>%
+  select("Species_full","Family","LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness") %>% 
   melt(
-    id = c("Species_full"), # , "Status"),
+    id = c("Species_full",), # , "Status"),
     variable.name = "Trait"
   ) %>%
   # entityID gives a unique number for each SPECIES
@@ -474,24 +509,23 @@ data_in <- final_data %>%
 # * Diagnostics and visualization -----------------------------------------
 
 # Compare trait data from Diaz and directly from TRY
-comp_DiazTRY <- final_data %>% 
-  select(Species, "SSD combined (mg/mm3)":"Leaf area (mm2)", "TRY_Nmass (mg/g)":"TRY_RRD") %>% 
-  pivot_longer(cols = "TRY_Nmass (mg/g)":"TRY_RRD", names_to = "TRY_name", values_to = "value_TRY", names_prefix = "TRY_") %>% 
-  mutate(value_TRY = as.double(value_TRY)) %>% 
+comp_DiazTRY <- final_data %>%
+  select(Species, "SSD combined (mg/mm3)":"Leaf area (mm2)", "TRY_Nmass (mg/g)":"TRY_RRD") %>%
+  pivot_longer(cols = "TRY_Nmass (mg/g)":"TRY_RRD", names_to = "TRY_name", values_to = "value_TRY", names_prefix = "TRY_") %>%
+  mutate(value_TRY = as.double(value_TRY)) %>%
   # Rename Diaz traits that don't match up exactly with TRY data...
-  rename(SSD = "SSD combined (mg/mm3)") %>% 
-  pivot_longer(cols = "SSD":"Leaf area (mm2)", names_to = "Diaz_name", values_to = "value_Diaz") %>% 
-  filter(TRY_name == Diaz_name) %>% 
-  # rename() %>% 
-  select(Species, TraitName = TRY_name, value_TRY, value_Diaz) %>% 
-  filter(!is.na(value_TRY), !is.na(value_Diaz)) %>% 
+  rename(SSD = "SSD combined (mg/mm3)") %>%
+  pivot_longer(cols = "SSD":"Leaf area (mm2)", names_to = "Diaz_name", values_to = "value_Diaz") %>%
+  filter(TRY_name == Diaz_name) %>%
+  # rename() %>%
+  select(Species, TraitName = TRY_name, value_TRY, value_Diaz) %>%
+  filter(!is.na(value_TRY), !is.na(value_Diaz)) %>%
   mutate(diff = value_TRY - value_Diaz)
 
 # Distribution of differences across each trait
-comp_plot <- comp_DiazTRY %>% 
+comp_plot <- comp_DiazTRY %>%
   ggplot(aes(x = diff)) +
   geom_histogram(bins = 10) +
-  facet_wrap(~ TraitName, scales = "free") +
+  facet_wrap(~TraitName, scales = "free") +
   ggtitle("Distributions of differences between TRY and Diaz trait values")
 comp_plot
-
