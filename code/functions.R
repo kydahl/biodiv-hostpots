@@ -6,6 +6,11 @@
 ##* Load libraries---------------------------------------------------------------
 library(tidyverse)
 
+##* Load necessary data---------------------------------------------------------
+final_data <- read_csv("data/clean/final_dataset_IMPUTED.csv", 
+                       show_col_types = FALSE) %>% 
+  rename(Species = Species_full)
+
 ##* Helper functions-------------------------------------------------------------
 # Sample from a discrete uniform distribution
 # Source: https://stats.stackexchange.com/questions/3930/are-there-default-functions-for-discrete-uniform-distributions-in-r
@@ -27,6 +32,17 @@ group_assign <- function(in_df,
 }
 
 ##* Functions for creating data frames-------------------------------------------
+
+# Get the number of entities for a patch
+get.NumEntities <- function(MaxNumEntities, Level) {
+  if (!(Level %in% MaxNumEntities$Level)) {
+    warning("Incorrect level choice")
+    break
+  }
+  
+  MaxNum <- filter(MaxNumEntities, Level == Level)$count
+  round(runif(1, 1, MaxNum))
+}
 
 ## Assign entities to patches
 get.patches <- function(entity_df,
@@ -74,52 +90,60 @@ assign.states <- function(regional_df) {
 }
 
 ## Create full data.frame of entities and their traits in patches with assigned states
-get.full_df <- function(entity_df, numPatches, mean.NumEntities, sd.NumEntities) {
-  # assign patches and states to entities
-  regional_df <- get.patches(
-    entity_df,
-    numPatches,
-    mean.NumEntities,
-    sd.NumEntities
-  )
-
-  states_df <- full_join(entity_df, regional_df, by = "Species") %>%
-    filter(!is.na(patch))
-
-  full_df <- states_df %>%
-    # assign states to entities within patches%>%
-    # Assign states (except for "Extinct")
-    # these are numbers with higher = better
-    mutate(state = ifelse(test = (Status == "/"),
-      # !!! place holder. if we don't know status, just assign randomly
-      yes = sample(
-        x = 2:7,
-        size = dim(filter(states_df, Status == "/"))[1],
-        replace = TRUE
-      ),
-      no = case_when(
-        Status == "Increasing (Least Concern)" ~ 7,
-        Status == "Stable (Least Concern)" ~ 6,
-        Status == "Unknown (Least Concern)" ~ 5,
-        Status == "Decreasing (Least Concern)" ~ 4,
-        Status == "Decreasing (Near threatened)" ~ 3,
-        Status == "Decreasing (Endangered)" ~ 2,
-        # Status == "/" ~ sample.int(6, 1, replace = TRUE) # !!! placeholder. just assign something random if it's blank...
-      )
-    )) %>%
-    # re-order the data.frame for easier viewing
-    relocate(Species, patch, uniqueID)
-
-  # states_df <- entity_df %>%
-  #   # assign entities to patches
-  #   get.patches(numPatches, maxEntitiesPatch) %>%
-  #   # assign states to entities within patches
-  #   assign.states(.)
-
-  # add trait values back in
-  # full_df <- inner_join(entity_df, states_df) %>%
-  #   # re-order the data.frame for easier viewing
-  #   relocate(Species, patch, uniqueID)
+get.full_df <- function(NumPatches, LevelOrder) {
+  SpeciesOccs <- if (LevelOrder == 1) {
+    read_csv("data/clean/species_occurences_L1.csv", show_col_types = FALSE) %>% 
+      rename(Level = LEVEL1)
+  } else if (LevelOrder == 2) {
+    read_csv("data/clean/species_occurences_L2.csv", show_col_types = FALSE) %>% 
+      rename(Level = LEVEL2)
+  } else if (LevelOrder == 3) {
+    read_csv("data/clean/species_occurences_L3.csv", show_col_types = FALSE) %>% 
+      rename(Level = LEVEL3)
+  } 
+  
+  # Assign levels to patches 
+  
+  # Equal numbers across each level (for now)
+  Levels <- sample(SpeciesOccs$Level, NumPatches, replace = TRUE)
+  
+  Init_df <- tibble(Patch = 1:NumPatches, Level = Levels)
+  
+  # Assign number of species to each patch 
+  
+  # Maximum needs to be set to the total number of species at that level
+  MaxNumEntities <- SpeciesOccs %>% 
+    group_by(Level) %>% 
+    summarise(count = n())
+  
+  
+  # Assign species to patches -----------------------------------------------
+  
+  Patch_df <- tibble(Patch = as.integer(), Level = as.double(), Species = as.character())
+  
+  # For each patch, get its level
+  for (index_patch in Init_df$Patch) {
+    # Get the level of the patch
+    level <- filter(Init_df, Patch == index_patch)$Level
+    
+    # Get species list from the right level
+    species_list <- filter(SpeciesOccs, Level == level)$Species
+    
+    # Get number of entities in patch
+    entity_count <- min(get.NumEntities(MaxNumEntities, level), length(species_list))
+    
+    # Sample entities without replacement from species list
+    entities <- sample(species_list, entity_count, replace = FALSE)
+    
+    temp_df <- tibble(Patch = index_patch, Level = level, Species = entities)
+    
+    Patch_df <- rbind(Patch_df, temp_df)
+    
+  }
+  
+  # Add species traits to the dataframe
+  full_df <- right_join(Patch_df, final_data, by = "Species") %>% 
+    filter(!is.na(Patch), !is.na(Level))
 }
 
 

@@ -28,6 +28,7 @@ dir_fig <- "figures/Species_occurrence/"
 
 species_list <- BIEN_list_all() %>% 
   mutate(Species_full = species) %>%
+  # filter to species in BIEN that match synonyms "original name" of our original species list
   synonym_func() # !!! re-run later when it lets me
 
 dim(species_list)

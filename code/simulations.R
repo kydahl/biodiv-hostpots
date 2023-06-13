@@ -51,8 +51,8 @@ species_occurences_L2 <- read_csv("data/clean/species_occurences_L2.csv")
 species_occurences_L3 <- read_csv("data/clean/species_occurences_L3.csv")
 
 # level 2 seems like the best bet, but try exploring level 3. see what feels best when doing simulations
-SpeciesOccs <- species_occurences_L2 %>% 
-  rename(Level = LEVEL2)
+SpeciesOccs <- species_occurences_L3 %>% 
+  rename(Level = LEVEL3)
 
 # Create patches ----------------------------------------------------------
 
@@ -63,9 +63,11 @@ NumPatches <- 400 # Just for testing purposes at this point. Need to settle on s
 # Assign levels to patches ------------------------------------------------
 
 # Equal numbers across each level (for now)
-Levels <- sample(SpeciesOccs$Level, NumPatches, replace = TRUE)
+Levels <- sample(unique(SpeciesOccs$Level), NumPatches, replace = FALSE)
 
 Init_df <- tibble(Patch = 1:NumPatches, Level = Levels)
+
+# Change to repeat each level N times
 
 # Assign number of species to each patch ------------------------------
 
@@ -162,9 +164,11 @@ get.full_df <- function(NumPatches, LevelOrder) {
 }
 
 # Compare hotspots identified by different metrics
-test_df <- get.full_df(200, 3)
+test_df <- get.full_df(NumPatches = 2000, LevelOrder = 3)
 
-compare_biodiv_df <- get.biodiv.compare_df(test_df)
+biodiv_df <- get.biodiv_df(test_df)
+
+compare_biodiv_hotspots_df <- get.biodiv.compare_df(test_df)
 
 
 compare_df <- tibble(iteration = as.integer(),
