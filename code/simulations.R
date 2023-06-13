@@ -8,84 +8,174 @@ require(cowplot)
 require(picante)
 
 # Register CPU cores for parallel processing
-registerDoParallel(cores = 12 - 2)
+numCores <- parallel::detectCores()
+registerDoParallel(cores = numCores - 2)
 
 # Load in analysis functions
 source("code/functions.R")
-# Load in data
-source("code/data_intake.R")
 
-## Helper functions-------------------------------------------------------------
+# Load in trait data
+final_data <- read_csv("data/clean/final_dataset_IMPUTED.csv") %>% 
+  rename(Species = Species_full)
+
+# Load in phylogenetic tree data
+tree <- read.tree(file = "data/clean/phylogenetic_tree.csv")
 
 
-## Parameters-------------------------------------------------------------------
+
+## Helper functions ------------------------------------------------------------
+# Uniformly sample from interval [1, MaxNumEntities]
+get.NumEntities <- function(MaxNumEntities, Level) {
+  if (!(Level %in% MaxNumEntities$Level)) {
+    warning("Incorrect level choice")
+    break
+  }
+  
+  MaxNum <- filter(MaxNumEntities, Level == Level)$count
+  round(runif(1, 1, MaxNum))
+}
+
+## Parameters ------------------------------------------------------------------
 ## Set random seed (for debugging)
 # set.seed(8797)
-
-## Number of patches
-numPatches <- 400 # !!! Decide on a realistic value for the scale we care about
-
-## Number of entities per patch
-mean.NumEntities <- 20
-CV.NumEntities <- 1 / 2
-sd.NumEntities <- mean.NumEntities * CV.NumEntities
-
-# patchEntities_denominator <- 50
-# maxEntitiesPatch <- ceiling(numEntities / patchEntities_denominator)
-# Notes / Observations:
-# * Species richness and num. endemics become more similar as
-#   patchEntities_denominator is increased.
-# * This is because if there are fewer entities/patch and the entities come from
-#   the same (relatively large) pool of entities, then it is very likely that 
-#   any given entity in a patch is endemic there.
-# * Be careful when making patchEntities_denominator small because that can
-#   substantially increase the size of 'full_df' and thus the overall
-#   computation time for the simulations below
-
-## IUCN categories
-IUCN_cats <- c(
-  "Extinct",
-  "Critically endangered",
-  "Endangered",
-  "Vulnerable",
-  "Near threatened",
-  "Least concern"
-)
-# in case we want to convert numbers to categories
-state_keys <- tibble(nums = 1:6, cats = IUCN_cats) 
 
 ## Number of iterations to compute biodiversity over
 numIterations <- 1000
 
-# Run simulations ---------------------------------------------------------
 
-# Load in initial data
-entity_df <- data_in %>%
-  filter(Species != "Pterospora andromedea")
+# Load species occurrences ------------------------------------------------
 
-# Create a single simulation for visualizations
-full_df <- get.full_df(entity_df, 
-                       numPatches, 
-                       mean.NumEntities, 
-                       sd.NumEntities)
+# Output .csvs from "exploring_BIEN.R"
+species_occurences_L1 <- read_csv("data/clean/species_occurences_L1.csv")
+species_occurences_L2 <- read_csv("data/clean/species_occurences_L2.csv")
+species_occurences_L3 <- read_csv("data/clean/species_occurences_L3.csv")
+
+# level 2 seems like the best bet, but try exploring level 3. see what feels best when doing simulations
+SpeciesOccs <- species_occurences_L2 %>% 
+  rename(Level = LEVEL2)
+
+# Create patches ----------------------------------------------------------
+
+# Define total number of patches
+NumPatches <- 400 # Just for testing purposes at this point. Need to settle on scale later
 
 
-# Get tree data
-tree <- read.tree(file = "data/clean/phylogenetic_tree.csv")
+# Assign levels to patches ------------------------------------------------
 
-# Comparing the hotspots of each biodiversity metric against species richness
+# Equal numbers across each level (for now)
+Levels <- sample(SpeciesOccs$Level, NumPatches, replace = TRUE)
 
-# Preallocate comparison data frame
-# compare_df <- tibble(
-#   iteration = numeric(),
-#   endemic = numeric(),
-#   indig.name = numeric(),
-#   indig.lang = numeric(),
-#   use = numeric(),
-#   PD = numeric(),
-#   SR = numeric(),
-#   PD_unrooted = numeric()
-# )
+Init_df <- tibble(Patch = 1:NumPatches, Level = Levels)
+
+# Assign number of species to each patch ------------------------------
+
+# Maximum needs to be set to the total number of species at that level
+MaxNumEntities <- SpeciesOccs %>% 
+  group_by(Level) %>% 
+  summarise(count = n())
+
+
+# Assign species to patches -----------------------------------------------
+
+Patch_df <- tibble(Patch = as.integer(), Level = as.double(), Species = as.character())
+
+# For each patch, get its level
+for (index_patch in Init_df$Patch) {
+  # Get the level of the patch
+  level <- filter(Init_df, Patch == index_patch)$Level
+  
+  # Get species list from the right level
+  species_list <- filter(SpeciesOccs, Level == level)$Species
+  
+  # Get number of entities in patch
+  entity_count <- min(get.NumEntities(MaxNumEntities, level), length(species_list))
+  
+  # Sample entities without replacement from species list
+  entities <- sample(species_list, entity_count, replace = FALSE)
+  
+  temp_df <- tibble(Patch = index_patch, Level = level, Species = entities)
+  
+  Patch_df <- rbind(Patch_df, temp_df)
+  
+}
+
+# Add species traits to the dataframe
+final_data <- rename(final_data)
+
+full_df <- right_join(Patch_df, final_data, by = "Species")
+
+
+get.full_df <- function(NumPatches, LevelOrder) {
+  SpeciesOccs <- if (LevelOrder == 1) {
+    read_csv("data/clean/species_occurences_L1.csv") %>% 
+      rename(Level = LEVEL1)
+  } else if (LevelOrder == 2) {
+    read_csv("data/clean/species_occurences_L2.csv") %>% 
+      rename(Level = LEVEL2)
+  } else if (LevelOrder == 3) {
+    read_csv("data/clean/species_occurences_L3.csv") %>% 
+      rename(Level = LEVEL3)
+  } 
+  
+  # Assign levels to patches 
+  
+  # Equal numbers across each level (for now)
+  Levels <- sample(SpeciesOccs$Level, NumPatches, replace = TRUE)
+  
+  Init_df <- tibble(Patch = 1:NumPatches, Level = Levels)
+  
+  # Assign number of species to each patch 
+  
+  # Maximum needs to be set to the total number of species at that level
+  MaxNumEntities <- SpeciesOccs %>% 
+    group_by(Level) %>% 
+    summarise(count = n())
+  
+  
+  # Assign species to patches -----------------------------------------------
+  
+  Patch_df <- tibble(Patch = as.integer(), Level = as.double(), Species = as.character())
+  
+  # For each patch, get its level
+  for (index_patch in Init_df$Patch) {
+    # Get the level of the patch
+    level <- filter(Init_df, Patch == index_patch)$Level
+    
+    # Get species list from the right level
+    species_list <- filter(SpeciesOccs, Level == level)$Species
+    
+    # Get number of entities in patch
+    entity_count <- min(get.NumEntities(MaxNumEntities, level), length(species_list))
+    
+    # Sample entities without replacement from species list
+    entities <- sample(species_list, entity_count, replace = FALSE)
+    
+    temp_df <- tibble(Patch = index_patch, Level = level, Species = entities)
+    
+    Patch_df <- rbind(Patch_df, temp_df)
+    
+  }
+  
+  # Add species traits to the dataframe
+  full_df <- right_join(Patch_df, final_data, by = "Species") %>% 
+    filter(!is.na(Patch), !is.na(Level))
+}
+
+# Compare hotspots identified by different metrics
+test_df <- get.full_df(200, 3)
+
+compare_biodiv_df <- get.biodiv.compare_df(test_df)
+
+
+compare_df <- tibble(iteration = as.integer(),
+                      endemic = as.double(),
+                      indig.name = as.double(),
+                      indig.lang = as.double(),
+                      use = as.double(),
+                      CV = as.double(),
+                      # SR = biodiv.compare_df$SR,
+                      # PD_unrooted = biodiv.compare_df$PD_unrooted
+)
 
 # Build data frame
 compare_df <- foreach(
@@ -95,31 +185,25 @@ compare_df <- foreach(
   .packages = c("tidyverse", "reshape2", "picante")
 ) %dopar% {
   # Run a simulation
-  full_df <- get.full_df(entity_df, 
-                         numPatches, 
-                         mean.NumEntities, 
-                         sd.NumEntities)
+  full_df <- get.full_df(400, 2)
 
-  # Get hotspot comparison values
-  biodiv.compare_df <- get.biodiv.compare_df(full_df) %>% 
-    pivot_wider(names_from = variable) %>% 
+  # # Get hotspot comparison values
+  biodiv.compare_df <- get.biodiv.compare_df(full_df) %>%
+    pivot_wider(names_from = variable) %>%
     unique()
 
   # Add to the list
   compare_df <- add_row(compare_df,
-    iteration = int,
-    endemic = biodiv.compare_df$NumEndemic,
-    indig.name = biodiv.compare_df$NumIndigName,
-    indig.lang = biodiv.compare_df$NumIndigLang,
-    use = biodiv.compare_df$NumUse,
-    PD = biodiv.compare_df$PD,
-    SR = biodiv.compare_df$SR,
-    PD_unrooted = biodiv.compare_df$PD_unrooted
+                        iteration = int,
+                        endemic = biodiv.compare_df$NumEndemic,
+                        indig.name = biodiv.compare_df$NumIndigName,
+                        indig.lang = biodiv.compare_df$NumIndigLang,
+                        use = biodiv.compare_df$NumUse,
+                        CV = biodiv.compare_df$CoeffVar
+                        # SR = biodiv.compare_df$SR,
+                        # PD_unrooted = biodiv.compare_df$PD_unrooted
   )
+  
 }
 
-# !!! BUG: for some reason, foreach is adding repeated entries to the data frame
-#          code below removes the repeats, but this could cause issues for
-#          higher numbers of iterations
-compare_df <- unique(compare_df)
 

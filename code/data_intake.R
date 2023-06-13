@@ -152,7 +152,9 @@ base_data <- read_csv("data/raw/PNW_Species_w_Metadata.csv", show_col_types = FA
   # Remove rows corresponding to family labels
   filter(!Species %in% clade_labels) %>%
   # Remove rows with NA as species name
-  filter(!is.na(Species))
+  filter(!is.na(Species)) %>% 
+  # Remove species for which we lack phylogenetic data: Pterospora andromedea
+  filter(Species != "Pterospora andromedea")
 
 # Read in TEK data set
 TEK_data <- read_csv("data/raw/TEKdata.csv", show_col_types = FALSE) %>%
@@ -469,7 +471,14 @@ final_data <- full_join(
                    c("Species_full", "Family",
                      "N_Names", "N_Langs", "N_Uses")), 
             by = c("Species_full", "Family")) %>% 
-  ungroup()
+  ungroup() %>% 
+  mutate(Species = stringr::word(Species_full, 1, 2, sep = " ")) %>%
+  mutate(Ssp_var = stringr::word(Species_full, 3, 4, sep = " ")) 
+
+# Look for repeats of species
+subspecies_list <- final_data %>% 
+  group_by(Species) %>% 
+  filter(n()>1)
 
 # Write the final data
 write_csv(final_data, "data/clean/final_dataset.csv")
@@ -494,7 +503,7 @@ write_csv(coverage_df, "data/clean/coverage_pcts.csv")
 data_in <- final_data %>%
   select("Species_full","Family","LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness") %>% 
   melt(
-    id = c("Species_full",), # , "Status"),
+    id = c("Species_full"), # , "Status"),
     variable.name = "Trait"
   ) %>%
   # entityID gives a unique number for each SPECIES

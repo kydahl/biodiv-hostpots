@@ -35,7 +35,7 @@ get.patches <- function(entity_df,
                         sd.NumEntities) {
   # initialize data.frame
   regional_df <- tibble(
-    entityID = NA,
+    Species = NA,
     patch = NA
   )
 
@@ -43,8 +43,8 @@ get.patches <- function(entity_df,
   for (i in 1:numPatches) {
     regional_df <- add_row(regional_df,
       patch = i,
-      entityID = group_assign(
-        unique(entity_df$entityID),
+      Species = group_assign(
+        unique(entity_df$Species),
         mean.NumEntities,
         sd.NumEntities
       )
@@ -53,8 +53,8 @@ get.patches <- function(entity_df,
 
   # assign uniqueIDs to entities in patches (and remove NAs we added in initialization)
   regional_df <- regional_df %>%
-    mutate(uniqueID = paste("E", entityID, "_P", patch, sep = "")) %>%
-    filter(!is.na(entityID))
+    mutate(uniqueID = paste("E", Species, "_P", patch, sep = "")) %>%
+    filter(!is.na(Species))
 }
 
 ## Assign states to each of the entities in each patch
@@ -83,7 +83,7 @@ get.full_df <- function(entity_df, numPatches, mean.NumEntities, sd.NumEntities)
     sd.NumEntities
   )
 
-  states_df <- full_join(entity_df, regional_df, by = "entityID") %>%
+  states_df <- full_join(entity_df, regional_df, by = "Species") %>%
     filter(!is.na(patch))
 
   full_df <- states_df %>%
@@ -108,7 +108,7 @@ get.full_df <- function(entity_df, numPatches, mean.NumEntities, sd.NumEntities)
       )
     )) %>%
     # re-order the data.frame for easier viewing
-    relocate(entityID, patch, uniqueID)
+    relocate(Species, patch, uniqueID)
 
   # states_df <- entity_df %>%
   #   # assign entities to patches
@@ -119,7 +119,7 @@ get.full_df <- function(entity_df, numPatches, mean.NumEntities, sd.NumEntities)
   # add trait values back in
   # full_df <- inner_join(entity_df, states_df) %>%
   #   # re-order the data.frame for easier viewing
-  #   relocate(entityID, patch, uniqueID)
+  #   relocate(Species, patch, uniqueID)
 }
 
 
@@ -160,50 +160,55 @@ get.vulnerability <- function(in_df) {
 # number of unique entityIDs in a patch
 num.unique.metric <- function(in_df) {
   out_df <- in_df %>%
-    filter(state > 1) %>% # remove extinct entities
+    # filter(state > 1) %>% # remove extinct entities
     # remove duplicates due to rows from trait.num
-    select(patch, entityID) %>%
+    select(Patch, Species) %>%
     distinct() %>%
     # count number of distinct entities
-    count(patch, name = "biodiv")
+    count(Patch, name = "biodiv")
 }
 
 # Number of endemic entities
 num.endemic.metric <- function(in_df) {
   out_df <- in_df %>%
-    filter(state > 1) %>% # remove extinct entities
-    select(patch, entityID) %>%
-    # only keep rows where entityID is unique ( == endemics)
-    group_by(entityID) %>%
+    # filter(state > 1) %>% # remove extinct entities
+    select(Patch, Species) %>%
+    # only keep rows where Species is unique ( == endemics)
+    group_by(Species) %>%
     # remove duplicates due to rows from trait.num
     distinct() %>%
     mutate(endemic_flag = ifelse(n() == 1, 1, 0)) %>%
     ungroup() %>%
-    group_by(patch) %>%
+    group_by(Patch) %>%
     summarise(
       "biodiv" = sum(endemic_flag, na.rm = TRUE),
       .groups = "keep"
     )
   # filter(n() == 1) %>%
   # ungroup() %>%
-  # # count number of endemics in each patch
-  # count(patch, name = "biodiv")
+  # # count number of endemics in each Patch
+  # count(Patch, name = "biodiv")
 }
 
 # General trait counting metric function
 trait.count.metric <- function(in_df, trait_name) {
   out_df <- in_df %>%
-    # remove extinct entities
-    filter(state > 1) %>%
-    filter(Trait == trait_name) %>%
-    # KD: This calculates TOTAL number of traits (which perhaps makes sense for
-    #     uses or names, but probably not for biological traits)
-    select(patch, entityID, value) %>%
-    group_by(patch) %>%
-    summarise(
-      "biodiv" = sum(value, na.rm = TRUE),
-      .groups = "keep"
-    )
+    select(Patch, one_of(trait_name)) %>% 
+    group_by(Patch) %>% 
+    # Biodiversity measured as sum in a given trait
+    summarise(biodiv = sum(!!as.name(trait_name)))
+}
+
+# Trait coefficient of variation function
+trait.coeffvariance.metric <- function(in_df, trait_names) {
+  out_df <- in_df %>%
+    select(Patch, all_of(trait_names)) %>% 
+    melt(id = "Patch") %>% 
+    group_by(Patch, variable) %>% 
+    # Biodiversity measured as sum in a given trait
+    summarise(coeff_var = sd(value)/mean(value)) %>% 
+    group_by(Patch) %>% 
+    summarise(biodiv = sum(coeff_var))
 }
 
 # If we add abundance, we can compute: Shannon diversity, Evenness, Simpson's 
@@ -224,11 +229,11 @@ phylodiv.metrics <- function(in_df) {
     mutate(Species2 = paste(stringr::word(Species, 1,1, sep=" "),
                             stringr::word(Species, 2,2, sep=" "),
                             sep="_")) %>%
-    dplyr::select(Species2, patch) %>% 
+    dplyr::select(Species2, Patch) %>% 
     unique()
   
-  comm <- dcast(si, formula = patch ~ Species2, fun.aggregate = length, 
-                value.var = "patch")
+  comm <- dcast(si, formula = Patch ~ Species2, fun.aggregate = length, 
+                value.var = "Patch")
   
   ## ---- Calculate phylogenetic diversity --------------
   # this takes a while!
@@ -255,20 +260,20 @@ phylodiv.metrics <- function(in_df) {
   
   # Combine results
   pdiv_all <- pdiv_length %>%
-    tibble::rownames_to_column("patch") %>%
+    tibble::rownames_to_column("Patch") %>%
     full_join(pdiv_length2 %>% dplyr::select(PD) %>%
                 rename(PD_unrooted = PD) %>%
-                tibble::rownames_to_column("patch"),
-              by = c("patch")) %>%
+                tibble::rownames_to_column("Patch"),
+              by = c("Patch")) %>%
     full_join(pdiv_psv %>% dplyr::select(PSVs)  %>%
-                tibble::rownames_to_column("patch"),
-              by = c("patch")) %>%
+                tibble::rownames_to_column("Patch"),
+              by = c("Patch")) %>%
     full_join(pdiv_psr %>% dplyr::select(PSR)  %>%
-                tibble::rownames_to_column("patch"),
-              by = c("patch")) %>%
+                tibble::rownames_to_column("Patch"),
+              by = c("Patch")) %>%
     full_join(pdiv_pse %>% dplyr::select(PSEs)  %>%
-                tibble::rownames_to_column("patch"),
-              by = c("patch"))
+                tibble::rownames_to_column("Patch"),
+              by = c("Patch"))
 }
 
 
@@ -283,47 +288,43 @@ get.biodiv_df <- function(in_df) {
   # hotspots.endemic <- find.hotspots(num.endemic_df)
 
   # Metric 3: Number of Indigenous names
-  num.indig.name_df <- trait.count.metric(
-    in_df,
-    "Number of unique names (Indigenous)"
-  )
+  num.indig.name_df <- trait.count.metric(in_df, "N_Names")
   # hotspots.indig.name <- find.hotspots(num.indig.name_df)
 
   # Metric 4: Number of Indigenous languages
-  num.indig.lang_df <- trait.count.metric(
-    in_df,
-    "Number of unique  languages (from Appendix 2B)"
-  )
+  num.indig.lang_df <- trait.count.metric(in_df, "N_Langs")
   # hotspots.indig.lang <- find.hotspots(num.indig.lang_df)
 
   # Metric 5: Number of uses
-  num.use_df <- trait.count.metric(
-    in_df,
-    "Number of uses"
-  )
+  num.use_df <- trait.count.metric(in_df, "N_Uses")
   # hotspots.use <- find.hotspots(num.use_df)
   
+  # Metric 6: Combined variation of quantitative traits
+  coeffvar_df <- trait.coeffvariance.metric(in_df, c("LDMC (g/g)","Nmass (mg/g)", "Plant height (m)", "Leaf area (mm2)" ))
+  
   # Phylogenetic diversity metrics
-  PD_df <- phylodiv.metrics(in_df)
-  PD_df$patch <- as.integer(PD_df$patch)
+  # PD_df <- phylodiv.metrics(in_df)
+  # PD_df$Patch <- as.integer(PD_df$Patch)
   
   # !!! BUG: Getting NA for a couple metrics
-  PD_df <- select(PD_df, -PSVs, -PSR, -PSEs)
+  # PD_df <- select(PD_df, -PSVs, -PSR, -PSEs)
 
-  # Put together one big dataframe of biodiversity metrics of each patch
+  # Put together one big dataframe of biodiversity metrics of each Patch
   biodiv_df <- rename(num.unique_df, NumUnique = biodiv) %>% # Number of unique entities
     # Number of endemic entities
-    right_join(rename(num.endemic_df, NumEndemic = biodiv), by = "patch") %>%
+    right_join(rename(num.endemic_df, NumEndemic = biodiv), by = "Patch") %>%
     # Number of Indigenous names
-    right_join(rename(num.indig.name_df, NumIndigName = biodiv), by = "patch") %>%
+    right_join(rename(num.indig.name_df, NumIndigName = biodiv), by = "Patch") %>%
     # Number of Indigenous languages
-    right_join(rename(num.indig.lang_df, NumIndigLang = biodiv), by = "patch") %>%
+    right_join(rename(num.indig.lang_df, NumIndigLang = biodiv), by = "Patch") %>%
     # Number of uses
-    right_join(rename(num.use_df, NumUse = biodiv), by = "patch") 
+    right_join(rename(num.use_df, NumUse = biodiv), by = "Patch") %>% 
+    # Coefficient of variation
+    right_join(rename(coeffvar_df, CoeffVar = biodiv), by = "Patch")
   
-  biodiv_df <- biodiv_df %>% 
-    # add Phylogenetic diversity metrics
-    right_join(PD_df, by = "patch")
+  biodiv_df <- biodiv_df #%>% 
+    # # add Phylogenetic diversity metrics
+    # right_join(PD_df, by = "Patch")
 }
 
 
@@ -336,7 +337,11 @@ get.biodiv_df <- function(in_df) {
 # give all the patches in the 95% quantile
 find.hotspots <- function(in_df) {
   # Select top 5th percentile
-  in_df[in_df$biodiv > quantile(in_df$biodiv, 0.95, na.rm = FALSE), ]
+  hotspots <- in_df[in_df$biodiv > quantile(in_df$biodiv, 0.95, na.rm = FALSE), ]
+  
+  if (dim(hotspots)[1] == 0) {hotspots <- in_df[which.max(in_df$biodiv),]}
+  
+  return(hotspots)
 }
 
 
@@ -347,8 +352,8 @@ find.hotspots <- function(in_df) {
 # simple function for now:
 # count the number of overlaps in which patches were considered hotspots
 calc.hotspot_compare <- function(hotspots.unique, hotspots.compare) {
-  unique.hotspots <- hotspots.unique$patch
-  compare.hotspots <- hotspots.compare$patch
+  unique.hotspots <- hotspots.unique$Patch
+  compare.hotspots <- hotspots.compare$Patch
 
   TP_count <- sum(compare.hotspots %in% unique.hotspots)
 
@@ -375,7 +380,7 @@ calc.hotspot_compare <- function(hotspots.unique, hotspots.compare) {
 get.biodiv.compare_df <- function(in_df) {
   # Get biodiversity metrics
   biodiv_df <- get.biodiv_df(in_df) %>%
-    melt(id = "patch")
+    melt(id = "Patch")
 
   # Pre-allocate table
   hotspot.compare_df <- tibble(
@@ -392,11 +397,13 @@ get.biodiv.compare_df <- function(in_df) {
         select(-variable) %>%
         rename(biodiv = value) %>%
         find.hotspots()
+      
     } else {
       hotspot_list <- biodiv_df %>%
         filter(variable == j) %>%
         select(-variable) %>%
         rename(biodiv = value) %>%
+        mutate(biodiv = ifelse(is.na(biodiv), 0, biodiv)) %>% 
         find.hotspots()
 
       compare_value <- calc.hotspot_compare(hotspot_list, hotspots.unique)

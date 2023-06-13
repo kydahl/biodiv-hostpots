@@ -26,53 +26,25 @@ dir_fig <- "figures/Species_occurrence/"
 #######################################################
 ## ---- Load BIEN list of species --------------
 
-species_list <- BIEN_list_all()
+species_list <- BIEN_list_all() %>% 
+  mutate(Species_full = species) %>%
+  synonym_func() # !!! re-run later when it lets me
+
 dim(species_list)
 head(species_list)
 
 ## ---- Load list of species --------------
 # Check which of our species are the BIEN database
 
-### OLD CODE, based on si dataframe, COMMENTED: can be deleted once we are finalizing the code
-# load si dataframe from funct_div script
-# library(dplyr)
-# species_list_PNW <- species_list %>%
-#   filter(species %in% unique(si$Species_full))
-# dim(species_list_PNW) # 315
-# length(unique(si$Species_full)) # 329
-# # -> Not all species are in there. May be due to synonyms or full names (subsp.)
-# 
-# species_list_PNW_modif <- species_list %>%
-#   filter(species %in% unique(si_modif$Species_full))
-# dim(species_list_PNW_modif) # 321
-# # A few more overlaps
-# 
-# # What happens if we don't use full species names?
-# si_modif <- si_modif %>%
-#   mutate(Species_short = paste(stringr::word(Species_full, 1,1, sep=" "),
-#                           stringr::word(Species_full, 2,2, sep=" "),
-#                           sep=" "))
-# species_list_PNW_modif_short <- species_list %>%
-#   filter(species %in% unique(si_modif$Species_short))
-# dim(species_list_PNW_modif_short) # 325
-# 
-# species_list_PNW_modif_long <- si_modif %>%
-#   filter(Species_short %in% unique(species_list$species)) %>%
-#   select(Species_full) %>%
-#   unique()
-# dim(species_list_PNW_modif_long) # 327, this means that 2 full species names have the same short name
-# # 2 missing species left
-# species_list <- species_list_PNW_modif_long
-
 final_data <- read_csv("data/clean/final_dataset.csv")
 dim(final_data) # 318
-length(unique(final_data$Species_full)) # 316, so 2 species have the same "base name"
+length(unique(final_data$Species_full)) # 2 species have the same "base name": Alnus viridis and Populus balsamifera
 
 final_data_in_BIEN <- final_data %>%
-  filter(Species_full %in% unique(species_list$species)) %>%
-  select(Species_full) %>%
+  filter(Species %in% unique(species_list$species)) %>%
+  select(Species) %>%
   unique()
-dim(final_data_in_BIEN) # 315, so 3 missing species
+dim(final_data_in_BIEN) # 315, so 1 missing species
 
 species_list <- final_data_in_BIEN # We will use this dataframe in part 3)
 
