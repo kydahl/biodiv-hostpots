@@ -19,8 +19,8 @@ final_data <- read_csv("data/clean/final_dataset_IMPUTED.csv") %>%
   rename(Species = Species_full)
 
 # Load in phylogenetic tree data
-tree <- read.tree(file = "data/clean/phylogenetic_tree.csv")
-
+# tree <- read.tree(file = "data/clean/phylogenetic_tree.csv")
+# Elisa: I commented this out, because we have been playing around with species names and hence, the tree might be different now
 
 
 ## Helper functions ------------------------------------------------------------
@@ -63,7 +63,8 @@ NumPatches <- 400 # Just for testing purposes at this point. Need to settle on s
 # Assign levels to patches ------------------------------------------------
 
 # Equal numbers across each level (for now)
-Levels <- sample(unique(SpeciesOccs$Level), NumPatches, replace = FALSE)
+Levels <- sample(unique(SpeciesOccs$Level), NumPatches, replace = T)
+# Elisa: error: cannot take a sample larger than the population when 'replace = FALSE'
 
 Init_df <- tibble(Patch = 1:NumPatches, Level = Levels)
 
@@ -104,8 +105,17 @@ for (index_patch in Init_df$Patch) {
 # Add species traits to the dataframe
 final_data <- rename(final_data)
 
-full_df <- right_join(Patch_df, final_data, by = "Species")
+full_df <- right_join(Patch_df, final_data, by = "Species") %>%
+  na.omit() # Elisa: I added this to remove the patch with NA as a number, but it turns out there are more incomplete cases. 
+# I didn't check the reason for this, but shouldn't this dataset be complete (because it has imputed trait data)
 
+# I added trait_names to the input of get.biodiv_df
+trait_names = c("LDMC (g/g)","Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)" )
+biodiv_df <- get.biodiv_df(full_df, trait_names)
+
+#################################
+# Elisa: I used full_df to make phylo_div and funct_div work. what is the difference between full_df and test_df?
+#################################
 
 get.full_df <- function(NumPatches, LevelOrder) {
   SpeciesOccs <- if (LevelOrder == 1) {

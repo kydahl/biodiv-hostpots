@@ -181,6 +181,10 @@ get.vulnerability <- function(in_df) {
 # for a patch, look at entities and their states & traits and output
 # biodiversity measure of the patch
 
+# If we add abundance, we can compute: Shannon diversity, Evenness, Simpson's 
+# index, rare species indices, ... 
+
+# Calculate taxonomic diversity metrics --------------------------------
 # number of unique entityIDs in a patch
 num.unique.metric <- function(in_df) {
   out_df <- in_df %>%
@@ -214,6 +218,7 @@ num.endemic.metric <- function(in_df) {
   # count(Patch, name = "biodiv")
 }
 
+# Calculate TEK diversity metrics --------------------------------
 # General trait counting metric function
 trait.count.metric <- function(in_df, trait_name) {
   out_df <- in_df %>%
@@ -223,7 +228,9 @@ trait.count.metric <- function(in_df, trait_name) {
     summarise(biodiv = sum(!!as.name(trait_name)))
 }
 
-# Trait coefficient of variation function
+# Calculate functional diversity metrics --------------------------------
+
+# Trait coefficient of variation function (only works for numerical traits)
 trait.coeffvariance.metric <- function(in_df, trait_names) {
   out_df <- in_df %>%
     select(Patch, all_of(trait_names)) %>% 
@@ -235,12 +242,59 @@ trait.coeffvariance.metric <- function(in_df, trait_names) {
     summarise(biodiv = sum(coeff_var))
 }
 
-# If we add abundance, we can compute: Shannon diversity, Evenness, Simpson's 
-# index, rare species indices, ... 
-
+# Functional diversity metrics (work for numerical and categorical traits)
+library(FD)
+trait.fdiv.metrics <- function(in_df, trait_names){
+  # Create dataframe of species x traits
+  SpXTraits <- in_df %>%
+    select(Species, all_of(trait_names)) %>% 
+    unique() %>%
+    arrange(Species) %>% # order alphabetically to match with PatchXSp
+    column_to_rownames(var = "Species")
+  
+  # Create dataframe of patch x species with presence/absence
+  PatchXSp <- in_df %>% 
+    mutate(Presence = 1) %>%
+    select(Patch, Species, Presence) %>%
+    tidyr::spread(key = Species, value = Presence) %>%
+    # replace(is.na(.), 0) %>% # this is not necessary, because it will automatically be done
+    column_to_rownames(var = "Patch")
+  
+  # The number of species (columns) in PatchXSp must match the number of species (rows) in SpXTraits. 
+  if(nrow(SpXTraits) == ncol(PatchXSp)) {
+    print("Equal amount of species in the SpXTraits and PatchXSp dataframes, so good to proceed")
+  } else {
+    print("Warning: Unequal amount of species in the SpXTraits and PatchXSp dataframes, so check fdiv script")
+  }
+  
+  # the species labels in PatchXSp and SpXTraits must be identical and in the same order.
+  if(identical(rownames(SpXTraits), colnames(PatchXSp)) == TRUE) {
+    print("The species in the SpXTraits and PatchXSp dataframes are in the same order, so good to proceed")
+  } else {
+    print("Warning: The species in the SpXTraits and PatchXSp dataframes are NOT in the same order, so check fdiv script")
+  }
+  
+  # Calculate functional diversity
+  # FRic = functional richness = convex hull volume (Villéger et al. 2008)
+  # Fdiv = functional divergence (Villéger et al. 2008)
+  # FDis = functional dispersion: weighted average distance to centroid (Laliberté and Legendre 2010). 
+  #        For communities composed of only one species, dbFD returns a FDis value of 0.
+  fdiv <- dbFD(SpXTraits, PatchXSp, w.abun=F, stand.x=T, 
+               calc.FRic=T, m="max", 
+               # calc.FGR=T,  clust.type="ward.D2", # this will ask for a manual decision on how to cut the tree
+               calc.FDiv=T,
+               calc.CWM= F)
+  
+  fdiv_df <- data.frame(fdiv) %>%
+    mutate(Patch = rownames(PatchXSp))
+  
+  # Remarks: 
+  # - Feve, Fric and FDiv cannot be calculated for communities with <3 functionally singular species. 
+}
 
 # Calculate phylogenetic diversity metrics --------------------------------
-phylodiv.metrics <- function(in_df) {
+# source("phylo.div.R") # Load phylogenetic tree
+phylodiv.metrics <- function(in_df, trait_names) {
   # Pruning happens based on a community matrix, so either
   # - create a fake community matrix from list_species_unique 
   # - convert full_df to wide format
@@ -324,7 +378,9 @@ get.biodiv_df <- function(in_df) {
   # hotspots.use <- find.hotspots(num.use_df)
   
   # Metric 6: Combined variation of quantitative traits
-  coeffvar_df <- trait.coeffvariance.metric(in_df, c("LDMC (g/g)","Nmass (mg/g)", "Plant height (m)", "Leaf area (mm2)" ))
+  # coeffvar_df <- trait.coeffvariance.metric(in_df, trait_names)
+  fdiv_df <- trait.fdiv.metrics(in_df, trait_names)
+  fdiv_df$Patch <- as.integer(fdiv_df$Patch)
   
   # Phylogenetic diversity metrics
   # PD_df <- phylodiv.metrics(in_df)
@@ -344,8 +400,10 @@ get.biodiv_df <- function(in_df) {
     # Number of uses
     right_join(rename(num.use_df, NumUse = biodiv), by = "Patch") %>% 
     # Coefficient of variation
-    right_join(rename(coeffvar_df, CoeffVar = biodiv), by = "Patch")
-  
+    # right_join(rename(coeffvar_df, CoeffVar = biodiv), by = "Patch")
+    # Funtional diversity
+    right_join(fdiv_df, by = "Patch")
+    
   biodiv_df <- biodiv_df #%>% 
     # # add Phylogenetic diversity metrics
     # right_join(PD_df, by = "Patch")

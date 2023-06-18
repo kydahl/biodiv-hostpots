@@ -24,7 +24,7 @@
 ##
 ## Outputs: data/clean/main_dataset.csv
 ##
-## Written and by: Karen Castillioni, Elisa van Cleemput, Kyle Dahlin
+## Written and by: Karen Castillioni, Elisa Van Cleemput, Kyle Dahlin
 ## Maintained by: Kyle Dahlin, kydahlin@gmail.com
 ## Initialized February 2023
 ## _____________________________________________________________________________
