@@ -35,8 +35,6 @@ list_species_unique <- full_df %>%
 
 # I did not trim the subsp. and var. from the species names and that doesn't seem to be a problem
 
-
-
 ## ---- Generate a phylogeny for the species list --------------
 # library("devtools")
 # devtools::install_github("jinyizju/V.PhyloMaker2")
@@ -74,42 +72,70 @@ system.time(
 # Warnings:
 # - "Taxonomic classification not consistent between sp.list and tree."
 #   e.g.,  genus family_in_sp.list family_in_tree
-#          Abies             Abies         Pinaceae
-#          Acer         Aceraceae    Sapindaceae
+#          Abies            Abies       Pinaceae
+#           Acer        Aceraceae    Sapindaceae
 # --> which information does the algorithm use in these cases? I don't know...
 
 
 tree <- tree.WP.S3
 
-# Add missing species to the tree
+## ---- Add missing species to the tree --------------
 if (!require('pez')) install.packages('pez'); library('pez')
 # missing_species <- c("Pterospora_andromedea")
 missing_species <- c("Zigadenus_venenosus", "Zigadenus_elegans", "Glaux_maritima", 
-                     "Streptopus_amplexifolius", "Rumex_aquaticus, Pterospora_andromedea", "Frasera_montana")
-missing_species_custom <- missing_species %>%
-  as.data.frame() %>% rename(Species = .)
-  rename()
-#  
-custom_synonyms_list <- read_csv("data/clean/synonym_list.csv", show_col_types = FALSE)
-Diaz_synonyms_list <- read_csv("data/clean/Diaz_synonyms.csv", show_col_types = FALSE)
-left_join(read_csv("data/clean/Diaz_synonyms.csv", show_col_types = FALSE) %>%
-rename(original_name = name_in), by = "original_name")
-
+                     "Streptopus_amplexifolius", "Rumex_aquaticus", "Pterospora_andromedea", "Frasera_montana")
 
 tree.WP.S3_complete <- congeneric.merge(tree.WP.S3$tree.scenario.3, missing_species)
-tree.WP.S3_complete <- congeneric.impute(tree.WP.S3$tree.scenario.3, missing_species)
 tree.LCVP.S3_complete <- congeneric.merge(tree.LCVP.S3$tree.scenario.3, missing_species)
 tree.TPL.S3_complete <- congeneric.merge(tree.TPL.S3$tree.scenario.3, missing_species)
-
 # I don't think this worked. Is this because the genus is not present in the tree?
-(tree.LCVP.S3$tree.scenario.3$Nnode)
-(tree.LCVP.S3_complete$Nnode)
-which(str_detect(tree.WP.S3_complete$tip.label, "Pterospora_andromedea") == TRUE)
+(tree.WP.S3$tree.scenario.3$Nnode)
+(tree.WP.S3_complete$Nnode)
+which(str_detect(tree.WP.S3_complete$tip.label, "Zigadenus_venenosus") == TRUE)
 # --> it is not present in the tree
 
 
 # save tree
 # write.tree(tree.WP.S3_complete$tree.scenario.3, file = "data/clean/phylogenetic_tree.csv")
+
+# Option 1: Consider changing species names before adding them to the tree with congeneric functions? 
+custom_synonyms_list <- read_csv("data/clean/synonym_list.csv", show_col_types = FALSE)
+Diaz_synonyms_list <- read_csv("data/clean/Diaz_synonyms.csv", show_col_types = FALSE)
+missing_species_custom <- missing_species %>%
+  as.data.frame() %>%
+  rename("Species" = ".") %>%
+  mutate(original_name = paste(stringr::word(Species, 1, 1, sep = "_"), 
+                               stringr::word(Species, 2, 2, sep = "_"), 
+                               sep = " ")) %>%
+  left_join(custom_synonyms_list, by = "original_name") %>%
+  left_join(Diaz_synonyms_list %>% rename(original_name = name_in), by = "original_name")
+tree.WP.S3_complete <- congeneric.merge(tree.WP.S3$tree.scenario.3, missing_species_custom$Synonym)
+# This didn't solve the issue
+
+# Option 2: Consider changing species names before creating tree? 
+list_species_unique2 <- list_species_unique %>%
+  as.data.frame() %>%
+  select(-Genus) %>%
+  rename(original_name = Species) %>%
+  # left_join(custom_synonyms_list %>% rename(Species = original_name), by = "Species")
+  left_join(missing_species_custom %>% 
+              select(original_name, Synonym), by = "original_name") %>%
+  mutate(Species = coalesce(Synonym, original_name)) %>%
+  mutate(Genus = stringr::word(Species, 1, 1, sep = " ")) %>%
+  dplyr::select(Species, Genus, Family) %>%
+  unique()
+# !!!! Family equals Genus which should not be the case!!! Something wrong in the synonym_func function in the “data_intake.R”!
+
+
+system.time(
+  tree.LCVP.S3.test <- V.PhyloMaker2::phylo.maker(sp.list = list_species_unique2, 
+                                             tree = GBOTB.extended.LCVP, # botanical nomenclature of the Leipzig catalogue of vascular plants
+                                             nodes = nodes.info.1.LCVP, 
+                                             output.tree = TRUE,
+                                             scenarios = "S3")
+) # 4 taxa fail to bind
+#"Streptopus_amplexifolius" "Rumex_aquaticus"          "Pterospora_andromedea"    "Frasera_montana" 
+
 
 ## ---- Prune tree to species list --------------
 if (!require('picante')) install.packages('picante'); library('picante')
