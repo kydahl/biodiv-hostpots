@@ -83,9 +83,11 @@ synonym_func <- function(in_df) {
   
   # Select sources for species name resolution
   src <- c(
-    "EOL", "The International Plant Names Index", # these are examples, so choose the database of interest
-    "Index Fungorum", "ITIS", "Catalogue of Life",
-    "Tropicos - Missouri Botanical Garden"
+    "The Leipzig Catalogue of Vascular Plants"
+    # "EOL", "The International Plant Names Index", # these are examples, so choose the database of interest
+    # "Index Fungorum", "ITIS", "Catalogue of Life",
+    # "Tropicos - Missouri Botanical Garden", 
+    # "The International Plant Names Index", 
   )
   # Initialize the synonym list data frame
   synonyms_list <- tibble(
@@ -114,6 +116,7 @@ synonym_func <- function(in_df) {
   print(paste0("There are ", num_name_changes, " necessary name changes."))
   
   # Load synonym list created by Elisa Van Cleemput
+  # Prefer name from GNR_resolver over custom list
   custom_synonyms_list <- read_csv("data/clean/synonym_list.csv", show_col_types = FALSE)
   
   # Check if there are disagreements between EVC's list and GNR
@@ -133,8 +136,8 @@ synonym_func <- function(in_df) {
     mutate(original_name = Species_full) %>%
     # rename species to their main synonym
     mutate(Species_full = Synonym) %>%
-    # update the family name with the synonym family
-    mutate(Family = stringr::word(Species_full, 1, 1)) %>%
+    # update the genus name with the synonym genus
+    mutate(Genus = stringr::word(Species_full, 1, 1)) %>%
     # set binomial to synonym binomial
     mutate(Species = stringr::word(Species_full, 1, 2))
 }
@@ -158,7 +161,7 @@ base_data <- read_csv("data/raw/PNW_Species_w_Metadata.csv", show_col_types = FA
   # Remove species for which we lack phylogenetic data: Pterospora andromedea
   filter(Species != "Pterospora andromedea")
 
-full_species_synonyms_list <- base_data$Species
+full_species_synonyms_list <- data.frame(original_name = base_data$Species)
 
 # Read in TEK data set
 TEK_data <- read_csv("data/raw/TEKdata.csv", show_col_types = FALSE) %>%
@@ -173,8 +176,6 @@ TEK_data <- read_csv("data/raw/TEKdata.csv", show_col_types = FALSE) %>%
     N_Uses = `Number of uses`
   )
 
-full_species_synonyms_list <- c(TEK_data$Species,full_species_synonyms_list) %>% 
-  unique()
 
 # species in base_data but not in TEK_data: L Hierochloe, Ledum groenlandicum, and Ledum glandulosum
 
@@ -184,20 +185,25 @@ full_data <- full_join(base_data, TEK_data) %>%
   # rename with synonyms
   synonym_func() %>%
   # select columns relevant for analysis
-  dplyr::select(Species:Family, N_Names:original_name)
+  dplyr::select(Species:Genus, N_Names:original_name)
+
+full_species_synonyms_list <- data.frame(original_name = full_data$original_name,
+                                         synonym = full_data$Synonym) %>% 
+  unique()
+
 
 # # Uncomment and run the code below to take a closer look at which species were renamed
 # # Check for synonymous species with multiple entries
 # duplicate_df <- full_data %>%
 #   group_by(Species_full) %>%
 #   filter(n() > 1)
-#
+# 
 # # Find which species were in our original TEK dataset that are missing from the full dataset
 # full_species <- full_data$Species
 # TEK_species <- TEK_data$Species
-#
+# 
 # lost_species <- TEK_species[which(!(TEK_species %in% full_species))]
-#
+# 
 # # Check that these were all renamed to synonyms
 # all(lost_species %in% full_data$original_name) # TRUE
 # true_lost_species <- lost_species[which(!(lost_species %in% full_data$original_name))]
@@ -209,21 +215,41 @@ full_data <- full_join(base_data, TEK_data) %>%
 Diaz_data <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx",
                         sheet = 1
 )
+# 
+# full_species_synonyms_list <- rbind(
+#   data.frame(original_name = Diaz_data$`Species name standardized against TPL`),
+#   full_species_synonyms_list) %>% 
+#   unique()
 
 # Assign GNR synonyms to species in Diaz data
+run_GNR_diaz = FALSE # !!! Change this to re-run name resolver
+if (run_GNR_diaz == TRUE) {
+
 Diaz_data_renamed <- Diaz_data %>%
   rename(Species_full = `Species name standardized against TPL`) %>%
   # rename species with synonyms or...
-  # synonym_func() # using gnr_resolve (KD: this will take a long time to run!)
-  # use a pre-saved list
-  rename(original_name = Species_full) %>%
-  left_join(read_csv("data/clean/Diaz_synonyms.csv", show_col_types = FALSE) %>%
-              rename(original_name = name_in), by = "original_name") %>%
-  rename(Species_full = name_out) %>%
-  # update the family name with the synonym family
-  mutate(Family = stringr::word(Species_full, 1, 1)) %>%
+  synonym_func() # using gnr_resolve (KD: this will take a long time to run!)
+
+Diaz_synonyms <- data.frame(original_name = Diaz_data_renamed$original_name,
+                            synonym = Diaz_data_renamed$Synonym)
+
+# Save the synonyms so we don't have to poll the name resolver every time
+write_csv(Diaz_synonyms, "data/clean/Diaz_synonyms.csv")
+} else {
+Diaz_synonyms <- read_csv("data/clean/Diaz_synonyms.csv", show_col_types = FALSE)
+}
+
+Diaz_data_joined <- Diaz_data_renamed %>%  
+  left_join(Diaz_synonyms, by = "original_name") %>%
+  # update the genus name with the synonym genus
+  mutate(Genus = stringr::word(Species_full, 1, 1)) %>%
   # set binomial to synonym binomial
   mutate(Species = stringr::word(Species_full, 1, 2))
+
+
+full_species_synonyms_list <- rbind(full_species_synonyms_list,
+                                    Diaz_synonyms) %>% 
+  unique()
 
 # # Save synonyms for easier use later
 # Diaz_data_renamed %>%
@@ -245,20 +271,17 @@ Diaz_data_renamed <- Diaz_data %>%
 # missing_from_Diaz_short <- full_species_short[which(!(full_species_short %in% c(Diaz_species_list, Diaz_species_short)))]
 
 # Reduce Diaz data to species present in the main data set
-Diaz_data_sel <- Diaz_data_renamed %>%
+Diaz_data_sel <- Diaz_data_joined %>%
   # Remove non-focal species
   filter(Species_full %in% c(full_data$Species_full)) %>% # NB: including shortened species names only leads to the additional inclusion of Alnus incana
   # reduce to relevant set of traits
   select(
-    "original_name", "Species_full":"Family", "Woodiness", "Growth Form", "Leaf area (mm2)",
+    "original_name", "Species_full":"Genus", "Woodiness", "Growth Form", "Leaf area (mm2)",
     "Nmass (mg/g)", "LMA (g/m2)", "Plant height (m)", "Diaspore mass (mg)",
     "LDMC (g/g)"
   ) %>%
   rename(original_name_Diaz = original_name) %>%
   mutate(origin = "Diaz")
-
-full_species_synonyms_list <- c(Diaz_data_sel$original_name_Diaz,full_species_synonyms_list) %>% 
-  unique()
 
 # 3) Load in and process TRY data sets ------------------------------------
 
@@ -331,9 +354,13 @@ TRY_data <- rbind(
   # deal with synonyms
   synonym_func() %>%
   # Remove non-focal species
-  filter(Species_full %in% c(full_data$Species_full))
+  filter(Species_full %in% c(full_data$Species_full)) %>% 
+  # Add Family names in
+  right_join(select(full_data, Species_full, Family), by = "Species_full")
 
-full_species_synonyms_list <- c(TRY_data$Species_full, full_species_synonyms_list) %>% 
+full_species_synonyms_list <- rbind(full_species_synonyms_list,
+                                    data.frame(original_name = TRY_data$original_name,
+                                               synonym = TRY_data$Synonym)) %>% 
   unique()
 
 # # Uncomment this to see which species are missing from TRY data
@@ -364,7 +391,7 @@ TRY_data_processed <- TRY_data %>%
     # Disregard rows with no values provided
     !is.na(OrigValueStr)
   ) %>%
-  dplyr::select(DatasetID, Species_full, TraitName:ValueKindName, Comment:Species) %>%
+  dplyr::select(DatasetID, Species_full, TraitName:ValueKindName, Comment:Family) %>%
   group_by(DatasetID, Species_full, TraitName, ValueKindName) %>%
   partition(cluster) %>%
   # Additional processing needed for the "Plant woodiness" categorical trait (KD: not sure we need such fine grain detail for this trait)
@@ -437,7 +464,7 @@ TRY_data_processed_wide <- TRY_data_processed %>%
 # 4) Combine data sets -----------------------------------------------------
 
 # Save a list of all the species synonyms we encountered in the datasets
-write_csv(data.frame(Species = full_species_synonyms_list), "data/clean/all_synonyms.csv")
+write_csv(full_species_synonyms_list, "data/clean/all_synonyms.csv")
 
 # Join Diaz and TRY data sets, preferring data entries from Diaz
 

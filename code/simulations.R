@@ -174,9 +174,9 @@ get.full_df <- function(NumPatches, LevelOrder) {
 }
 
 # Compare hotspots identified by different metrics
-test_df <- get.full_df(NumPatches = 2000, LevelOrder = 3)
+test_df <- get.full_df(NumPatches = 2, LevelOrder = 3)
 
-biodiv_df <- get.biodiv_df(test_df)
+biodiv_df <- get.biodiv_df(test_df, trait_names)
 
 compare_biodiv_hotspots_df <- get.biodiv.compare_df(test_df)
 

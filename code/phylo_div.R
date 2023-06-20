@@ -11,6 +11,12 @@
 
 # 1) I removed spp. and var. from the analyses
 
+# 1. Restrict species we're looking for occurrences for to big list of species names
+# 2. Find phylogenetic data for these species
+# 3. Build a tree
+# 3. Then we need to go from the big list of species to our "synonymized" list
+# 4. Decide how to deal with possible conflicts
+
 
 #######################################################
 

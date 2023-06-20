@@ -256,7 +256,12 @@ trait.fdiv.metrics <- function(in_df, trait_names){
   PatchXSp <- in_df %>% 
     mutate(Presence = 1) %>%
     select(Patch, Species, Presence) %>%
-    tidyr::spread(key = Species, value = Presence) %>% # Kyle: this command isn't working for me
+    arrange(Species) %>% 
+    # keys become column names and values are the entries
+    pivot_wider(names_from = Species, values_from = Presence, values_fn = unique) %>% 
+    replace(is.null(.), 0) %>%  # TODO: replaces nulls with zero or NA
+    
+    # tidyr::spread(key = Species, value = Presence) %>% # Kyle: this command isn't working for me
     # replace(is.na(.), 0) %>% # this is not necessary, because it will automatically be done
     column_to_rownames(var = "Patch")
   

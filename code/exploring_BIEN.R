@@ -38,6 +38,12 @@ species_list <- BIEN_list_all() %>%
 dim(species_list)
 head(species_list)
 
+
+# 1. Restrict species we're looking for occurrences for to big list of species names
+# 2. Find occurrence data for each of these species at Levels 1, 2, and 3
+# 3. Then we need to go from the big list of species to our "synonymized" list
+# 4. Assign a presence if ANY synonymous species are present at a level
+
 ## ---- Load list of species --------------
 # Check which of our species are the BIEN database
 
