@@ -15,8 +15,8 @@ registerDoParallel(cores = numCores - 2)
 source("code/functions.R")
 
 # Load in trait data
-final_data <- read_csv("data/clean/final_dataset_IMPUTED.csv") %>% 
-  rename(Species = Species_full)
+final_data <- read_csv("data/clean/final_dataset.csv") #%>% 
+  # rename(Species = Species_full)
 
 # Load in phylogenetic tree data
 # tree <- read.tree(file = "data/clean/phylogenetic_tree.csv")
@@ -42,7 +42,6 @@ get.NumEntities <- function(MaxNumEntities, Level) {
 ## Number of iterations to compute biodiversity over
 numIterations <- 1000
 
-
 # Load species occurrences ------------------------------------------------
 
 # Output .csvs from "exploring_BIEN.R"
@@ -62,9 +61,8 @@ NumPatches <- 400 # Just for testing purposes at this point. Need to settle on s
 
 # Assign levels to patches ------------------------------------------------
 
-# Equal numbers across each level (for now)
+# Each patch has an equal probability of being any of the levels
 Levels <- sample(unique(SpeciesOccs$Level), NumPatches, replace = T)
-# Elisa: error: cannot take a sample larger than the population when 'replace = FALSE'
 
 Init_df <- tibble(Patch = 1:NumPatches, Level = Levels)
 
@@ -106,8 +104,10 @@ for (index_patch in Init_df$Patch) {
 final_data <- rename(final_data)
 
 full_df <- right_join(Patch_df, final_data, by = "Species") %>%
-  na.omit() # Elisa: I added this to remove the patch with NA as a number, but it turns out there are more incomplete cases. 
+  filter(!is.na(Patch), !is.na(Level))
+  # Elisa: I added this to remove the patch with NA as a number, but it turns out there are more incomplete cases. 
 # I didn't check the reason for this, but shouldn't this dataset be complete (because it has imputed trait data)
+# Kyle: I think na.omit removes rows where any of the columns are NA. So this is removing all the species with an NA in the subspecies or variant column. There may be species with NA in the Patch or Level column. These are the ones that weren't assigned to any of the patches. I made it so these get removed.
 
 # I added trait_names to the input of get.biodiv_df
 trait_names = c("LDMC (g/g)","Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)" )
@@ -119,13 +119,13 @@ biodiv_df <- get.biodiv_df(full_df, trait_names)
 
 get.full_df <- function(NumPatches, LevelOrder) {
   SpeciesOccs <- if (LevelOrder == 1) {
-    read_csv("data/clean/species_occurences_L1.csv") %>% 
+    read_csv("data/clean/species_occurences_L1.csv", show_col_types = FALSE) %>% 
       rename(Level = LEVEL1)
   } else if (LevelOrder == 2) {
-    read_csv("data/clean/species_occurences_L2.csv") %>% 
+    read_csv("data/clean/species_occurences_L2.csv", show_col_types = FALSE) %>% 
       rename(Level = LEVEL2)
   } else if (LevelOrder == 3) {
-    read_csv("data/clean/species_occurences_L3.csv") %>% 
+    read_csv("data/clean/species_occurences_L3.csv", show_col_types = FALSE) %>% 
       rename(Level = LEVEL3)
   } 
   
@@ -169,7 +169,7 @@ get.full_df <- function(NumPatches, LevelOrder) {
   }
   
   # Add species traits to the dataframe
-  full_df <- right_join(Patch_df, final_data, by = "Species") %>% 
+  full_df <- right_join(Patch_df, final_data, by = "Species", relationship = "many-to-many") %>% 
     filter(!is.na(Patch), !is.na(Level))
 }
 

@@ -26,7 +26,11 @@ dir_fig <- "figures/Species_occurrence/"
 #######################################################
 ## ---- Load BIEN list of species --------------
 
+# Load in list of all the species synonyms we found in the original datasets
+all_synonyms <- read_csv("data/clean/all_synonyms.csv")
+
 species_list <- BIEN_list_all() %>% 
+  filter(species %in% all_synonyms$Species) %>% 
   mutate(Species_full = species) %>%
   # filter to species in BIEN that match synonyms "original name" of our original species list
   synonym_func() # !!! re-run later when it lets me

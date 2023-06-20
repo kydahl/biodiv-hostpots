@@ -142,7 +142,7 @@ get.full_df <- function(NumPatches, LevelOrder) {
   }
   
   # Add species traits to the dataframe
-  full_df <- right_join(Patch_df, final_data, by = "Species") %>% 
+  full_df <- right_join(Patch_df, final_data, by = "Species", relationship = "many-to-many") %>% 
     filter(!is.na(Patch), !is.na(Level))
 }
 
@@ -256,7 +256,7 @@ trait.fdiv.metrics <- function(in_df, trait_names){
   PatchXSp <- in_df %>% 
     mutate(Presence = 1) %>%
     select(Patch, Species, Presence) %>%
-    tidyr::spread(key = Species, value = Presence) %>%
+    tidyr::spread(key = Species, value = Presence) %>% # Kyle: this command isn't working for me
     # replace(is.na(.), 0) %>% # this is not necessary, because it will automatically be done
     column_to_rownames(var = "Patch")
   
@@ -356,7 +356,7 @@ phylodiv.metrics <- function(in_df, trait_names) {
 
 
 # Build biodiversity data frame -------------------------------------------
-get.biodiv_df <- function(in_df) {
+get.biodiv_df <- function(in_df, trait_names) {
   # Metric 1: Species richness
   num.unique_df <- num.unique.metric(in_df)
   # hotspots.unique <- find.hotspots(num.unique_df)

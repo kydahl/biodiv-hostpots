@@ -1,319 +1,319 @@
-Species_full,Family,LDMC (g/g),Plant height (m),Nmass (mg/g),Leaf area (mm2),Woodiness,N_Names,N_Langs,N_Uses
-Abies amabilis,Abies,NA,45.95737787,9.448975476,NA,woody,35,20,27
-Abies grandis,Abies,NA,54.9171867,14.6,180,woody,50,25,76
-Abies lasiocarpa,Abies,NA,26.65503063,13.43892689,35.04,woody,54,31,105
-Acer circinatum,Acer,NA,23.59083116,NA,3019,woody,23,18,26
-Acer glabrum,Acer,NA,11.26788129,NA,3280.53,woody,36,27,28
-Acer macrophyllum,Acer,NA,22.45122295,26.4,11632.91,woody,38,23,64
-Achillea millefolium,Achillea,87.7511136851258,0.313157943,20.54814349,627.23,non-woody,85,48,266
-Achlys triphylla,Achlys,NA,NA,NA,NA,non-woody,7,6,9
-Actaea rubra,Actaea,NA,1,18.8,1252.29,non-woody,22,13,22
-Agoseris glauca,Agoseris,NA,0.181659021,17.17,520,non-woody,8,5,1
-Allium cernuum,Allium,NA,NA,NA,NA,non-woody,52,36,69
-Allium geyeri,Allium,NA,0.0562,NA,117.97,non-woody,11,8,7
-Alnus incana subsp. tenuifolia,Alnus,NA,NA,21.9,NA,woody,66,35,45
-Alnus rubra,Alnus,NA,30.98284191,23.73410952,NA,woody,56,33,116
-Amelanchier alnifolia,Amelanchier,NA,3.86283244,18.2,964.61,woody,131,45,164
-Anaphalis margaritacea,Anaphalis,0.296254214,0.633818409,17.76384616,1465.02,non-woody,15,10,43
-Anemone multifida,Anemone,NA,0.6,NA,NA,non-woody,12,8,1
-Angelica lucida,Angelica,NA,NA,NA,NA,non-woody,13,5,25
-Antennaria neglecta,Antennaria,NA,0.3,14.70791148,278.08,non-woody,4,4,6
-Apocynum androsaemifolium,Apocynum,0.334554127,0.735820838,17.2556779,7156.82,non-woody,33,20,54
-Apocynum cannabinum,Apocynum,NA,0.95,17.24,NA,non-woody,33,20,99
-Aquilegia formosa,Aquilegia,NA,0.91,NA,NA,non-woody,29,20,31
-Aralia nudicaulis,Aralia,NA,0.45,20.1078031,4321.2,non-woody,14,11,79
-Arbutus menziesii,Arbutus,NA,19.71806211,11.52874754,4276.55,woody,15,12,61
-Arctostaphylos uva-ursi,Arctostaphylos,NA,0.269174936,10.72919761,172.17,woody,87,49,186
-Arnica cordifolia,Arnica,NA,0.45,NA,1283.83,non-woody,3,4,5
-Artemisia dracunculus,Artemisia,NA,0.788412343,25.48,87.72,non-woody,12,7,99
-Artemisia frigida,Artemisia,NA,0.6,27.16450345,230.85,NA,14,12,90
-Artemisia ludoviciana,Artemisia,0.311672567,0.48641546,18.90475139,262.21,non-woody,12,7,98
-Artemisia tilesii,Artemisia,NA,1.9,NA,NA,non-woody,7,4,33
-Artemisia tridentata,Artemisia,NA,1.807239194,15.17575567,37.72,woody,16,12,216
-Aruncus dioicus,Aruncus,0.194935887,1.103405285,41.37404677,97188.52,non-woody,20,16,10
-Asclepias speciosa,Asclepias,NA,1.82,NA,NA,non-woody,5,4,61
-Balsamorhiza sagittata,Balsamorhiza,NA,0.6,NA,6992.42,non-woody,31,13,109
-Betula nana,Betula,397.525281153846,0.394932857,22.6860961,51.78,woody,13,11,7
-Betula occidentalis,Betula,NA,12.34503949,NA,NA,woody,8,7,12
-Betula papyrifera,Betula,400.62,14.69789012,23.83371477,2536.38,woody,56,35,174
-Blechnum spicant,Blechnum,NA,0.371950331,NA,NA,non-woody,16,12,17
-Bromus carinatus,Bromus,0.23272,1.205,NA,1716,non-woody,5,6,4
-Calamagrostis rubescens,Calamagrostis,NA,0.91,NA,NA,non-woody,18,12,9
-Calochortus macrocarpus,Calochortus,NA,0.54,NA,NA,non-woody,10,8,17
-Calypso bulbosa,Calypso,NA,NA,NA,NA,non-woody,16,10,1
-Camassia leichtlinii,Camassia,NA,NA,NA,NA,non-woody,65,33,12
-Camassia quamash,Camassia,NA,0.7,NA,NA,non-woody,65,16,50
-Campanula rotundifolia,Campanula,236.962653562727,0.227134281,19.69810933,62.67,non-woody,5,4,10
-Carex obnupta,Carex,NA,0.91,NA,NA,non-woody,46,26,10
-Carex rostrata,Carex,0.237746229,0.468669026,19.26761453,1698.77,non-woody,46,26,4
-Castilleja hispida,Castilleja,NA,0.45,NA,NA,non-woody,21,15,3
-Castilleja miniata,Castilleja,NA,NA,NA,NA,non-woody,21,15,19
-Ceanothus sanguineus,Ceanothus,NA,3.04,NA,NA,woody,23,10,5
-Ceanothus velutinus,Ceanothus,NA,3.019933774,20,NA,woody,23,10,5
-Chenopodium capitatum,Chenopodium,NA,0.378224476,NA,NA,non-woody,15,10,12
-Chimaphila umbellata,Chimaphila,NA,0.095637489,11.8577412,122.51,woody,16,11,70
-Cicuta douglasii,Cicuta,NA,1.82,NA,NA,non-woody,28,19,31
-Cicuta virosa,Cicuta,0.121237201,0.876134937,NA,17017.66,non-woody,28,19,6
-Cirsium arvense,Cirsium,105.709972199815,0.652958113,24.72195493,5570.16,non-woody,44,28,11
-Cirsium brevistylum,Cirsium,NA,NA,NA,NA,non-woody,44,28,6
-Cirsium undulatum,Cirsium,NA,1.2,23.55,NA,non-woody,44,28,16
-Cirsium vulgare,Cirsium,0.131397251,0.92238856,17.26,6798.49,non-woody,44,28,20
-Claytonia lanceolata,Claytonia,NA,NA,NA,76.72,non-woody,30,18,13
-Claytonia sibirica,Claytonia,0.07681,0.356635317,NA,316,non-woody,17,7,14
-Clematis columbiana,Clematis,NA,1.5,NA,NA,woody,10,6,3
-Clematis ligusticifolia,Clematis,NA,0.3,NA,3213,woody,13,7,59
-Clematis occidentalis,Clematis,NA,NA,NA,NA,woody,10,6,3
-Clintonia uniflora,Clintonia,NA,NA,NA,NA,non-woody,10,9,10
-Comandra umbellata,Comandra,NA,0.282842712,16.98419965,96.62,non-woody,8,4,7
-Comarum palustre,Comarum,0.25,0.371233216,13.36,2197.21,non-woody,3,3,4
-Cornus canadensis,Cornus,NA,0.15,18.50784993,771.38,non-woody,60,30,40
-Cornus nuttallii,Cornus,NA,14.72585482,NA,3200,woody,24,14,30
-Cornus sericea,Cornus,NA,2.663296645,17.55,2345.51,woody,76,40,21
-Cornus suecica,Cornus,0.197911602,0.164964651,19.88696657,301.4,non-woody,60,30,2
-Corylus cornuta,Corylus,NA,3.394021317,19.53619192,3166.4,woody,63,29,25
-Crataegus douglasii,Crataegus,NA,3.123716806,NA,NA,woody,68,25,41
-Delphinium nuttallianum,Delphinium,NA,NA,NA,381.97,non-woody,6,4,2
-Dicentra formosa,Dicentra,NA,0.564621617,NA,NA,non-woody,6,4,4
-Dodecatheon hendersonii,Dodecatheon,NA,NA,NA,NA,non-woody,15,9,3
-Dodecatheon jeffreyi,Dodecatheon,NA,NA,NA,NA,non-woody,15,9,2
-Dodecatheon pulchellum,Dodecatheon,NA,0.6,25.94875,408.09,non-woody,15,9,1
-Drosera rotundifolia,Drosera,0.13,0.07657073,12.68845516,47.44,non-woody,6,3,2
-Dryopteris expansa,Dryopteris,269.34,1.2,22.11655754,59642.46,non-woody,66,37,7
-Elaeagnus commutata,Elaeagnus,NA,2.817831976,NA,NA,woody,25,11,43
-Empetrum nigrum,Empetrum,279.276306748081,0.213461056,11.41157144,4.8,woody,42,18,31
-Epilobium angustifolium,Epilobium,0.304087785,0.831719514,28.6675871,2207.76,non-woody,85,43,4
-Equisetum arvense,Equisetum,181.70286413985,0.348986214,20.03828835,112.82,non-woody,89,43,54
-Equisetum telmateia,Equisetum,119.493333333333,1.168182022,NA,50.33,non-woody,89,43,26
-Ericameria nauseosa,Ericameria,NA,1.21,NA,NA,woody,17,8,41
-Eriophorum angustifolium,Eriophorum,0.326532408,0.280294636,19.2332864,1159.4,non-woody,26,8,6
-Erythronium grandiflorum,Erythronium,NA,0.3,NA,2135.49,non-woody,13,13,25
-Fragaria chiloensis,Fragaria,NA,0.24,NA,NA,non-woody,113,51,25
-Fragaria vesca,Fragaria,388,0.113880257,18.41902786,1112.11,non-woody,113,51,28
-Fragaria virginiana,Fragaria,0.470839011,0.106933128,14.74564927,1285.81,non-woody,113,51,76
-Frangula purshiana,Frangula,NA,10.33,NA,NA,woody,52,26,62
-Fritillaria affinis,Fritillaria,NA,NA,NA,NA,non-woody,17,13,12
-Fritillaria pudica,Fritillaria,NA,0.3,NA,NA,non-woody,16,9,20
-Gaillardia aristata,Gaillardia,NA,0.6,NA,NA,non-woody,12,5,19
-Galium aparine,Galium,0.139310853,0.389570305,25.66632034,159.05,non-woody,36,20,19
-Galium triflorum,Galium,NA,NA,19.05135813,NA,non-woody,36,20,19
-Gaultheria shallon,Gaultheria,NA,1.471306473,8.890435201,3019,woody,77,30,82
-Geranium viscosissimum,Geranium,NA,0.91,NA,2505.36,non-woody,6,5,12
-Geum macrophyllum,Geum,0.260357555,0.6,NA,1010.98,non-woody,21,18,19
-Geum triflorum,Geum,NA,0.45,14.19803952,828.8,non-woody,9,4,26
-Goodyera oblongifolia,Goodyera,NA,NA,NA,NA,non-woody,17,12,8
-Gymnocarpium dryopteris,Gymnocarpium,164.145816695714,0.205303911,20.87572485,4084.08,non-woody,4,4,1
-Hedysarum alpinum,Hedysarum,NA,0.244948974,38.3,NA,non-woody,15,7,12
-Heracleum maximum,Heracleum,NA,2.43,NA,12356.38,non-woody,102,50,189
-Heuchera cylindrica,Heuchera,NA,1.82,NA,NA,non-woody,17,12,22
-Hierochloe odorata,Hierochloe,0.19,0.350568382,NA,33,non-woody,14,8,92
-Holodiscus discolor,Holodiscus,NA,2.928841355,18.03820416,661.42,woody,36,26,65
-Hordeum jubatum,Hordeum,0.24441,0.411953429,22.54,181,non-woody,17,11,6
-Juncus effusus,Juncus,270.228,0.761216973,13.57264734,1402,non-woody,9,6,20
-Juniperus communis,Juniperus,407.422515716,3.041436552,11.44467354,20.68,woody,66,34,112
-Juniperus scopulorum,Juniperus,NA,11.4582573,13.04468907,NA,woody,20,18,131
-Kalmia microphylla,Kalmia,NA,0.3,NA,NA,woody,13,8,6
-Larix laricina,Larix,NA,23.39932727,15.28582255,33,woody,11,6,55
-Larix occidentalis,Larix,NA,50.83738162,16.38228862,25.2,woody,15,10,45
-Lathyrus japonicus,Lathyrus,NA,0.42837748,NA,NA,non-woody,22,15,5
-Lathyrus nevadensis,Lathyrus,NA,NA,NA,NA,non-woody,22,15,1
-Lathyrus ochroleucus,Lathyrus,NA,0.9,32.9,NA,non-woody,22,15,5
-Ledum glandulosum,Ledum,NA,1.37,NA,NA,woody,92,43,2
-Lewisia rediviva,Lewisia,NA,NA,NA,NA,non-woody,21,13,50
-Leymus cinereus,Leymus,NA,1.52,NA,NA,non-woody,15,10,18
-Leymus mollis,Leymus,NA,1.21,NA,NA,non-woody,17,11,18
-Ligusticum scoticum,Ligusticum,NA,0.52,NA,3162,non-woody,12,4,5
-Lilium columbianum,Lilium,NA,NA,NA,NA,non-woody,34,22,27
-Linnaea borealis,Linnaea,0.25,0.17717347,9.304296068,92.96,non-woody,8,8,6
-Lithospermum ruderale,Lithospermum,NA,0.45,NA,NA,non-woody,15,6,23
-Lomatium canbyi,Lomatium,NA,0.24,NA,NA,non-woody,8,6,8
-Lomatium cous,Lomatium,NA,0.24,NA,NA,non-woody,14,10,12
-Lomatium dissectum,Lomatium,NA,1.4,NA,NA,non-woody,10,7,40
-Lomatium nudicaule,Lomatium,NA,NA,NA,NA,non-woody,25,18,54
-Lonicera ciliosa,Lonicera,NA,NA,NA,NA,woody,36,18,25
-Lonicera involucrata,Lonicera,NA,3.04,NA,3198.17,woody,68,34,72
-Lupinus nootkatensis,Lupinus,NA,0.774596669,NA,NA,non-woody,18,12,2
-Lupinus polyphyllus,Lupinus,0.169670323,1.159253422,32.93508767,1460.17,non-woody,22,14,6
-Lycopodium clavatum,Lycopodium,380.19,0.126025349,8.344249731,2.39,non-woody,26,17,11
-Lysichiton americanus,Lysichiton,NA,1.1,NA,NA,non-woody,78,44,111
-Maianthemum dilatatum,Maianthemum,NA,1.071954446,NA,9050,non-woody,42,21,15
-Malus fusca,Malus,NA,7.463799301,NA,NA,woody,95,33,90
-Mentha arvensis,Mentha,0.171148565,0.293615646,15.13,566.07,non-woody,30,19,208
-Menziesia ferruginea,Menziesia,NA,0.8,NA,NA,woody,20,17,9
-Moneses uniflora,Moneses,0.27,0.053078369,20.4,358.33,non-woody,11,10,14
-Monotropa uniflora,Monotropa,NA,NA,19.7,NA,non-woody,5,4,12
-Myrica gale,Myrica,345,1.411935754,25.45584412,144.78,woody,5,5,8
-Nicotiana attenuata,Nicotiana,NA,NA,NA,NA,non-woody,56,32,76
-Nicotiana quadrivalvis,Nicotiana,NA,NA,NA,NA,NA,56,32,11
-Nicotiana tabacum,Nicotiana,NA,1.709378663,NA,9050,non-woody,56,32,44
-Nuphar lutea,Nuphar,0.180974936,0.45,35.85847,24904.2,non-woody,62,39,1
-Oemleria cerasiformis,Oemleria,NA,1.949358869,19.2,1170,woody,23,14,26
-Oenanthe sarmentosa,Oenanthe,NA,NA,NA,NA,non-woody,13,10,17
-Oplopanax horridus,Oplopanax,NA,NA,NA,NA,woody,68,44,157
-Opuntia fragilis,Opuntia,NA,NA,NA,NA,non-woody,16,13,14
-Opuntia polyacantha,Opuntia,NA,0.6,NA,NA,non-woody,16,13,46
-Osmorhiza berteroi,Osmorhiza,NA,NA,NA,NA,non-woody,11,8,23
-Osmorhiza occidentalis,Osmorhiza,NA,1.21,NA,345.32,non-woody,8,6,70
-Oxalis oregana,Oxalis,NA,0.04,NA,675,non-woody,7,5,18
-Oxyria digyna,Oxyria,0.09,0.100040551,43.67757953,375.01,non-woody,8,4,11
-Paxistima myrsinites,Paxistima,NA,1,NA,102.58,woody,10,5,16
-Penstemon fruticosus,Penstemon,NA,0.6,NA,NA,woody,11,4,27
-Perideridia gairdneri,Perideridia,NA,1.21,NA,NA,non-woody,28,16,39
-Petasites frigidus,Petasites,NA,0.125,24.4059419,NA,non-woody,21,14,13
-Phalaris arundinacea,Phalaris,186.847180445758,1.342179414,22.15447907,2344.28,non-woody,21,15,3
-Philadelphus lewisii,Philadelphus,NA,3.65,NA,NA,woody,22,15,48
-Physocarpus capitatus,Physocarpus,NA,2.43,NA,NA,woody,12,11,19
-Physocarpus malvaceus,Physocarpus,NA,1.792375154,NA,NA,woody,12,11,3
-Picea engelmannii,Picea,NA,35.29363732,9.981690298,29.39,woody,43,26,24
-Picea glauca,Picea,513.4,25.8348762,10.63662706,23.72,woody,43,26,166
-Picea mariana,Picea,NA,19.76011127,8.37922413,30,woody,21,13,81
-Picea sitchensis,Picea,183.834432519292,55.11326253,11.17514256,17.99,woody,56,31,136
-Pinus albicaulis,Pinus,NA,16.69885319,10.35,NA,woody,31,14,13
-Pinus contorta,Pinus,NA,21.37252117,11.31399704,50,woody,81,42,103
-Pinus monticola,Pinus,NA,63.19708609,14.55555556,NA,woody,43,26,28
-Pinus ponderosa,Pinus,0.246394809333333,38.30074011,11.1695215,160,woody,24,15,138
-Plantago major,Plantago,0.1596663,0.166581764,18.80325799,4852.23,non-woody,37,23,93
-Plantago maritima,Plantago,NA,0.192142876,15.37,749.42,non-woody,6,4,2
-Platanthera dilatata,Platanthera,NA,NA,NA,NA,non-woody,8,6,2
-Polystichum munitum,Polystichum,NA,1.06,NA,NA,non-woody,71,29,59
-Populus tremuloides,Populus,365.3545907044,16.70656374,20.80417917,2066.58,woody,55,32,117
-Potamogeton natans,Potamogeton,0.206473961,0.164993672,38.11417833,2369.5,non-woody,9,7,2
-Prunus emarginata,Prunus,NA,7.151135165,NA,2467.61,woody,80,35,95
-Prunus pensylvanica,Prunus,NA,11.10910705,23.47781293,2047.7,woody,80,35,52
-Prunus virginiana,Prunus,NA,5.99539284,18.85670178,975.08,woody,46,20,165
-Pseudotsuga menziesii,Pseudotsuga,NA,65.27951123,11.84097595,31.17,woody,86,43,87
-Pteridium aquilinum,Pteridium,298,1.611970256,25.01895541,140000,non-woody,90,40,80
-Pterospora andromedea,Pterospora,NA,NA,NA,NA,non-woody,5,5,15
-Purshia tridentata,Purshia,NA,1.82,22.04273525,29,woody,7,3,59
-Pyrola asarifolia,Pyrola,NA,NA,13,NA,non-woody,7,7,7
-Quercus garryana,Quercus,NA,20.69145058,NA,NA,woody,17,11,26
-Ranunculus acris,Ranunculus,186.150573339905,0.351530095,25.73587504,595.19,non-woody,10,4,14
-Ranunculus glaberrimus,Ranunculus,NA,0.15,NA,NA,non-woody,20,9,6
-Ranunculus occidentalis,Ranunculus,NA,NA,NA,NA,non-woody,10,4,2
-Rhodiola rosea,Rhodiola,104.25,0.166666666666667,3.121289024,167,non-woody,10,4,12
-Rhododendron albiflorum,Rhododendron,NA,1.82,NA,NA,woody,5,3,12
-Rhus glabra,Rhus,41.00164505,2.847025404,17.72816213,7137.6,woody,7,6,108
-Ribes aureum,Ribes,NA,1.775443065,NA,NA,woody,9,6,22
-Ribes bracteosum,Ribes,NA,0.8,NA,NA,woody,52,26,24
-Ribes cereum,Ribes,NA,0.91,NA,NA,woody,16,8,21
-Ribes divaricatum,Ribes,NA,3.2,22.8,1198,woody,89,41,40
-Ribes glandulosum,Ribes,NA,0.8,NA,2422.52,woody,52,21,6
-Ribes hudsonianum,Ribes,NA,1.52,NA,NA,woody,34,19,24
-Ribes inerme,Ribes,NA,2.43,NA,NA,woody,89,41,7
-Ribes lacustre,Ribes,NA,0.91,NA,NA,woody,75,31,40
-Ribes laxiflorum,Ribes,NA,0.8,NA,NA,woody,52,21,19
-Ribes oxyacanthoides,Ribes,NA,NA,NA,NA,woody,89,41,13
-Ribes sanguineum,Ribes,NA,1.827626261,25.4,3295,woody,26,11,17
-Ribes triste,Ribes,NA,0.6,NA,NA,woody,19,9,22
-Rosa acicularis,Rosa,NA,1.21,10.64706532,NA,woody,164,57,67
-Rosa gymnocarpa,Rosa,NA,0.91,NA,NA,woody,28,11,33
-Rosa nutkana,Rosa,NA,3.04,NA,NA,woody,164,57,71
-Rosa pisocarpa,Rosa,NA,0.91,NA,NA,woody,164,57,25
-Rosa woodsii,Rosa,NA,0.995671983,14.91,714.9,woody,164,57,60
-Rubus arcticus,Rubus,NA,0.3,NA,NA,non-woody,17,7,14
-Rubus chamaemorus,Rubus,0.259069653,0.103487298,21.87553983,1923.79,non-woody,27,14,33
-Rubus idaeus,Rubus,192.625601433656,0.939938363,23.31509906,2198.09,woody,77,42,72
-Rubus leucodermis,Rubus,NA,0.3,NA,NA,woody,66,30,68
-Rubus parviflorus,Rubus,NA,1.475804865,21.9,15257,woody,152,49,103
-Rubus pubescens,Rubus,NA,NA,19.32149063,4175.16,woody,12,7,13
-Rubus spectabilis,Rubus,NA,3.079363449,NA,NA,woody,170,41,99
-Rubus ursinus,Rubus,NA,1.2,20.1,1793,woody,65,27,24
-Rumex aquaticus,Rumex,0.14,1.074755854,35.52,21992.29,non-woody,35,24,25
-Sagittaria cuneata,Sagittaria,NA,0.79,NA,NA,non-woody,34,17,13
-Sagittaria latifolia,Sagittaria,NA,1.49,NA,1321.57,non-woody,34,17,34
-Salix bebbiana,Salix,NA,4.36592131,21.1,NA,woody,118,49,22
-Salix discolor,Salix,NA,6.9828361,NA,1484.53,woody,118,49,27
-Salix exigua,Salix,NA,5.513619501,NA,NA,woody,17,7,57
-Salix hookeriana,Salix,NA,7.92,NA,NA,woody,118,49,10
-Salix lucida,Salix,NA,10.81287166,29.6,1974,woody,39,25,8
-Salix scouleriana,Salix,NA,8.479071929,NA,NA,woody,118,49,33
-Salix sitchensis,Salix,NA,7.01,NA,NA,woody,118,49,28
-Sambucus nigra,Sambucus,161.55174082934099,4.513290405,35.90688506,1060.6,woody,38,23,13
-Sambucus racemosa,Sambucus,176.761666666667,2.439435479,52.356573,1868.02,woody,97,43,72
-Schoenoplectus acutus,Schoenoplectus,NA,2.98,NA,NA,non-woody,59,31,70
-Schoenoplectus americanus,Schoenoplectus,NA,NA,13.27906556,NA,non-woody,8,6,15
-Scirpus microcarpus,Scirpus,0.360957598,1.246682581,15.01430186,5839.17,non-woody,22,16,9
-Shepherdia canadensis,Shepherdia,NA,1.82,33,NA,woody,94,46,127
-Sium suave,Sium,NA,NA,1.7,NA,non-woody,12,10,21
-Solidago canadensis,Solidago,0.284464623,0.816947234,16.25032178,894.72,non-woody,13,5,29
-Sorbus scopulina,Sorbus,NA,4.052776826,NA,4812,woody,50,27,5
-Sorbus sitchensis,Sorbus,NA,4.713407504,20.45865472,NA,woody,50,27,13
-Spiraea betulifolia,Spiraea,NA,0.91,NA,NA,woody,17,10,13
-Spiraea douglasii,Spiraea,NA,1.787456293,NA,NA,woody,14,13,5
-Streptopus amplexifolius,Streptopus,NA,0.579889,NA,2957.04,non-woody,42,19,24
-Symphoricarpos albus,Symphoricarpos,358.885,1.560812225,14.50379607,1318.87,woody,84,34,79
-Taxus brevifolia,Taxus,NA,12.73489627,NA,40,woody,65,39,127
-Thalictrum occidentale,Thalictrum,NA,NA,NA,NA,non-woody,3,3,14
-Thuja plicata,Thuja,NA,48.29183056,11.83504708,NA,woody,154,55,368
-Trifolium wormskioldii,Trifolium,NA,1.06,NA,NA,non-woody,16,12,21
-Triglochin maritima,Triglochin,0.125570724,0.40165977,NA,394.64,non-woody,8,7,6
-Trillium ovatum,Trillium,NA,NA,NA,NA,non-woody,16,11,10
-Triteleia grandiflora,Triteleia,NA,0.6,NA,NA,non-woody,9,6,11
-Tsuga heterophylla,Tsuga,NA,45.14083248,11.9005052,75,woody,86,41,160
-Tsuga mertensiana,Tsuga,NA,38.1,11.97012949,NA,woody,86,41,19
-Typha latifolia,Typha,0.191656794,1.525828105,14.43017547,17369.99,non-woody,107,43,254
-Urtica dioica,Urtica,186.137774555625,0.88302413,42.91725378,1552.74,non-woody,84,53,63
-Vaccinium caespitosum,Vaccinium,NA,0.20215,NA,176.32,woody,59,29,25
-Vaccinium membranaceum,Vaccinium,NA,1.37,NA,NA,woody,85,41,43
-Vaccinium myrtilloides,Vaccinium,NA,4.389760814,15.78529749,293.99,woody,37,18,40
-Vaccinium myrtillus,Vaccinium,246.71350417526,0.223988528,16.39812025,145.27,woody,11,7,1
-Vaccinium ovalifolium,Vaccinium,NA,2.43,NA,NA,woody,97,46,75
-Vaccinium ovatum,Vaccinium,NA,2.43,6.841052551,NA,woody,21,10,32
-Vaccinium oxycoccos,Vaccinium,279.456800106967,0.444145533,15.33,16.2,woody,75,37,59
-Vaccinium parvifolium,Vaccinium,NA,3.65,NA,NA,woody,82,37,58
-Vaccinium scoparium,Vaccinium,NA,0.6,NA,NA,woody,11,7,13
-Vaccinium uliginosum,Vaccinium,390.764675093333,0.172680858,21.85698336,81.46,woody,58,26,36
-Vaccinium vitis-idaea,Vaccinium,NA,0.139586675,10.57435117,75.3,woody,36,18,30
-Valeriana edulis,Valeriana,NA,NA,NA,2349.53,non-woody,14,8,18
-Valeriana sitchensis,Valeriana,NA,NA,NA,NA,non-woody,14,7,25
-Veratrum viride,Veratrum,NA,NA,NA,NA,non-woody,59,38,121
-Viburnum edule,Viburnum,NA,0.6,NA,2408.66,woody,96,41,63
-Viburnum opulus,Viburnum,167.872437053038,2.808383402,21.57677792,3016.08,woody,96,41,15
-Viola adunca,Viola,NA,0.0298,15.87450787,157.63,non-woody,8,7,9
-Xerophyllum tenax,Xerophyllum,NA,1.52,NA,NA,non-woody,27,20,26
-Zostera marina,Zostera,0.11,0.547722558,NA,3162,non-woody,26,16,12
-Chamaecyparis nootkatensis,Chamaecyparis,NA,NA,NA,NA,NA,42,47,62
-Equisetum hyemale subsp. affine,Equisetum,NA,NA,NA,NA,NA,40,26,8
-Adiantum aleuticum,Adiantum,NA,NA,NA,NA,NA,25,16,11
-Athyrium filix-femina subsp. cyclosorum,Athyrium,NA,NA,NA,NA,NA,30,19,1
-Polypodium glycyrrhiza,Polypodium,NA,NA,NA,NA,NA,39,30,33
-Allium schoenoprasum subsp. sibiricum,Allium,NA,NA,NA,NA,NA,12,7,6
-Alnus viridis subsp. crispa,Alnus,NA,NA,NA,NA,NA,66,35,26
-Alnus viridis subsp. sinuata,Alnus,NA,NA,NA,NA,NA,66,35,8
-Angelica genuflexa,Angelica,NA,NA,NA,NA,NA,17,10,11
-Arctous ruber,Arctous,NA,NA,NA,NA,NA,11,6,4
-Argentina egedii,Argentina,NA,NA,NA,NA,NA,49,25,19
-Argentina anserina,Argentina,NA,NA,NA,NA,NA,49,25,16
-Asarum caudatum,Asarum,NA,NA,NA,NA,NA,23,12,28
-Betula pumila var. glandulifera,Betula,NA,NA,NA,NA,NA,13,11,3
-Boschniakia hookeri,Boschniakia,NA,NA,NA,NA,NA,8,5,3
-Boschniakia rossica,Boschniakia,NA,NA,NA,NA,NA,8,5,1
-Cirsium edule,Cirsium,NA,NA,NA,NA,NA,44,28,10
-Cirsium hookerianum,Cirsium,NA,NA,NA,NA,NA,44,28,6
-Conioselinum gmelinii,Conioselinum,NA,NA,NA,NA,NA,29,14,15
-Cornus unalaschkensis,Cornus,NA,NA,NA,NA,NA,60,30,6
-Eurybia conspicua,Eurybia,NA,NA,NA,NA,NA,8,5,8
-Frasera montana,Frasera,NA,NA,NA,NA,NA,5,4,1
-Fritillaria camschatcensis,Fritillaria,NA,NA,NA,NA,NA,34,21,14
-Glaux maritima,Glaux,NA,NA,NA,NA,NA,4,3,3
-Hackelia diffusa,Hackelia,NA,NA,NA,NA,NA,7,5,1
-Lappula occidentalis,Lappula,NA,NA,NA,NA,NA,7,5,1
-Ligusticum canbyi,Ligusticum,NA,NA,NA,NA,NA,11,8,19
-Lomatium geyeri,Lomatium,NA,NA,NA,NA,NA,3,3,1
-Lomatium macrocarpum,Lomatium,NA,NA,NA,NA,NA,10,8,40
-Mahonia aquifolium,Mahonia,NA,NA,NA,NA,NA,68,29,58
-Mahonia nervosa,Mahonia,NA,NA,NA,NA,NA,68,29,33
-Maianthemum racemosum subsp. amplexicaule,Maianthemum,NA,NA,NA,NA,NA,38,21,3
-Phyllospadix scouleri,Phyllospadix,NA,NA,NA,NA,NA,10,5,4
-Platanthera stricta,Platanthera,NA,NA,NA,NA,NA,8,6,1
-Populus balsamifera ssp. balsamifera,Populus,NA,NA,NA,NA,NA,94,51,17
-Populus balsamifera subsp. trichocarpa,Populus,NA,NA,NA,NA,NA,94,51,92
-Pseudoroegneria spicata,Pseudoroegneria,NA,NA,NA,NA,NA,11,9,2
-Ribes lobbii,Ribes,NA,NA,NA,NA,NA,89,41,16
-Rubus pedatus,Rubus,NA,NA,NA,NA,NA,21,12,5
-Sedum divergens,Sedum,NA,NA,NA,NA,NA,16,11,11
-Toxicodendron rydbergii,Toxicodendron,NA,NA,NA,NA,NA,21,9,3
-Trillium petiolatum,Trillium,NA,NA,NA,NA,NA,16,11,1
-Vicia nigricans var. gigantea,Vicia,NA,NA,NA,NA,NA,23,13,8
-Zigadenus venenosus,Zigadenus,NA,NA,NA,NA,NA,17,13,30
-Zigadenus elegans,Zigadenus,NA,NA,NA,NA,NA,17,13,12
-Ledum groenlandicum,Ledum,NA,NA,NA,NA,NA,92,43,96
+Species_full,Family,N_Names,N_Langs,N_Uses,Species,Ssp_var,LDMC (g/g),Nmass (mg/g),Woodiness,Plant height (m),Leaf area (mm2)
+Abies amabilis,Abies,35,20,27,Abies amabilis,NA,221.92169149473173,9.448975476,woody,45.95737787000001,83.1976053059734
+Abies grandis,Abies,50,25,76,Abies grandis,NA,189.1159170957726,14.6,woody,54.9171867,180
+Abies lasiocarpa,Abies,54,31,105,Abies lasiocarpa,NA,214.87933560551758,13.43892689,woody,26.65503063,35.04
+Acer circinatum,Acer,23,18,26,Acer circinatum,NA,194.83526653549214,19.868447595461376,woody,23.590831160000004,3019.000000000001
+Acer glabrum,Acer,36,27,28,Acer glabrum,NA,197.89020454510867,21.465568744058068,woody,11.267881289999998,3280.529999999999
+Acer macrophyllum,Acer,38,23,64,Acer macrophyllum,NA,194.1427028168936,26.4,woody,22.451222949999995,11632.910000000003
+Achillea millefolium,Achillea,85,48,266,Achillea millefolium,NA,87.7511136851258,20.54814349,non-woody,0.313157943,627.23
+Achlys triphylla,Achlys,7,6,9,Achlys triphylla,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Actaea rubra,Actaea,22,13,22,Actaea rubra,NA,68.15964624288927,18.8,non-woody,1,1252.2900000000002
+Agoseris glauca,Agoseris,8,5,1,Agoseris glauca,NA,69.45481516162268,17.17,non-woody,0.181659021,520
+Allium cernuum,Allium,52,36,69,Allium cernuum,NA,74.66228300593099,18.491987530477193,non-woody,0.20335483190592346,447.642156105769
+Allium geyeri,Allium,11,8,7,Allium geyeri,NA,91.0589310858649,17.592057575295673,non-woody,0.056200000000000014,117.96999999999998
+Alnus incana subsp. tenuifolia,Alnus,66,35,45,Alnus incana,subsp. tenuifolia,191.68768149241944,21.9,woody,5.984813282421864,1761.9028376220267
+Alnus rubra,Alnus,56,33,116,Alnus rubra,NA,199.7665162615371,23.73410952,woody,30.98284191,832.2103681415549
+Amelanchier alnifolia,Amelanchier,131,45,164,Amelanchier alnifolia,NA,184.6953146709022,18.2,woody,3.8628324399999996,964.6100000000005
+Anaphalis margaritacea,Anaphalis,15,10,43,Anaphalis margaritacea,NA,0.296254214,17.76384616,non-woody,0.633818409,1465.0200000000004
+Anemone multifida,Anemone,12,8,1,Anemone multifida,NA,67.7520651303738,21.113285138662683,non-woody,0.6,1846.268174829721
+Angelica lucida,Angelica,13,5,25,Angelica lucida,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Antennaria neglecta,Antennaria,4,4,6,Antennaria neglecta,NA,69.48253572968424,14.70791148,non-woody,0.3,278.08000000000004
+Apocynum androsaemifolium,Apocynum,33,20,54,Apocynum androsaemifolium,NA,0.334554127,17.2556779,non-woody,0.735820838,7156.820000000001
+Apocynum cannabinum,Apocynum,33,20,99,Apocynum cannabinum,NA,61.830650984646574,17.24,non-woody,0.95,1753.2103090651008
+Aquilegia formosa,Aquilegia,29,20,31,Aquilegia formosa,NA,73.03895054110772,21.630331138005143,non-woody,0.91,2017.315554697642
+Aralia nudicaulis,Aralia,14,11,79,Aralia nudicaulis,NA,66.28828922661177,20.1078031,non-woody,0.45,4321.2000000000035
+Arbutus menziesii,Arbutus,15,12,61,Arbutus menziesii,NA,196.73503291234056,11.52874754,woody,19.718062110000005,4276.550000000001
+Arctostaphylos uva-ursi,Arctostaphylos,87,49,186,Arctostaphylos uva-ursi,NA,172.48453509724402,10.72919761,woody,0.269174936,172.17000000000002
+Arnica cordifolia,Arnica,3,4,5,Arnica cordifolia,NA,66.52782108936279,19.770651554937448,non-woody,0.45,1283.8299999999995
+Artemisia dracunculus,Artemisia,12,7,99,Artemisia dracunculus,NA,91.4502235493234,25.48,non-woody,0.788412343,87.71999999999997
+Artemisia frigida,Artemisia,14,12,90,Artemisia frigida,NA,63.281154778875056,27.16450345,non-woody,0.6,230.85000000000005
+Artemisia ludoviciana,Artemisia,12,7,98,Artemisia ludoviciana,NA,0.311672567,18.90475139,non-woody,0.48641546,262.2099999999999
+Artemisia tilesii,Artemisia,7,4,33,Artemisia tilesii,NA,114.905041530453,20.713983534372908,non-woody,1.9,696.9009905419241
+Artemisia tridentata,Artemisia,16,12,216,Artemisia tridentata,NA,194.5886653330022,15.17575567,woody,1.807239194,37.71999999999999
+Aruncus dioicus,Aruncus,20,16,10,Aruncus dioicus,NA,0.194935887,41.37404677,non-woody,1.103405285,97188.52000000005
+Asclepias speciosa,Asclepias,5,4,61,Asclepias speciosa,NA,123.21246786530236,21.651823940055298,non-woody,1.82,2309.1522044413496
+Balsamorhiza sagittata,Balsamorhiza,31,13,109,Balsamorhiza sagittata,NA,66.96396202297174,20.74327071733661,non-woody,0.6,6992.420000000004
+Betula nana,Betula,13,11,7,Betula nana,NA,397.525281153846,22.6860961,woody,0.394932857,51.78000000000001
+Betula occidentalis,Betula,8,7,12,Betula occidentalis,NA,243.86987394589207,17.894341146728866,woody,12.345039490000001,360.8235140142616
+Betula papyrifera,Betula,56,35,174,Betula papyrifera,NA,400.62,23.83371477,woody,14.69789012,2536.38
+Blechnum spicant,Blechnum,16,12,17,Blechnum spicant,NA,65.83572103095916,18.797158985977706,non-woody,0.371950331,637.0313294383213
+Bromus carinatus,Bromus,5,6,4,Bromus carinatus,NA,0.23272,21.17428468196589,non-woody,1.205,1716.0000000000002
+Calamagrostis rubescens,Calamagrostis,18,12,9,Calamagrostis rubescens,NA,73.03895054110772,21.630331138005143,non-woody,0.91,2017.315554697642
+Calochortus macrocarpus,Calochortus,10,8,17,Calochortus macrocarpus,NA,66.53218918926275,20.587024838073155,non-woody,0.54,1831.3465459591055
+Calypso bulbosa,Calypso,16,10,1,Calypso bulbosa,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Camassia leichtlinii,Camassia,65,33,12,Camassia leichtlinii,NA,69.12199509482593,21.149348748001778,non-woody,0.72636518577989,1937.395332628575
+Camassia quamash,Camassia,65,16,50,Camassia quamash,NA,69.12199509482593,21.140974139889906,non-woody,0.7,1939.7961444081905
+Campanula rotundifolia,Campanula,5,4,10,Campanula rotundifolia,NA,236.962653562727,19.69810933,non-woody,0.227134281,62.66999999999999
+Carex obnupta,Carex,46,26,10,Carex obnupta,NA,64.34476010623095,21.206733958983797,non-woody,0.91,1996.8521201337492
+Carex rostrata,Carex,46,26,4,Carex rostrata,NA,0.237746229,19.26761453,non-woody,0.468669026,1698.7700000000004
+Castilleja hispida,Castilleja,21,15,3,Castilleja hispida,NA,66.83603148425493,19.80616887428507,non-woody,0.45,1343.5696419535639
+Castilleja miniata,Castilleja,21,15,19,Castilleja miniata,NA,69.12199509482593,21.124097780326373,non-woody,0.6964392447033273,1943.7731756080477
+Ceanothus sanguineus,Ceanothus,23,10,5,Ceanothus sanguineus,NA,190.2870931751955,20.970946366090757,woody,3.04,1722.006790719024
+Ceanothus velutinus,Ceanothus,23,10,5,Ceanothus velutinus,NA,188.591169776239,20,woody,3.0199337739999996,1591.4478527098065
+Chenopodium capitatum,Chenopodium,15,10,12,Chenopodium capitatum,NA,65.78467516945167,18.793240985809135,non-woody,0.378224476,634.5848821887816
+Chimaphila umbellata,Chimaphila,16,11,70,Chimaphila umbellata,NA,179.99968963693587,11.8577412,woody,0.09563748900000002,122.50999999999999
+Cicuta douglasii,Cicuta,28,19,31,Cicuta douglasii,NA,110.93314288186282,21.561265424221823,non-woody,1.82,3604.604055181594
+Cicuta virosa,Cicuta,28,19,6,Cicuta virosa,NA,0.121237201,23.589556104129752,non-woody,0.876134937,17017.660000000007
+Cirsium arvense,Cirsium,44,28,11,Cirsium arvense,NA,105.709972199815,24.72195493,non-woody,0.652958113,5570.160000000002
+Cirsium brevistylum,Cirsium,44,28,6,Cirsium brevistylum,NA,71.65732117670913,21.85153354414345,non-woody,0.8250272161215066,2622.6672619260585
+Cirsium undulatum,Cirsium,44,28,16,Cirsium undulatum,NA,83.0248167220079,23.55,non-woody,1.2,2752.743259039464
+Cirsium vulgare,Cirsium,44,28,20,Cirsium vulgare,NA,0.131397251,17.26,non-woody,0.92238856,6798.489999999998
+Claytonia lanceolata,Claytonia,30,18,13,Claytonia lanceolata,NA,87.82218021040485,17.763851050268784,non-woody,0.3589536218309373,76.72000000000001
+Claytonia sibirica,Claytonia,17,7,14,Claytonia sibirica,NA,0.07681,23.88642865371043,non-woody,0.35663531700000006,316.00000000000006
+Clematis columbiana,Clematis,10,6,3,Clematis columbiana,NA,177.6103732127736,20.9299692524741,woody,1.5,1851.8864282048314
+Clematis ligusticifolia,Clematis,13,7,59,Clematis ligusticifolia,NA,155.34918690523705,20.135181923961838,woody,0.3,3212.999999999998
+Clematis occidentalis,Clematis,10,6,3,Clematis occidentalis,NA,185.29401697034743,21.276553470551335,woody,2.1346156971605517,1850.178426073476
+Clintonia uniflora,Clintonia,10,9,10,Clintonia uniflora,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Comandra umbellata,Comandra,8,4,7,Comandra umbellata,NA,91.03506518759119,16.98419965,non-woody,0.282842712,96.61999999999998
+Comarum palustre,Comarum,3,3,4,Comarum palustre,NA,0.25,13.36,non-woody,0.371233216,2197.209999999999
+Cornus canadensis,Cornus,60,30,40,Cornus canadensis,NA,66.26553797536192,18.50784993,non-woody,0.15,771.3799999999998
+Cornus nuttallii,Cornus,24,14,30,Cornus nuttallii,NA,187.00718466196224,20.182139165835306,woody,14.725854820000002,3200.0000000000027
+Cornus sericea,Cornus,76,40,21,Cornus sericea,NA,169.5637624573141,17.55,woody,2.663296645,2345.5099999999998
+Cornus suecica,Cornus,60,30,2,Cornus suecica,NA,0.197911602,19.88696657,non-woody,0.16496465099999996,301.40000000000003
+Corylus cornuta,Corylus,63,29,25,Corylus cornuta,NA,183.57988832818387,19.53619192,woody,3.3940213169999995,3166.4000000000024
+Crataegus douglasii,Crataegus,68,25,41,Crataegus douglasii,NA,190.32375904394186,21.0951719046495,woody,3.123716806,1729.1536003537087
+Delphinium nuttallianum,Delphinium,6,4,2,Delphinium nuttallianum,NA,65.91224240061901,18.85333657055132,non-woody,0.3503358807622963,381.9700000000001
+Dicentra formosa,Dicentra,6,4,4,Dicentra formosa,NA,68.15745292173413,20.775088750854025,non-woody,0.564621617,1846.1223779879
+Dodecatheon hendersonii,Dodecatheon,15,9,3,Dodecatheon hendersonii,NA,70.83287624937799,21.84137936081409,non-woody,0.708727116708491,1489.7710169523705
+Dodecatheon jeffreyi,Dodecatheon,15,9,2,Dodecatheon jeffreyi,NA,70.83287624937799,21.84137936081409,non-woody,0.708727116708491,1489.7710169523705
+Dodecatheon pulchellum,Dodecatheon,15,9,1,Dodecatheon pulchellum,NA,67.85683979750041,25.94875,non-woody,0.6,408.09000000000003
+Drosera rotundifolia,Drosera,6,3,2,Drosera rotundifolia,NA,0.13,12.68845516,non-woody,0.07657072999999999,47.440000000000005
+Dryopteris expansa,Dryopteris,66,37,7,Dryopteris expansa,NA,269.34,22.11655754,non-woody,1.2,59642.46000000002
+Elaeagnus commutata,Elaeagnus,25,11,43,Elaeagnus commutata,NA,185.77543577960031,21.033935878609338,woody,2.8178319760000003,1772.596032882942
+Empetrum nigrum,Empetrum,42,18,31,Empetrum nigrum,NA,279.276306748081,11.41157144,woody,0.21346105600000004,4.8
+Epilobium angustifolium,Epilobium,85,43,4,Epilobium angustifolium,NA,0.304087785,28.6675871,non-woody,0.831719514,2207.7599999999993
+Equisetum arvense,Equisetum,89,43,54,Equisetum arvense,NA,181.70286413985,20.03828835,non-woody,0.348986214,112.81999999999995
+Equisetum telmateia,Equisetum,89,43,26,Equisetum telmateia,NA,119.493333333333,18.364573459050057,non-woody,1.168182022,50.33
+Ericameria nauseosa,Ericameria,17,8,41,Ericameria nauseosa,NA,163.48133470143742,20.687157044464602,woody,1.21,1698.2458379561538
+Eriophorum angustifolium,Eriophorum,26,8,6,Eriophorum angustifolium,NA,0.326532408,19.2332864,non-woody,0.280294636,1159.4
+Erythronium grandiflorum,Erythronium,13,13,25,Erythronium grandiflorum,NA,71.14823351873144,20.651645348386882,non-woody,0.3,2135.49
+Fragaria chiloensis,Fragaria,113,51,25,Fragaria chiloensis,NA,127.77739956669191,18.53297114840284,non-woody,0.24,630.813570774672
+Fragaria vesca,Fragaria,113,51,28,Fragaria vesca,NA,388,18.41902786,non-woody,0.11388025699999998,1112.1100000000001
+Fragaria virginiana,Fragaria,113,51,76,Fragaria virginiana,NA,0.470839011,14.74564927,non-woody,0.10693312799999999,1285.8100000000002
+Frangula purshiana,Frangula,52,26,62,Frangula purshiana,NA,198.2887808267246,20.452887684017558,woody,10.33,1457.3797582887373
+Fritillaria affinis,Fritillaria,17,13,12,Fritillaria affinis,NA,68.1059845717035,21.142853795849906,non-woody,0.6625540228991881,1898.5948510251021
+Fritillaria pudica,Fritillaria,16,9,20,Fritillaria pudica,NA,67.97786734854077,18.77167590458851,non-woody,0.3,630.0915297083366
+Gaillardia aristata,Gaillardia,12,5,19,Gaillardia aristata,NA,67.7520651303738,21.113285138662683,non-woody,0.6,1846.268174829721
+Galium aparine,Galium,36,20,19,Galium aparine,NA,0.139310853,25.66632034,non-woody,0.389570305,159.04999999999998
+Galium triflorum,Galium,36,20,19,Galium triflorum,NA,59.12659104892741,19.05135813,non-woody,0.3530297060270168,472.78355222714094
+Gaultheria shallon,Gaultheria,77,30,82,Gaultheria shallon,NA,186.0499874022957,8.890435201,woody,1.471306473,3019.000000000001
+Geranium viscosissimum,Geranium,6,5,12,Geranium viscosissimum,NA,72.97276576601773,21.555391474499448,non-woody,0.91,2505.359999999999
+Geum macrophyllum,Geum,21,18,19,Geum macrophyllum,NA,0.260357555,19.241637974443716,non-woody,0.6,1010.9800000000004
+Geum triflorum,Geum,9,4,26,Geum triflorum,NA,67.0172241230508,14.19803952,non-woody,0.45,828.7999999999998
+Goodyera oblongifolia,Goodyera,17,12,8,Goodyera oblongifolia,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Gymnocarpium dryopteris,Gymnocarpium,4,4,1,Gymnocarpium dryopteris,NA,164.145816695714,20.87572485,non-woody,0.205303911,4084.0800000000004
+Hedysarum alpinum,Hedysarum,15,7,12,Hedysarum alpinum,NA,74.55933207850433,38.3,non-woody,0.24494897400000004,911.8727786298448
+Heracleum maximum,Heracleum,102,50,189,Heracleum maximum,NA,120.68958353376091,21.639991009895713,non-woody,2.43,12356.380000000003
+Heuchera cylindrica,Heuchera,17,12,22,Heuchera cylindrica,NA,123.21246786530236,21.651823940055298,non-woody,1.82,2309.1522044413496
+Hierochloe odorata,Hierochloe,14,8,92,Hierochloe odorata,NA,0.19,19.220008388743146,non-woody,0.350568382,33
+Holodiscus discolor,Holodiscus,36,26,65,Holodiscus discolor,NA,178.85899662810385,18.03820416,woody,2.928841355,661.4199999999998
+Hordeum jubatum,Hordeum,17,11,6,Hordeum jubatum,NA,0.24441,22.54,non-woody,0.411953429,181.00000000000006
+Juncus effusus,Juncus,9,6,20,Juncus effusus,NA,270.228,13.57264734,non-woody,0.761216973,1402.0000000000002
+Juniperus communis,Juniperus,66,34,112,Juniperus communis,NA,407.422515716,11.44467354,woody,3.0414365519999995,20.680000000000003
+Juniperus scopulorum,Juniperus,20,18,131,Juniperus scopulorum,NA,234.69726557518644,13.04468907,woody,11.458257300000001,125.12894147449494
+Kalmia microphylla,Kalmia,13,8,6,Kalmia microphylla,NA,156.14910891385173,18.178184622487297,woody,0.3,612.4708212684484
+Larix laricina,Larix,11,6,55,Larix laricina,NA,219.1111373626336,15.28582255,woody,23.399327270000004,33
+Larix occidentalis,Larix,15,10,45,Larix occidentalis,NA,232.66904490015557,16.38228862,woody,50.83738162,25.199999999999996
+Lathyrus japonicus,Lathyrus,22,15,5,Lathyrus japonicus,NA,70.96333193350877,23.314804304305017,non-woody,0.42837748,963.3830595327911
+Lathyrus nevadensis,Lathyrus,22,15,1,Lathyrus nevadensis,NA,70.40855507629892,24.634978137313652,non-woody,0.7055349819511273,1868.711359669977
+Lathyrus ochroleucus,Lathyrus,22,15,5,Lathyrus ochroleucus,NA,69.0993703060083,32.9,non-woody,0.9,2036.7685468933348
+Ledum glandulosum,Ledum,92,43,2,Ledum glandulosum,NA,173.9776586267967,20.643404302666276,woody,1.37,1749.1987018788334
+Lewisia rediviva,Lewisia,21,13,50,Lewisia rediviva,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Leymus cinereus,Leymus,15,10,18,Leymus cinereus,NA,108.28856632674133,21.498888216716608,non-woody,1.52,2154.7593804520425
+Leymus mollis,Leymus,17,11,18,Leymus mollis,NA,83.81130495077309,21.540985606585412,non-woody,1.21,2049.965975265182
+Ligusticum scoticum,Ligusticum,12,4,5,Ligusticum scoticum,NA,67.27866106048303,20.61937018332337,non-woody,0.52,3161.9999999999986
+Lilium columbianum,Lilium,34,22,27,Lilium columbianum,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Linnaea borealis,Linnaea,8,8,6,Linnaea borealis,NA,0.25,9.304296068,non-woody,0.17717347,92.95999999999995
+Lithospermum ruderale,Lithospermum,15,6,23,Lithospermum ruderale,NA,66.83603148425493,19.80616887428507,non-woody,0.45,1343.5696419535639
+Lomatium canbyi,Lomatium,8,6,8,Lomatium canbyi,NA,70.53368434238882,18.945592780737474,non-woody,0.24,608.9743342024465
+Lomatium cous,Lomatium,14,10,12,Lomatium cous,NA,70.53368434238882,18.945592780737474,non-woody,0.24,608.9743342024465
+Lomatium dissectum,Lomatium,10,7,40,Lomatium dissectum,NA,106.54008093122349,21.495050069217445,non-woody,1.4,2046.5278301339713
+Lomatium nudicaule,Lomatium,25,18,54,Lomatium nudicaule,NA,67.7520651303738,21.12625211996357,non-woody,0.614714762525177,1846.268174829721
+Lonicera ciliosa,Lonicera,36,18,25,Lonicera ciliosa,NA,185.92959111454144,21.226661529920413,woody,2.4551260663666747,1895.7116725499582
+Lonicera involucrata,Lonicera,68,34,72,Lonicera involucrata,NA,187.70615305699232,20.93500337070851,woody,3.04,3198.170000000001
+Lupinus nootkatensis,Lupinus,18,12,2,Lupinus nootkatensis,NA,65.32557183882489,23.44159394373345,non-woody,0.774596669,1817.9062587917333
+Lupinus polyphyllus,Lupinus,22,14,6,Lupinus polyphyllus,NA,0.169670323,32.93508767,non-woody,1.159253422,1460.1700000000005
+Lycopodium clavatum,Lycopodium,26,17,11,Lycopodium clavatum,NA,380.19,8.344249731,non-woody,0.12602534899999998,2.39
+Lysichiton americanus,Lysichiton,78,44,111,Lysichiton americanus,NA,73.24970900161063,21.588370018207062,non-woody,1.1,2088.011421946969
+Maianthemum dilatatum,Maianthemum,42,21,15,Maianthemum dilatatum,NA,68.89755858295901,21.333167989247958,non-woody,1.071954446,9049.999999999998
+Malus fusca,Malus,95,33,90,Malus fusca,NA,192.64131799524506,21.182756834490714,woody,7.463799301,1774.8300990423525
+Mentha arvensis,Mentha,30,19,208,Mentha arvensis,NA,0.171148565,15.13,non-woody,0.293615646,566.0700000000003
+Menziesia ferruginea,Menziesia,20,17,9,Menziesia ferruginea,NA,157.26520829739073,20.693237899333806,woody,0.8,1670.5328026438897
+Moneses uniflora,Moneses,11,10,14,Moneses uniflora,NA,0.27,20.4,non-woody,0.053078368999999986,358.33000000000004
+Monotropa uniflora,Monotropa,5,4,12,Monotropa uniflora,NA,66.66360235257594,19.7,non-woody,0.5515808139034953,1428.1683774593757
+Myrica gale,Myrica,5,5,8,Myrica gale,NA,345,25.45584412,woody,1.411935754,144.77999999999994
+Nicotiana attenuata,Nicotiana,56,32,76,Nicotiana attenuata,NA,72.87593371320112,21.559828637450867,non-woody,0.882982579007362,2778.0366287665115
+Nicotiana quadrivalvis,Nicotiana,56,32,11,Nicotiana quadrivalvis,NA,72.87593371320112,21.559828637450867,non-woody,0.882982579007362,2778.0366287665115
+Nicotiana tabacum,Nicotiana,56,32,44,Nicotiana tabacum,NA,119.31885876842787,21.417601474971875,non-woody,1.709378663,9049.999999999998
+Nuphar lutea,Nuphar,62,39,1,Nuphar lutea,NA,0.180974936,35.85847,non-woody,0.45,24904.200000000023
+Oemleria cerasiformis,Oemleria,23,14,26,Oemleria cerasiformis,NA,180.85240750967472,19.2,woody,1.949358869,1170.0000000000005
+Oenanthe sarmentosa,Oenanthe,13,10,17,Oenanthe sarmentosa,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Oplopanax horridus,Oplopanax,68,44,157,Oplopanax horridus,NA,185.5873117750715,21.117725887227273,woody,2.40964643952496,1775.8609191386315
+Opuntia fragilis,Opuntia,16,13,14,Opuntia fragilis,NA,69.12199509482593,21.149348748001778,non-woody,0.7113194875238716,1937.395332628575
+Opuntia polyacantha,Opuntia,16,13,46,Opuntia polyacantha,NA,67.7520651303738,21.113285138662683,non-woody,0.6,1846.268174829721
+Osmorhiza berteroi,Osmorhiza,11,8,23,Osmorhiza berteroi,NA,67.15184592178265,19.875774489646655,non-woody,0.4978445534909713,1170.8277477763352
+Osmorhiza occidentalis,Osmorhiza,8,6,70,Osmorhiza occidentalis,NA,76.3964060353841,19.264033298044694,non-woody,1.21,345.3199999999998
+Oxalis oregana,Oxalis,7,5,18,Oxalis oregana,NA,71.83345031127395,19.511877877866993,non-woody,0.04000000000000001,675.0000000000002
+Oxyria digyna,Oxyria,8,4,11,Oxyria digyna,NA,0.09,43.67757953,non-woody,0.10004055100000002,375.00999999999993
+Paxistima myrsinites,Paxistima,10,5,16,Paxistima myrsinites,NA,172.98415393657905,17.241701821556862,woody,1,102.57999999999997
+Penstemon fruticosus,Penstemon,11,4,27,Penstemon fruticosus,NA,156.33295514599635,20.64749580227126,woody,0.6,1544.3013130455704
+Perideridia gairdneri,Perideridia,28,16,39,Perideridia gairdneri,NA,83.81130495077309,21.540985606585412,non-woody,1.21,2049.965975265182
+Petasites frigidus,Petasites,21,14,13,Petasites frigidus,NA,80.12601762525948,24.4059419,non-woody,0.12500000000000003,828.5562696241664
+Phalaris arundinacea,Phalaris,21,15,3,Phalaris arundinacea,NA,186.847180445758,22.15447907,non-woody,1.342179414,2344.2799999999993
+Philadelphus lewisii,Philadelphus,22,15,48,Philadelphus lewisii,NA,190.4712397923175,21.044946124264282,woody,3.65,1738.9886783878828
+Physocarpus capitatus,Physocarpus,12,11,19,Physocarpus capitatus,NA,185.5873117750715,21.125331927627848,woody,2.43,1774.9784504266959
+Physocarpus malvaceus,Physocarpus,12,11,3,Physocarpus malvaceus,NA,185.76851861857085,21.066571578086307,woody,1.792375154,1765.0455600777098
+Picea engelmannii,Picea,43,26,24,Picea engelmannii,NA,267.5583327574142,9.981690298,woody,35.29363732,29.39
+Picea glauca,Picea,43,26,166,Picea glauca,NA,513.4,10.63662706,woody,25.8348762,23.720000000000002
+Picea mariana,Picea,21,13,81,Picea mariana,NA,271.6118367249373,8.37922413,woody,19.760111269999996,30.000000000000004
+Picea sitchensis,Picea,56,31,136,Picea sitchensis,NA,183.834432519292,11.17514256,woody,55.113262530000014,17.99
+Pinus albicaulis,Pinus,31,14,13,Pinus albicaulis,NA,184.81411800277158,10.35,woody,16.698853189999998,268.3659582020839
+Pinus contorta,Pinus,81,42,103,Pinus contorta,NA,200.93557560759908,11.31399704,woody,21.372521170000002,49.99999999999999
+Pinus monticola,Pinus,43,26,28,Pinus monticola,NA,167.2764751925814,14.55555556,woody,63.19708608999997,214.91285532478187
+Pinus ponderosa,Pinus,24,15,138,Pinus ponderosa,NA,0.246394809333333,11.1695215,woody,38.30074010999999,159.99999999999994
+Plantago major,Plantago,37,23,93,Plantago major,NA,0.1596663,18.80325799,non-woody,0.16658176399999997,4852.230000000003
+Plantago maritima,Plantago,6,4,2,Plantago maritima,NA,64.91887893850372,15.37,non-woody,0.192142876,749.4199999999997
+Platanthera dilatata,Platanthera,8,6,2,Platanthera dilatata,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Polystichum munitum,Polystichum,71,29,59,Polystichum munitum,NA,73.13143290077319,21.575050427301708,non-woody,1.06,2085.3195898976946
+Populus tremuloides,Populus,55,32,117,Populus tremuloides,NA,365.3545907044,20.80417917,woody,16.70656374,2066.58
+Potamogeton natans,Potamogeton,9,7,2,Potamogeton natans,NA,0.206473961,38.11417833,non-woody,0.164993672,2369.5
+Prunus emarginata,Prunus,80,35,95,Prunus emarginata,NA,193.42717520301437,21.25095028956061,woody,7.151135165,2467.609999999999
+Prunus pensylvanica,Prunus,80,35,52,Prunus pensylvanica,NA,202.58639740987178,23.47781293,woody,11.10910705,2047.6999999999996
+Prunus virginiana,Prunus,46,20,165,Prunus virginiana,NA,183.97130095059055,18.85670178,woody,5.995392840000001,975.0800000000004
+Pseudotsuga menziesii,Pseudotsuga,86,43,87,Pseudotsuga menziesii,NA,225.3749158166805,11.84097595,woody,65.27951122999997,31.169999999999995
+Pteridium aquilinum,Pteridium,90,40,80,Pteridium aquilinum,NA,298,25.01895541,non-woody,1.611970256,139999.9999999999
+Pterospora andromedea,Pterospora,5,5,15,Pterospora andromedea,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Purshia tridentata,Purshia,7,3,59,Purshia tridentata,NA,218.2110807565583,22.04273525,woody,1.82,29.000000000000004
+Pyrola asarifolia,Pyrola,7,7,7,Pyrola asarifolia,NA,75.40121771007864,13,non-woody,0.4045758498462454,369.0884374551891
+Quercus garryana,Quercus,17,11,26,Quercus garryana,NA,193.51889562247834,18.645427029408737,woody,20.69145058,904.8100127180712
+Ranunculus acris,Ranunculus,10,4,14,Ranunculus acris,NA,186.150573339905,25.73587504,non-woody,0.351530095,595.1899999999999
+Ranunculus glaberrimus,Ranunculus,20,9,6,Ranunculus glaberrimus,NA,89.13201891454854,20.09986026249656,non-woody,0.15,741.2218725808056
+Ranunculus occidentalis,Ranunculus,10,4,2,Ranunculus occidentalis,NA,89.70446665721667,20.307914978594948,non-woody,0.3538535210850635,713.5694760616828
+Rhodiola rosea,Rhodiola,10,4,12,Rhodiola rosea,NA,104.25,3.121289024,non-woody,0.16666666666666702,167.00000000000006
+Rhododendron albiflorum,Rhododendron,5,3,12,Rhododendron albiflorum,NA,185.76851861857085,21.11305749063902,woody,1.82,1765.0455600777098
+Rhus glabra,Rhus,7,6,108,Rhus glabra,NA,41.00164505,17.72816213,woody,2.847025404,7137.600000000003
+Ribes aureum,Ribes,9,6,22,Ribes aureum,NA,187.2260359991126,21.876231964395636,woody,1.775443065,1793.976566288541
+Ribes bracteosum,Ribes,52,26,24,Ribes bracteosum,NA,158.00805393935175,21.514465497017326,woody,0.8,1763.7617468903431
+Ribes cereum,Ribes,16,8,21,Ribes cereum,NA,159.97735197640344,21.649813005104626,woody,0.91,1791.7479943778967
+Ribes divaricatum,Ribes,89,41,40,Ribes divaricatum,NA,193.8008468346952,22.8,woody,3.2,1198
+Ribes glandulosum,Ribes,52,21,6,Ribes glandulosum,NA,158.24478046701336,21.501122123042727,woody,0.8,2422.52
+Ribes hudsonianum,Ribes,34,19,24,Ribes hudsonianum,NA,179.33051309899685,21.909522997322394,woody,1.52,1846.9496995977831
+Ribes inerme,Ribes,89,41,7,Ribes inerme,NA,187.04482915561323,21.96053087124649,woody,2.43,1812.0282943814868
+Ribes lacustre,Ribes,75,31,40,Ribes lacustre,NA,159.97735197640344,21.649813005104626,woody,0.91,1791.7479943778967
+Ribes laxiflorum,Ribes,52,21,19,Ribes laxiflorum,NA,158.00805393935175,21.514465497017326,woody,0.8,1763.7617468903431
+Ribes oxyacanthoides,Ribes,89,41,13,Ribes oxyacanthoides,NA,187.04482915561323,21.984469110261337,woody,2.518741281001266,1812.0282943814868
+Ribes sanguineum,Ribes,26,11,17,Ribes sanguineum,NA,183.77592116208996,25.4,woody,1.827626261,3294.9999999999973
+Ribes triste,Ribes,19,9,22,Ribes triste,NA,157.7072861929213,21.387882675253557,woody,0.6,1690.9896753522482
+Rosa acicularis,Rosa,164,57,67,Rosa acicularis,NA,173.8194997998359,10.64706532,woody,1.21,394.9732848978928
+Rosa gymnocarpa,Rosa,28,11,33,Rosa gymnocarpa,NA,156.20096539423682,18.322447269503762,woody,0.91,1118.483582727625
+Rosa nutkana,Rosa,164,57,71,Rosa nutkana,NA,186.52036653764011,18.60812884492632,woody,3.04,1205.9360462501818
+Rosa pisocarpa,Rosa,164,57,25,Rosa pisocarpa,NA,156.20096539423682,18.322447269503762,woody,0.91,1118.483582727625
+Rosa woodsii,Rosa,164,57,60,Rosa woodsii,NA,153.97726763236994,14.91,woody,0.995671983,714.8999999999997
+Rubus arcticus,Rubus,17,7,14,Rubus arcticus,NA,71.36488181673067,20.123332376230955,non-woody,0.3,1135.668647809267
+Rubus chamaemorus,Rubus,27,14,33,Rubus chamaemorus,NA,0.259069653,21.87553983,non-woody,0.10348729799999999,1923.7900000000004
+Rubus idaeus,Rubus,77,42,72,Rubus idaeus,NA,192.625601433656,23.31509906,woody,0.939938363,2198.0899999999997
+Rubus leucodermis,Rubus,66,30,68,Rubus leucodermis,NA,155.77504644571428,19.98908806145681,woody,0.3,1107.7834013528152
+Rubus parviflorus,Rubus,152,49,103,Rubus parviflorus,NA,170.27593788862535,21.9,woody,1.475804865,15256.999999999996
+Rubus pubescens,Rubus,12,7,13,Rubus pubescens,NA,174.13842357590977,19.32149063,woody,1.6838381439797876,4175.160000000003
+Rubus spectabilis,Rubus,170,41,99,Rubus spectabilis,NA,186.87579850475743,21.07324843985822,woody,3.079363449,2361.8576197481616
+Rubus ursinus,Rubus,65,27,24,Rubus ursinus,NA,158.15393754129204,20.1,woody,1.2,1793.0000000000002
+Rumex aquaticus,Rumex,35,24,25,Rumex aquaticus,NA,0.14,35.52,non-woody,1.074755854,21992.289999999997
+Sagittaria cuneata,Sagittaria,34,17,13,Sagittaria cuneata,NA,69.78831738039858,21.299157287367343,non-woody,0.79,1861.6675663480244
+Sagittaria latifolia,Sagittaria,34,17,34,Sagittaria latifolia,NA,107.11523980523481,20.65597413019598,non-woody,1.49,1321.5699999999997
+Salix bebbiana,Salix,118,49,22,Salix bebbiana,NA,190.20466164251724,21.1,woody,4.36592131,1741.6520825485043
+Salix discolor,Salix,118,49,27,Salix discolor,NA,194.5444353448783,21.921913502815595,woody,6.9828361,1484.5299999999993
+Salix exigua,Salix,17,7,57,Salix exigua,NA,191.98550854817262,22.612210919601143,woody,5.513619501,1721.051154603824
+Salix hookeriana,Salix,118,49,10,Salix hookeriana,NA,194.4765142008798,22.264353244027603,woody,7.920000000000001,1725.3778560126195
+Salix lucida,Salix,39,25,8,Salix lucida,NA,197.23113867237993,29.6,woody,10.81287166,1974.0000000000007
+Salix scouleriana,Salix,118,49,33,Salix scouleriana,NA,199.54237762253155,22.223789306599336,woody,8.479071928999998,1739.9603822031936
+Salix sitchensis,Salix,118,49,28,Salix sitchensis,NA,194.4765142008798,22.244120396408263,woody,7.01,1721.5571055120859
+Sambucus nigra,Sambucus,38,23,13,Sambucus nigra,NA,161.55174082934099,35.90688506,woody,4.513290405,1060.6000000000001
+Sambucus racemosa,Sambucus,97,43,72,Sambucus racemosa,NA,176.761666666667,52.356573,woody,2.439435479,1868.0200000000002
+Schoenoplectus acutus,Schoenoplectus,59,31,70,Schoenoplectus acutus,NA,127.79994072749047,20.510773095543886,non-woody,2.98,2158.746661438751
+Schoenoplectus americanus,Schoenoplectus,8,6,15,Schoenoplectus americanus,NA,76.61473069521352,13.27906556,non-woody,0.5039325538081731,687.307118545811
+Scirpus microcarpus,Scirpus,22,16,9,Scirpus microcarpus,NA,0.360957598,15.01430186,non-woody,1.246682581,5839.170000000002
+Shepherdia canadensis,Shepherdia,94,46,127,Shepherdia canadensis,NA,181.52353254462184,33,woody,1.82,1717.632942842205
+Sium suave,Sium,12,10,21,Sium suave,NA,107.06597975418941,1.7,non-woody,0.5543763280186673,416.21766981203433
+Solidago canadensis,Solidago,13,5,29,Solidago canadensis,NA,0.284464623,16.25032178,non-woody,0.816947234,894.72
+Sorbus scopulina,Sorbus,50,27,5,Sorbus scopulina,NA,185.16542400859737,20.894874600035376,woody,4.052776826,4811.999999999999
+Sorbus sitchensis,Sorbus,50,27,13,Sorbus sitchensis,NA,189.5719990875696,20.45865472,woody,4.713407504000001,2015.0102611894392
+Spiraea betulifolia,Spiraea,17,10,13,Spiraea betulifolia,NA,158.62425637971626,20.81344648113569,woody,0.91,1707.3777610178904
+Spiraea douglasii,Spiraea,14,13,5,Spiraea douglasii,NA,185.76851861857085,21.066571578086307,woody,1.787456293,1765.0455600777098
+Streptopus amplexifolius,Streptopus,42,19,24,Streptopus amplexifolius,NA,68.25661476073014,20.874079356471015,non-woody,0.579889,2957.039999999999
+Symphoricarpos albus,Symphoricarpos,84,34,79,Symphoricarpos albus,NA,358.885,14.50379607,woody,1.560812225,1318.8700000000003
+Taxus brevifolia,Taxus,65,39,127,Taxus brevifolia,NA,214.77762040999005,15.764273091798366,woody,12.734896270000002,40
+Thalictrum occidentale,Thalictrum,3,3,14,Thalictrum occidentale,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Thuja plicata,Thuja,154,55,368,Thuja plicata,NA,207.7365495083915,11.83504708,woody,48.291830559999994,105.39430292473482
+Trifolium wormskioldii,Trifolium,16,12,21,Trifolium wormskioldii,NA,73.13143290077319,21.575050427301708,non-woody,1.06,2085.3195898976946
+Triglochin maritima,Triglochin,8,7,6,Triglochin maritima,NA,0.125570724,21.13560170070342,non-woody,0.40165977,394.6399999999998
+Trillium ovatum,Trillium,16,11,10,Trillium ovatum,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Triteleia grandiflora,Triteleia,9,6,11,Triteleia grandiflora,NA,67.7520651303738,21.113285138662683,non-woody,0.6,1846.268174829721
+Tsuga heterophylla,Tsuga,86,41,160,Tsuga heterophylla,NA,214.84038389719197,11.9005052,woody,45.14083248000001,74.99999999999997
+Tsuga mertensiana,Tsuga,86,41,19,Tsuga mertensiana,NA,207.47486082876205,11.97012949,woody,38.1,101.50710747891308
+Typha latifolia,Typha,107,43,254,Typha latifolia,NA,0.191656794,14.43017547,non-woody,1.525828105,17369.98999999999
+Urtica dioica,Urtica,84,53,63,Urtica dioica,NA,186.137774555625,42.91725378,non-woody,0.88302413,1552.7399999999998
+Vaccinium caespitosum,Vaccinium,59,29,25,Vaccinium caespitosum,NA,196.1419667977073,16.205795932148902,woody,0.20215,176.32000000000008
+Vaccinium membranaceum,Vaccinium,85,41,43,Vaccinium membranaceum,NA,197.99471391694917,16.903478617895075,woody,1.37,395.3229309192305
+Vaccinium myrtilloides,Vaccinium,37,18,40,Vaccinium myrtilloides,NA,210.7265477564657,15.78529749,woody,4.389760814,293.99000000000007
+Vaccinium myrtillus,Vaccinium,11,7,1,Vaccinium myrtillus,NA,246.71350417526,16.39812025,woody,0.223988528,145.27
+Vaccinium ovalifolium,Vaccinium,97,46,75,Vaccinium ovalifolium,NA,205.79639934832812,16.277411545227395,woody,2.43,232.73294711405111
+Vaccinium ovatum,Vaccinium,21,10,32,Vaccinium ovatum,NA,232.70919613245886,6.841052551,woody,2.43,126.14568340940451
+Vaccinium oxycoccos,Vaccinium,75,37,59,Vaccinium oxycoccos,NA,279.456800106967,15.33,woody,0.444145533,16.199999999999996
+Vaccinium parvifolium,Vaccinium,82,37,58,Vaccinium parvifolium,NA,211.00727861396288,15.868616743484354,woody,3.65,185.8716921241108
+Vaccinium scoparium,Vaccinium,11,7,13,Vaccinium scoparium,NA,189.6288516534029,17.18879061798875,woody,0.6,402.32526280449844
+Vaccinium uliginosum,Vaccinium,58,26,36,Vaccinium uliginosum,NA,390.764675093333,21.85698336,woody,0.172680858,81.45999999999997
+Vaccinium vitis-idaea,Vaccinium,36,18,30,Vaccinium vitis-idaea,NA,230.75629744622788,10.57435117,woody,0.139586675,75.29999999999998
+Valeriana edulis,Valeriana,14,8,18,Valeriana edulis,NA,69.44663584737302,21.101476061519737,non-woody,0.7324861896366074,2349.5299999999993
+Valeriana sitchensis,Valeriana,14,7,25,Valeriana sitchensis,NA,69.12199509482593,21.140196848608234,non-woody,0.7138180421277311,1971.0372299710234
+Veratrum viride,Veratrum,59,38,121,Veratrum viride,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Viburnum edule,Viburnum,96,41,63,Viburnum edule,NA,156.23987604306555,20.66293134822289,woody,0.6,2408.66
+Viburnum opulus,Viburnum,96,41,15,Viburnum opulus,NA,167.872437053038,21.57677792,woody,2.8083834020000005,3016.080000000002
+Viola adunca,Viola,8,7,9,Viola adunca,NA,74.49881874150918,15.87450787,non-woody,0.029800000000000004,157.62999999999997
+Xerophyllum tenax,Xerophyllum,27,20,26,Xerophyllum tenax,NA,108.28856632674133,21.498888216716608,non-woody,1.52,2154.7593804520425
+Zostera marina,Zostera,26,16,12,Zostera marina,NA,0.11,25.233320935842183,non-woody,0.547722558,3161.9999999999986
+Chamaecyparis nootkatensis,Chamaecyparis,42,47,62,Chamaecyparis nootkatensis,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Equisetum hyemale subsp. affine,Equisetum,40,26,8,Equisetum hyemale,subsp. affine,81.57346652021585,18.69694821660187,non-woody,0.3899223189643937,291.4973198304597
+Adiantum aleuticum,Adiantum,25,16,11,Adiantum aleuticum,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Athyrium filix-femina subsp. cyclosorum,Athyrium,30,19,1,Athyrium filix-femina,subsp. cyclosorum,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Polypodium glycyrrhiza,Polypodium,39,30,33,Polypodium glycyrrhiza,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Allium schoenoprasum subsp. sibiricum,Allium,12,7,6,Allium schoenoprasum,subsp. sibiricum,74.66228300593099,18.491987530477193,non-woody,0.20335483190592346,447.642156105769
+Alnus viridis subsp. crispa,Alnus,66,35,26,Alnus viridis,subsp. crispa,108.90783427790234,21.635840340746793,non-woody,1.5320109391144765,2162.8534194295976
+Alnus viridis subsp. sinuata,Alnus,66,35,8,Alnus viridis,subsp. sinuata,108.90783427790234,21.635840340746793,non-woody,1.5320109391144765,2162.8534194295976
+Angelica genuflexa,Angelica,17,10,11,Angelica genuflexa,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Arctous ruber,Arctous,11,6,4,Arctous ruber,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Argentina egedii,Argentina,49,25,19,Argentina egedii,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Argentina anserina,Argentina,49,25,16,Argentina anserina,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Asarum caudatum,Asarum,23,12,28,Asarum caudatum,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Betula pumila var. glandulifera,Betula,13,11,3,Betula pumila,var. glandulifera,238.73879473728954,18.517843657825406,woody,3.815677206980533,476.27051411349703
+Boschniakia hookeri,Boschniakia,8,5,3,Boschniakia hookeri,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Boschniakia rossica,Boschniakia,8,5,1,Boschniakia rossica,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Cirsium edule,Cirsium,44,28,10,Cirsium edule,NA,71.65732117670913,21.85153354414345,non-woody,0.8250272161215066,2622.6672619260585
+Cirsium hookerianum,Cirsium,44,28,6,Cirsium hookerianum,NA,71.65732117670913,21.85153354414345,non-woody,0.8250272161215066,2622.6672619260585
+Conioselinum gmelinii,Conioselinum,29,14,15,Conioselinum gmelinii,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Cornus unalaschkensis,Cornus,60,30,6,Cornus unalaschkensis,NA,60.16243513295079,20.062893648624993,non-woody,0.45989830391315445,1446.94998880266
+Eurybia conspicua,Eurybia,8,5,8,Eurybia conspicua,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Frasera montana,Frasera,5,4,1,Frasera montana,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Fritillaria camschatcensis,Fritillaria,34,21,14,Fritillaria camschatcensis,NA,68.1059845717035,21.142853795849906,non-woody,0.6625540228991881,1898.5948510251021
+Glaux maritima,Glaux,4,3,3,Glaux maritima,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Hackelia diffusa,Hackelia,7,5,1,Hackelia diffusa,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Lappula occidentalis,Lappula,7,5,1,Lappula occidentalis,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Ligusticum canbyi,Ligusticum,11,8,19,Ligusticum canbyi,NA,69.43100713880452,21.165220931603166,non-woody,0.7434983862780218,2053.649507792423
+Lomatium geyeri,Lomatium,3,3,1,Lomatium geyeri,NA,67.7520651303738,21.12625211996357,non-woody,0.614714762525177,1846.268174829721
+Lomatium macrocarpum,Lomatium,10,8,40,Lomatium macrocarpum,NA,67.7520651303738,21.12625211996357,non-woody,0.614714762525177,1846.268174829721
+Mahonia aquifolium,Mahonia,68,29,58,Mahonia aquifolium,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Mahonia nervosa,Mahonia,68,29,33,Mahonia nervosa,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Maianthemum racemosum subsp. amplexicaule,Maianthemum,38,21,3,Maianthemum racemosum,subsp. amplexicaule,69.85238709588124,21.289443940853154,non-woody,0.8034488267505567,2798.3275468648135
+Phyllospadix scouleri,Phyllospadix,10,5,4,Phyllospadix scouleri,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Platanthera stricta,Platanthera,8,6,1,Platanthera stricta,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Populus balsamifera ssp. balsamifera,Populus,94,51,17,Populus balsamifera,ssp. balsamifera,132.03320981154693,21.472179289579383,non-woody,1.3239181531619093,2088.049867464381
+Populus balsamifera subsp. trichocarpa,Populus,94,51,92,Populus balsamifera,subsp. trichocarpa,132.03320981154693,21.472179289579383,non-woody,1.3239181531619093,2088.049867464381
+Pseudoroegneria spicata,Pseudoroegneria,11,9,2,Pseudoroegneria spicata,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Ribes lobbii,Ribes,89,41,16,Ribes lobbii,NA,187.04482915561323,21.984469110261337,woody,2.518741281001266,1812.0282943814868
+Rubus pedatus,Rubus,21,12,5,Rubus pedatus,NA,181.95448311867614,21.066818981656084,woody,1.8114102609660703,2373.5445082608526
+Sedum divergens,Sedum,16,11,11,Sedum divergens,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Toxicodendron rydbergii,Toxicodendron,21,9,3,Toxicodendron rydbergii,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Trillium petiolatum,Trillium,16,11,1,Trillium petiolatum,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Vicia nigricans var. gigantea,Vicia,23,13,8,Vicia nigricans,var. gigantea,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Zigadenus venenosus,Zigadenus,17,13,30,Zigadenus venenosus,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Zigadenus elegans,Zigadenus,17,13,12,Zigadenus elegans,NA,69.12199509482593,21.144671377556158,non-woody,0.7266087236965487,1937.395332628575
+Ledum groenlandicum,Ledum,92,43,96,Ledum groenlandicum,NA,69.12199509482593,21.144671377556158,non-woody,0.7311865705652691,1937.395332628575

@@ -37,6 +37,8 @@ library(reshape2)
 library(readxl)
 library(taxize)
 library(multidplyr) # temporary: seeing if this helps
+library(caret)
+library(missForest)
 
 # Set up parallel
 if (!exists("cluster")) {
@@ -156,6 +158,8 @@ base_data <- read_csv("data/raw/PNW_Species_w_Metadata.csv", show_col_types = FA
   # Remove species for which we lack phylogenetic data: Pterospora andromedea
   filter(Species != "Pterospora andromedea")
 
+full_species_synonyms_list <- base_data$Species
+
 # Read in TEK data set
 TEK_data <- read_csv("data/raw/TEKdata.csv", show_col_types = FALSE) %>%
   # Remove rows corresponding to family labels
@@ -168,6 +172,9 @@ TEK_data <- read_csv("data/raw/TEKdata.csv", show_col_types = FALSE) %>%
     N_Langs = `Number of unique  languages (from Appendix 2B)`,
     N_Uses = `Number of uses`
   )
+
+full_species_synonyms_list <- c(TEK_data$Species,full_species_synonyms_list) %>% 
+  unique()
 
 # species in base_data but not in TEK_data: L Hierochloe, Ledum groenlandicum, and Ledum glandulosum
 
@@ -250,6 +257,9 @@ Diaz_data_sel <- Diaz_data_renamed %>%
   rename(original_name_Diaz = original_name) %>%
   mutate(origin = "Diaz")
 
+full_species_synonyms_list <- c(Diaz_data_sel$original_name_Diaz,full_species_synonyms_list) %>% 
+  unique()
+
 # 3) Load in and process TRY data sets ------------------------------------
 
 # We include these to obtain trait data for the 23 (or 39) missing from Diaz
@@ -322,6 +332,9 @@ TRY_data <- rbind(
   synonym_func() %>%
   # Remove non-focal species
   filter(Species_full %in% c(full_data$Species_full))
+
+full_species_synonyms_list <- c(TRY_data$Species_full, full_species_synonyms_list) %>% 
+  unique()
 
 # # Uncomment this to see which species are missing from TRY data
 # # Get list of species which are in base data but not TRY data set
@@ -421,9 +434,10 @@ TRY_data_processed_wide <- TRY_data_processed %>%
   mutate(origin = "TRY")
 
 
-
-
 # 4) Combine data sets -----------------------------------------------------
+
+# Save a list of all the species synonyms we encountered in the datasets
+write_csv(data.frame(Species = full_species_synonyms_list), "data/clean/all_synonyms.csv")
 
 # Join Diaz and TRY data sets, preferring data entries from Diaz
 
@@ -452,7 +466,7 @@ final_data <- full_join(
   # if value is not NA for origin = "TRY" and origin = "Diaz",
   # set value to value from "Diaz"
   group_by(Species_full, Family, trait) %>%
-  select(c("Species_full", "Family", "trait", "Diaz", "TRY")) %>%
+  # select(c("Species_full", "Family", "trait", "Diaz", "TRY")) %>%
   mutate(
     value = case_when(
       !is.na(Diaz) & !is.na(TRY) ~ Diaz,
@@ -497,7 +511,67 @@ coverage_df <- final_data %>%
 
 write_csv(coverage_df, "data/clean/coverage_pcts.csv")
 
-# 5) Put data set into workable form for imputation and phylogeny steps --------
+
+# 5) Impute missing trait data --------------------------------------------
+
+# Load in trait data and put it in workable form
+data_in <- final_data %>% 
+  select("Species_full","Family","LDMC (g/g)", "Plant height (m)", 
+         "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness") %>% 
+  mutate(Genus = stringr::word(Species_full, 1, 1, sep = " ")) %>%
+  mutate(Species = stringr::word(Species_full, 2, 2, sep = " ")) %>%
+  mutate(Ssp_var = stringr::word(Species_full, 3, 4, sep = " ")) %>%
+  relocate(Genus, Species, Ssp_var)
+
+# Modify original data
+traits_df <- data_in %>%
+  # expand binomial
+  mutate(LeafArea_log = log(`Leaf area (mm2)`)) %>%
+  mutate(PlantHeight_log = log(`Plant height (m)`)) %>% 
+  # Remove original variables replaced by "logged" versions
+  select(-c("Leaf area (mm2)", "Plant height (m)")) #%>% #, "Diaspore mass (mg)")) 
+
+# Run missForest algorithm to impute missing traits
+# get taxonomic columns
+taxa <- select(traits_df, Genus)#, Species, Ssp_var) # Get order and family level data
+test <- rep(1, nrow(taxa))
+taxa <- cbind(taxa, test)
+
+# turn taxonomic groupings into dummy binary variables
+dummies <- dummyVars(test ~ ., data = taxa)
+taxa <- predict(dummies, newdata = taxa)
+
+# select traits to be imputed
+traits_to_impute <- as.data.frame(traits_df) %>%
+  select(-c("Genus":"Species_full")) %>%
+  mutate(Family = as.factor(Family)) %>%  
+  select(-Family) %>% 
+  mutate(Woodiness = as.factor(Woodiness)) 
+
+# combine dummy vars with traits (comment this line out to not use taxa in imputation)
+traits_to_impute <- cbind(traits_to_impute, taxa)
+
+# run missForest imputation
+PNW_imp <- missForest(traits_to_impute,
+                      maxiter = 1000, # maximum number of iterations to be performed given the stopping criterion isn't met
+                      ntree = 1000, # number of trees to grow in each forest
+                      verbose = TRUE, # if 'TRUE', gives additional output between iterations
+                      variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
+)
+
+# add actual taxonomic columns back in and remove dummy variables
+imputed_traits <- cbind(traits_df[, 1:5], PNW_imp$ximp[, 1:5]) %>% 
+  mutate("Plant height (m)" = exp(PlantHeight_log), .keep = "unused") %>% 
+  mutate("Leaf area (mm2)" = exp(LeafArea_log), .keep = "unused")
+
+imputed_data <- right_join(
+  select(final_data, -c("LDMC (g/g)":Woodiness)),
+  select(imputed_traits, -c(Genus:Ssp_var))
+)
+
+# 6) Put data set into workable form for imputation and phylogeny steps --------
+
+write_csv(imputed_data, "data/clean/final_dataset.csv")
 
 # Reduce dataset to only include data used in simulations
 data_in <- final_data %>%
