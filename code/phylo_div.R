@@ -83,7 +83,7 @@ system.time(
 # --> which information does the algorithm use in these cases? I don't know...
 
 
-tree <- tree.WP.S3
+tree <- tree.LCVP.S3
 
 ## ---- Add missing species to the tree --------------
 if (!require('pez')) install.packages('pez'); library('pez')
@@ -95,10 +95,10 @@ tree.WP.S3_complete <- congeneric.merge(tree.WP.S3$tree.scenario.3, missing_spec
 tree.LCVP.S3_complete <- congeneric.merge(tree.LCVP.S3$tree.scenario.3, missing_species)
 tree.TPL.S3_complete <- congeneric.merge(tree.TPL.S3$tree.scenario.3, missing_species)
 # I don't think this worked. Is this because the genus is not present in the tree?
-(tree.WP.S3$tree.scenario.3$Nnode)
-(tree.WP.S3_complete$Nnode)
-which(str_detect(tree.WP.S3_complete$tip.label, "Zigadenus_venenosus") == TRUE)
-# --> it is not present in the tree
+(tree.LCVP.S3$tree.scenario.3$Nnode)
+(tree.LCVP.S3_complete$Nnode)
+which(str_detect(tree.LCVP.S3_complete$tip.label, "Frasera_montana") == TRUE)
+# --> Rumex_aquaticus, Pterospora_andromedea, Frasera_montana is not present in the tree
 
 
 # save tree

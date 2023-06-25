@@ -281,7 +281,10 @@ Diaz_data_sel <- Diaz_data_joined %>%
     "LDMC (g/g)"
   ) %>%
   rename(original_name_Diaz = original_name) %>%
-  mutate(origin = "Diaz")
+  mutate(origin = "Diaz") %>% 
+  # Add Family names in
+  right_join(select(full_data, Species_full, Family), by = "Species_full")
+
 
 # 3) Load in and process TRY data sets ------------------------------------
 
@@ -463,8 +466,26 @@ TRY_data_processed_wide <- TRY_data_processed %>%
 
 # 4) Combine data sets -----------------------------------------------------
 
+# Deal with any species with multiple synonyms
+synonym_doubles <- full_species_synonyms_list %>% 
+  # We don't need to keep track of "synonyms" if they're the same as the original name
+  filter(original_name != synonym) %>%  # 569 left
+  # Check if there are multiple synonyms assigned to one original name
+  group_by(original_name) %>% 
+  filter(n() > 1) %>% # 16 left, these all seem to differ in how subspecies or variant is spelled
+  mutate(original_species = stringr::word(original_name, 1, 2, sep = " ")) %>%
+  mutate(original_sspvar = stringr::word(original_name, 4, 4, sep = " ")) %>%
+  mutate(synonym_species = stringr::word(synonym, 1, 2, sep = " ")) %>%
+  mutate(synonym_sspvar = stringr::word(synonym, 4, 4, sep = " "))
+
+write_csv(synonym_doubles, "synonym_doubles.csv")
+
 # Save a list of all the species synonyms we encountered in the datasets
-write_csv(full_species_synonyms_list, "data/clean/all_synonyms.csv")
+full_species_synonyms_list %>% 
+  # Add in Elisa's custom list
+  rbind(rename(custom_synonyms_list, synonym = Synonym)) %>% 
+  unique() %>% 
+  write_csv("data/clean/all_synonyms.csv")
 
 # Join Diaz and TRY data sets, preferring data entries from Diaz
 
@@ -522,7 +543,7 @@ subspecies_list <- final_data %>%
   filter(n()>1)
 
 # Write the final data
-write_csv(final_data, "data/clean/final_dataset.csv")
+# write_csv(final_data, "data/clean/final_dataset.csv")
 # final_data <- read_csv("data/clean/final_dataset.csv")
 
 # List of species for which we have zero numeric trait data besides TEK
