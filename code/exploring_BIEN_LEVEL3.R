@@ -11,6 +11,8 @@
 library(sp) # for "over"
 library(tidyverse) # for "read_csv"
 if (!require('BIEN')) install.packages('BIEN'); library('BIEN')
+library(progress) # for keeping track of progress of long processes
+library(doParallel) # to run code in parallel
 # vignette("BIEN")
 # vignette("BIEN_tutorial")
 if (!require('sf')) install.packages('sf'); library('sf')
