@@ -10,8 +10,6 @@
 # Load packages
 library(sp) # for "over"
 library(tidyverse) # for "read_csv"
-library(progress) # for keeping track of progress of long processes
-library(doParallel) # to run code in parallel
 if (!require('BIEN')) install.packages('BIEN'); library('BIEN')
 # vignette("BIEN")
 # vignette("BIEN_tutorial")
@@ -29,13 +27,15 @@ dir_fig <- "figures/Species_occurrence/"
 ## ---- Load BIEN list of species --------------
 
 # Load in list of all the species synonyms we found in the original datasets
-all_synonyms <- read_csv("data/clean/all_synonyms.csv")
+all_synonyms <- read_csv("data/clean/all_synonyms.csv") %>% 
+  mutate(dropped_sspvar = stringr::word(original_name, 1,2))
 
-# Get all species available in BIEN and rename according to our synonym list
 species_list <- BIEN_list_all() %>% 
-  left_join(rename(all_synonyms, species = original_name)) %>% 
-  filter(!is.na(synonym)) %>% 
-  select(-species, species = synonym)
+  filter(species %in% c(all_synonyms$original_name, all_synonyms$synonym, all_synonyms$dropped_sspvar)) %>% 
+  mutate(Species_full = species) %>%
+  right_join(rename(all_synonyms, species = original_name), by = "species") %>% 
+  select(species = synonym) %>% 
+  unique()
 
 dim(species_list)
 head(species_list)
@@ -54,10 +54,10 @@ dim(final_data) # 318
 length(unique(final_data$Species_full)) # 2 species have the same "base name": Alnus viridis and Populus balsamifera
 
 final_data_in_BIEN <- final_data %>%
-  filter(Species %in% unique(species_list$species)) %>%
-  select(Species) %>%
+  filter(Species_full %in% c(species_list$species, species_list$synonym)) %>%
+  select(Species_full) %>%
   unique()
-dim(final_data_in_BIEN) # 314, so 4 missing species
+dim(final_data_in_BIEN) # 318, so 0 missing species
 
 species_list <- final_data_in_BIEN # We will use this dataframe in part 3)
 
@@ -222,7 +222,7 @@ slice_func<-function(x,n) {
   lapply(seq(1,N,n),function(i) x[i:min(i+n-1,N)])
 }
 
-species_slice <- slice_func(species_list$Species, 1)# ceiling(length(species_list$Species)/cluster_size))
+species_slice <- slice_func(species_list$Species_full, 1)# ceiling(length(species_list$Species)/cluster_size))
 
 pb <- progress_bar$new(
   format = ":spin :system progress = :percent [:bar] :elapsed | eta: :eta",

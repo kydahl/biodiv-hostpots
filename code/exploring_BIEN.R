@@ -27,13 +27,15 @@ dir_fig <- "figures/Species_occurrence/"
 ## ---- Load BIEN list of species --------------
 
 # Load in list of all the species synonyms we found in the original datasets
-all_synonyms <- read_csv("data/clean/all_synonyms.csv")
+all_synonyms <- read_csv("data/clean/all_synonyms.csv") %>% 
+  mutate(dropped_sspvar = stringr::word(original_name, 1,2))
 
 species_list <- BIEN_list_all() %>% 
-  filter(species %in% all_synonyms$Species) %>% 
+  filter(species %in% c(all_synonyms$original_name, all_synonyms$synonym, all_synonyms$dropped_sspvar)) %>% 
   mutate(Species_full = species) %>%
-  # filter to species in BIEN that match synonyms "original name" of our original species list
-  synonym_func() # !!! re-run later when it lets me
+  right_join(rename(all_synonyms, species = original_name), by = "species") %>% 
+  select(species = synonym) %>% 
+  unique()
 
 dim(species_list)
 head(species_list)
@@ -52,10 +54,10 @@ dim(final_data) # 318
 length(unique(final_data$Species_full)) # 2 species have the same "base name": Alnus viridis and Populus balsamifera
 
 final_data_in_BIEN <- final_data %>%
-  filter(Species %in% unique(species_list$species)) %>%
-  select(Species) %>%
+  filter(Species_full %in% c(species_list$species, species_list$synonym)) %>%
+  select(Species_full) %>%
   unique()
-dim(final_data_in_BIEN) # 315, so 1 missing species
+dim(final_data_in_BIEN) # 318, so 0 missing species
 
 species_list <- final_data_in_BIEN # We will use this dataframe in part 3)
 

@@ -161,8 +161,6 @@ base_data <- read_csv("data/raw/PNW_Species_w_Metadata.csv", show_col_types = FA
   # Remove species for which we lack phylogenetic data: Pterospora andromedea
   filter(Species != "Pterospora andromedea")
 
-full_species_synonyms_list <- data.frame(original_name = base_data$Species)
-
 # Read in TEK data set
 TEK_data <- read_csv("data/raw/TEKdata.csv", show_col_types = FALSE) %>%
   # Remove rows corresponding to family labels
@@ -221,13 +219,15 @@ Diaz_data <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_
 #   full_species_synonyms_list) %>% 
 #   unique()
 
+Diaz_data_renamed <- Diaz_data %>%
+  rename(Species_full = `Species name standardized against TPL`)
+
 # Assign GNR synonyms to species in Diaz data
-run_GNR_diaz = FALSE # !!! Change this to re-run name resolver
+run_GNR_diaz = TRUE # !!! Change this to re-run name resolver
 if (run_GNR_diaz == TRUE) {
 
-Diaz_data_renamed <- Diaz_data %>%
-  rename(Species_full = `Species name standardized against TPL`) %>%
-  # rename species with synonyms or...
+Diaz_data_renamed <- Diaz_data_renamed %>%
+  # rename species with synonyms
   synonym_func() # using gnr_resolve (KD: this will take a long time to run!)
 
 Diaz_synonyms <- data.frame(original_name = Diaz_data_renamed$original_name,
@@ -481,6 +481,7 @@ synonym_doubles <- full_species_synonyms_list %>%
 write_csv(synonym_doubles, "synonym_doubles.csv")
 
 # Save a list of all the species synonyms we encountered in the datasets
+custom_synonyms_list <- read_csv("data/clean/synonym_list.csv", show_col_types = FALSE)
 full_species_synonyms_list %>% 
   # Add in Elisa's custom list
   rbind(rename(custom_synonyms_list, synonym = Synonym)) %>% 
@@ -562,7 +563,7 @@ write_csv(coverage_df, "data/clean/coverage_pcts.csv")
 
 # 5) Impute missing trait data --------------------------------------------
 
-# Load in trait data and put it in workable form
+# Put trait data in workable form
 data_in <- final_data %>% 
   select("Species_full","Family","LDMC (g/g)", "Plant height (m)", 
          "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness") %>% 
@@ -620,6 +621,8 @@ imputed_data <- right_join(
 # 6) Put data set into workable form for imputation and phylogeny steps --------
 
 write_csv(imputed_data, "data/clean/final_dataset.csv")
+
+
 
 # Reduce dataset to only include data used in simulations
 data_in <- final_data %>%

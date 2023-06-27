@@ -15,7 +15,7 @@ registerDoParallel(cores = numCores - 2)
 source("code/functions.R")
 
 # Load in trait data
-final_data <- read_csv("data/clean/final_dataset.csv") #%>% 
+final_data <- read_csv("data/clean/final_dataset_IMPUTED.csv") #%>% 
   # rename(Species = Species_full)
 
 # Load in phylogenetic tree data
@@ -68,7 +68,7 @@ Init_df <- tibble(Patch = 1:NumPatches, Level = Levels)
 
 # Change to repeat each level N times
 
-# Assign number of species to each patch ------------------------------
+# Assign number of species to each patch ----------------------------------
 
 # Maximum needs to be set to the total number of species at that level
 MaxNumEntities <- SpeciesOccs %>% 
