@@ -298,54 +298,45 @@ trait.fdiv.metrics <- function(in_df, trait_names){
 }
 
 # Calculate phylogenetic diversity metrics --------------------------------
-# source("phylo.div.R") # Load phylogenetic tree
-phylodiv.metrics <- function(in_df, trait_names) {
-  # Pruning happens based on a community matrix, so either
-  # - create a fake community matrix from list_species_unique 
-  # - convert full_df to wide format
-  # Attention: Species names should have a dash between genus and species name
-  # KD: I think the goal is to have each row be a patch and each column a
-  #     species, with a 1 if the species is in that patch. Is that correct?
-  #     If so, we can use the code below!
+
+phylodiv.metrics <- function(full_df) {
   
-  si <- in_df %>%
-    mutate(Species2 = paste(stringr::word(Species, 1,1, sep=" "),
-                            stringr::word(Species, 2,2, sep=" "),
-                            sep="_")) %>%
-    dplyr::select(Species2, Patch) %>% 
-    unique()
+  print("Create and prune phylogenetic tree")
+  source("phylo.div.R") # Load phylogenetic tree
+  # output:
+  # - tree_pruned
+  # - comm
   
-  comm <- dcast(si, formula = Patch ~ Species2, fun.aggregate = length, 
-                value.var = "Patch")
-  
-  ## ---- Calculate phylogenetic diversity --------------
-  # this takes a while!
-  
-  # We have to remove species missing in the phylogeny in order for this to work
-  comm <- comm %>%
-    dplyr::select(-Pterospora_andromedea)
-  
-  tree_pruned <- prune.sample(comm,tree)
-  
+  print("Calculate phylogenetic diversity")
   # 1) sum of the total phylogenetic branch length (Faith, 1992)
   pdiv_length <- pd(comm, tree_pruned, include.root=TRUE) 
-  pdiv_length2 <- pd(comm, tree_pruned, include.root=FALSE)
-  # warnings because this cannot be calculated for communities with 1 species only
-  # !!! BUG: when there is a single species community, pd with include.root = TRUE
-  #          throws an error. Solution for now: prevent single species communities
+  # pdiv_length2 <- pd(comm, tree_pruned, include.root=FALSE)
+  # plot(pdiv_length$PD, pdiv_length2$PD) # they are exactly the same
+  # warning: pdiv_length2 cannot be calculated for communities with 1 species only
+  # Note: PD is not statistically independent of species richness
   
-  # 2) phylogenetic species variability richness and evenness (Helmus et al., 2007)
+  # The function ses.pd compares observed PD to the values expected under various 
+  # randomizations and allows a way to standardize for unequal richness across samples.
+  # This take a loooooong time! Consider choosing one null model algorithm: e.g.
+  # - "phylogeny.pool" in https://www.sciencedirect.com/science/article/pii/S2530064422000281 and https://onlinelibrary.wiley.com/doi/full/10.1111/ddi.13513
+  pdiv_length_ses <- ses.pd(comm, tree_pruned, include.root=TRUE, null.model="phylogeny.pool", runs=99) 
+  
+  
+  # 2) phylogenetic species variability, richness and evenness (Helmus et al., 2007)
   pdiv_psv <- psv(comm, tree_pruned)
   pdiv_psr <- psr(comm, tree_pruned)
-  pdiv_pse <- pse(comm, tree_pruned) 
+  # pdiv_pse <- pse(comm, tree_pruned) 
   # pdiv_pse only makes sense when working with relative species abundances, which is not the case here.
   # I set the abundance of each species to 1
   
   # Combine results
   pdiv_all <- pdiv_length %>%
     tibble::rownames_to_column("Patch") %>%
-    full_join(pdiv_length2 %>% dplyr::select(PD) %>%
-                rename(PD_unrooted = PD) %>%
+    # full_join(pdiv_length2 %>% dplyr::select(PD) %>%
+    #             rename(PD_unrooted = PD) %>%
+    #             tibble::rownames_to_column("Patch"),
+    # by = c("Patch")) %>%
+    full_join(pdiv_length_ses %>% dplyr::select(pd.obs.z)  %>%
                 tibble::rownames_to_column("Patch"),
               by = c("Patch")) %>%
     full_join(pdiv_psv %>% dplyr::select(PSVs)  %>%
@@ -353,11 +344,24 @@ phylodiv.metrics <- function(in_df, trait_names) {
               by = c("Patch")) %>%
     full_join(pdiv_psr %>% dplyr::select(PSR)  %>%
                 tibble::rownames_to_column("Patch"),
-              by = c("Patch")) %>%
-    full_join(pdiv_pse %>% dplyr::select(PSEs)  %>%
-                tibble::rownames_to_column("Patch"),
-              by = c("Patch"))
+              by = c("Patch")) #%>%
+  # full_join(pdiv_pse %>% dplyr::select(PSEs)  %>%
+  #             tibble::rownames_to_column("Patch"),
+  #           by = c("Patch"))
+  
+  
+  # Explorative plots
+  # plot(pdiv_all[,"PD"], pdiv_all[,"SR"])
+  # plot(pdiv_all[,"PSVs"], pdiv_all[,"SR"])
+  # plot(pdiv_all[,"PSR"], pdiv_all[,"SR"])
+  # plot(pdiv_all[,"PSR"], pdiv_all[,"PD"])
+
+  
+  fdiv_df <- data.frame(fdiv) %>%
+    mutate(Patch = rownames(PatchXSp))
+  
 }
+
 
 
 # Build biodiversity data frame -------------------------------------------
