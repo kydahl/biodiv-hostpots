@@ -33,7 +33,7 @@ synonym_list <- read_csv("data/clean/all_synonyms.csv") %>%
   mutate(dropped_sspvar = stringr::word(original_name, 1,2))
 
 all_species <- tibble(species = c(synonym_list$original_name,
-                                  synonym_list$synonym, 
+                                  synonym_list$Synonym, 
                                   synonym_list$dropped_sspvar)) %>% 
   unique()
 
@@ -41,7 +41,7 @@ species_list <- BIEN_list_all() %>%
   filter(species %in% all_species) %>% 
   mutate(Species_full = species) %>%
   right_join(rename(synonym_list, species = original_name), by = "species") %>% 
-  select(species = synonym) %>% 
+  select(species = Synonym) %>% 
   unique()
 
 dim(species_list)
@@ -61,7 +61,7 @@ dim(final_data) # 318
 length(unique(final_data$Species_full)) # 2 species have the same "base name": Alnus viridis and Populus balsamifera
 
 final_data_in_BIEN <- final_data %>%
-  filter(Species_full %in% c(species_list$species, species_list$synonym)) %>%
+  filter(Species_full %in% c(species_list$species, species_list$Synonym)) %>%
   select(Species_full) %>%
   unique()
 dim(final_data_in_BIEN) # 318, so 0 missing species
@@ -193,7 +193,7 @@ extract_species_occ <- function(species, Ecoregions){
 
 # Extract species occurence and PNW regions for each species
 # Start new cluster for doParallel
-cluster_size <- parallel::detectCores() - 1
+cluster_size <- parallel::detectCores()
 
 my.cluster <- parallel::makeCluster(
   cluster_size, 
@@ -239,7 +239,7 @@ species_occurences_out <- species_occurences %>%
   select(-occ_time) %>% 
   left_join(rename(all_synonyms, species = original_name),
             relationship = "many-to-many") %>% 
-  select(species = synonym, level = LEVEL3) %>% 
+  select(species = Synonym, level = LEVEL3) %>% 
   unique()
 
 write_rds(species_occurences_out, "data/clean/species_occurrences_LEVEL3_only.rds", compress = 'gz')
