@@ -239,7 +239,7 @@ species_occurences_out <- species_occurences %>%
   select(-occ_time) %>% 
   left_join(rename(synonym_list, species = original_name),
             relationship = "many-to-many") %>% 
-  select(species = Synonym, level = LEVEL3) %>% 
+  select(Synonym, level = LEVEL3) %>% 
   unique()
 
 write_rds(species_occurences_out, "data/clean/species_occurrences_LEVEL3_only.rds", compress = 'gz')
