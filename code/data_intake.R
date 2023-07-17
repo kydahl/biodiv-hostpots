@@ -36,16 +36,8 @@ library(tidyverse)
 library(reshape2)
 library(readxl)
 library(taxize)
-library(multidplyr) # temporary: seeing if this helps
 library(caret)
 library(missForest)
-
-# Set up parallel
-if (!exists("cluster")) {
-  cluster <- new_cluster(parallel::detectCores() - 1)
-  cluster_library(cluster, c("dplyr", "tidyr"))
-}
-
 
 ## Helper functions
 # Function: determine if a given data column is empty
@@ -80,14 +72,14 @@ synonym_func <- function(in_df) {
   } else {
     out_df <- in_df
   }
-  
+
   # Select sources for species name resolution
   src <- c(
     "The Leipzig Catalogue of Vascular Plants"
     # "EOL", "The International Plant Names Index", # these are examples, so choose the database of interest
     # "Index Fungorum", "ITIS", "Catalogue of Life",
-    # "Tropicos - Missouri Botanical Garden", 
-    # "The International Plant Names Index", 
+    # "Tropicos - Missouri Botanical Garden",
+    # "The International Plant Names Index",
   )
   # Initialize the synonym list data frame
   synonyms_list <- tibble(
@@ -99,26 +91,26 @@ synonym_func <- function(in_df) {
   species_list <- unique(out_df$Species_full)
   species_num <- length(species_list)
   num_seq <- 1 + 0:(species_num %/% 1000) * 1000
-  
+
   # Collect synonyms
   for (ii in num_seq) {
     temp_seq <- ii + 0:999
     temp_species_list <- species_list[temp_seq]
     temp_species_out <- gnr_resolve(temp_species_list,
-                                    data_source_ids = c(1, 2, 5, 150, 165, 167),
-                                    with_canonical_ranks = T,
-                                    best_match_only = TRUE
+      data_source_ids = c(1, 2, 5, 150, 165, 167),
+      with_canonical_ranks = T,
+      best_match_only = TRUE
     ) %>%
       select(name_in = user_supplied_name, name_out = matched_name2)
     synonyms_list <- rbind(synonyms_list, temp_species_out)
   }
   num_name_changes <- dim(filter(synonyms_list, name_in != name_out))[1]
   print(paste0("There are ", num_name_changes, " necessary name changes."))
-  
+
   # Load synonym list created by Elisa Van Cleemput
   # Prefer name from GNR_resolver over custom list
   custom_synonyms_list <- read_csv("data/clean/synonym_list.csv", show_col_types = FALSE)
-  
+
   # Check if there are disagreements between EVC's list and GNR
   GNR_synonyms <- rename(synonyms_list, original_name = name_in, Synonym_GNR = name_out)
   compare_synonyms_df <- left_join(custom_synonyms_list, GNR_synonyms)
@@ -126,11 +118,11 @@ synonym_func <- function(in_df) {
   cat(paste0("There are ", dim(syn_disagree_df)[1], " synonym disagreements between GNR_resolve and our custom synonym list. \n
                Check the file data/clean/synonym_disagreements.csv for details."))
   write_csv(syn_disagree_df, "data/clean/synonym_disagreements.csv")
-  
+
   final_df <- out_df %>%
     # add column of synonym names
     left_join(rename(synonyms_list, Species_full = name_in, Synonym = name_out),
-              by = "Species_full"
+      by = "Species_full"
     ) %>%
     # keep track of original name
     mutate(original_name = Species_full) %>%
@@ -157,7 +149,7 @@ base_data <- read_csv("data/raw/PNW_Species_w_Metadata.csv", show_col_types = FA
   # Remove rows corresponding to family labels
   filter(!Species %in% clade_labels) %>%
   # Remove rows with NA as species name
-  filter(!is.na(Species)) %>% 
+  filter(!is.na(Species)) %>%
   # Remove species for which we lack phylogenetic data: Pterospora andromedea
   filter(Species != "Pterospora andromedea")
 
@@ -185,8 +177,10 @@ full_data <- full_join(base_data, TEK_data) %>%
   # select columns relevant for analysis
   dplyr::select(Species:Genus, N_Names:original_name)
 
-full_species_synonyms_list <- data.frame(original_name = full_data$original_name,
-                                         synonym = full_data$Synonym) %>% 
+full_species_synonyms_list <- data.frame(
+  original_name = full_data$original_name,
+  Synonym = full_data$Synonym
+) %>%
   unique()
 
 
@@ -195,13 +189,13 @@ full_species_synonyms_list <- data.frame(original_name = full_data$original_name
 # duplicate_df <- full_data %>%
 #   group_by(Species_full) %>%
 #   filter(n() > 1)
-# 
+#
 # # Find which species were in our original TEK dataset that are missing from the full dataset
 # full_species <- full_data$Species
 # TEK_species <- TEK_data$Species
-# 
+#
 # lost_species <- TEK_species[which(!(TEK_species %in% full_species))]
-# 
+#
 # # Check that these were all renamed to synonyms
 # all(lost_species %in% full_data$original_name) # TRUE
 # true_lost_species <- lost_species[which(!(lost_species %in% full_data$original_name))]
@@ -211,51 +205,54 @@ full_species_synonyms_list <- data.frame(original_name = full_data$original_name
 # Load in trait data compiled by Diáz et al. 2020 (based on TRY)
 # https://www.nature.com/articles/s41597-022-01774-9
 Diaz_data <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx",
-                        sheet = 1
+  sheet = 1
 )
-# 
+#
 # full_species_synonyms_list <- rbind(
 #   data.frame(original_name = Diaz_data$`Species name standardized against TPL`),
-#   full_species_synonyms_list) %>% 
+#   full_species_synonyms_list) %>%
 #   unique()
 
 Diaz_data_renamed <- Diaz_data %>%
   rename(Species_full = `Species name standardized against TPL`)
 
 # Assign GNR synonyms to species in Diaz data
-run_GNR_diaz = TRUE # !!! Change this to re-run name resolver
-if (run_GNR_diaz == TRUE) {
-
-Diaz_data_renamed <- Diaz_data_renamed %>%
+run_GNR_diaz <- FALSE # !!! Change this to re-run name resolver
+if (run_GNR_diaz) {
   # rename species with synonyms
-  synonym_func() # using gnr_resolve (KD: this will take a long time to run!)
+  Diaz_data_renamed <- Diaz_data_renamed %>%
+    synonym_func() # using gnr_resolve (KD: this will take a long time to run!)
 
-Diaz_synonyms <- data.frame(original_name = Diaz_data_renamed$original_name,
-                            synonym = Diaz_data_renamed$Synonym)
-
-# Save the synonyms so we don't have to poll the name resolver every time
-write_csv(Diaz_synonyms, "data/clean/Diaz_synonyms.csv")
+  Diaz_synonyms <- data.frame(
+    original_name = Diaz_data_renamed$original_name,
+    Synonym = Diaz_data_renamed$Synonym
+  )
+  # Save the synonyms so we don't have to poll the name resolver every time
+  write_csv(Diaz_synonyms, "data/clean/Diaz_synonyms.csv")
 } else {
-Diaz_synonyms <- read_csv("data/clean/Diaz_synonyms.csv", show_col_types = FALSE)
+  Diaz_synonyms <- read_csv("data/clean/Diaz_synonyms.csv", show_col_types = FALSE) %>%
+    distinct(original_name, Synonym)
 }
 
-Diaz_data_joined <- Diaz_data_renamed %>%  
+Diaz_data_joined <- Diaz_data_renamed %>%
+  rename(original_name = Species_full) %>%
   left_join(Diaz_synonyms, by = "original_name") %>%
   # update the genus name with the synonym genus
-  mutate(Genus = stringr::word(Species_full, 1, 1)) %>%
+  mutate(Genus = stringr::word(Synonym, 1, 1)) %>%
   # set binomial to synonym binomial
-  mutate(Species = stringr::word(Species_full, 1, 2))
+  mutate(Species = stringr::word(Synonym, 1, 2))
 
 
-full_species_synonyms_list <- rbind(full_species_synonyms_list,
-                                    Diaz_synonyms) %>% 
+# Add new original names to our synonyms list
+# Only keep ones that have been assigned Synonyms which are in our main dataset
+full_species_synonyms_list <- rbind(
+  full_species_synonyms_list,
+  filter(
+    Diaz_synonyms,
+    Synonym %in% full_data$Synonym
+  )
+) %>%
   unique()
-
-# # Save synonyms for easier use later
-# Diaz_data_renamed %>%
-#   dplyr::select(name_out = Species_full, name_in = original_name) %>%
-#   distinct() %>%
-#   write_csv("data/clean/Diaz_synonyms.csv")
 
 # # Uncomment the code below to see which of our species are missing from the Diaz data set
 # # Get list of species missing from Diaz data
@@ -273,17 +270,15 @@ full_species_synonyms_list <- rbind(full_species_synonyms_list,
 # Reduce Diaz data to species present in the main data set
 Diaz_data_sel <- Diaz_data_joined %>%
   # Remove non-focal species
-  filter(Species_full %in% c(full_data$Species_full)) %>% # NB: including shortened species names only leads to the additional inclusion of Alnus incana
+  filter(Synonym %in% c(full_data$Species_full)) %>% # NB: including shortened species names only leads to the additional inclusion of Alnus incana
   # reduce to relevant set of traits
   select(
-    "original_name", "Species_full":"Genus", "Woodiness", "Growth Form", "Leaf area (mm2)",
+    "Synonym", "original_name", "Genus", "Family", "Woodiness", "Growth Form", "Leaf area (mm2)",
     "Nmass (mg/g)", "LMA (g/m2)", "Plant height (m)", "Diaspore mass (mg)",
     "LDMC (g/g)"
   ) %>%
   rename(original_name_Diaz = original_name) %>%
-  mutate(origin = "Diaz") %>% 
-  # Add Family names in
-  right_join(select(full_data, Species_full, Family), by = "Species_full")
+  mutate(origin = "Diaz")
 
 
 # 3) Load in and process TRY data sets ------------------------------------
@@ -295,54 +290,54 @@ Diaz_data_sel <- Diaz_data_joined %>%
 # the full TRY data with all species is called TRY.zip
 
 TRY_plant_height <- read_csv("data/raw/TRY_data_Feb2023/TRY_plant_height_growth.csv",
-                             show_col_types = FALSE
+  show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 plant_height_trait_names <- unique(TRY_plant_height$TraitName)
 
 TRY_leafN <- read_csv("data/raw/TRY_data_Feb2023/TRY_leafN.csv",
-                      show_col_types = FALSE
+  show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 leafN_trait_names <- unique(TRY_leafN$TraitName)
 
 TRY_LDMC <- read_csv("data/raw/TRY_data_Feb2023/TRY_LDMC.csv",
-                     show_col_types = FALSE
+  show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 LDMC_trait_names <- unique(TRY_LDMC$TraitName)
 
 # wait to handle this data because we need to know what Diaz used for leaf area measurements
 TRY_leafarea <- read_csv("data/raw/TRY_data_Feb2023/TRY_leafarea.csv",
-                         show_col_types = FALSE
+  show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 leafarea_trait_names <- unique(TRY_leafarea$TraitName)
 
 # this trait was recommended for inclusion in the recommended traits paper
 TRY_rooting_depth <- read_csv("data/raw/TRY_data_Feb2023/TRY_rooting_depth.csv",
-                              show_col_types = FALSE
+  show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 rooting_depth_trait_names <- unique(TRY_rooting_depth$TraitName)
 
 # this trait was recommended for inclusion in the recommended traits paper
 TRY_stem_density <- read_csv("data/raw/TRY_data_Feb2023/TRY_stem_density.csv",
-                             show_col_types = FALSE
+  show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 stem_density_trait_names <- unique(TRY_stem_density$TraitName)
 
 # this trait was recommended for inclusion in the recommended traits paper
 TRY_plant_woodiness <- read_csv("data/raw/TRY_data_Feb2023/TRY_plant_woodiness.csv",
-                                show_col_types = FALSE
+  show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 plant_woodiness_trait_names <- unique(TRY_plant_woodiness$TraitName)
 
 # this trait was recommended for inclusion in the recommended traits paper
 TRY_plant_veg_reproduction <- read_csv("data/raw/TRY_data_Feb2023/TRY_vegetative_reproduction.csv",
-                                       show_col_types = FALSE
+  show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 plant_veg_reproduction_trait_names <- unique(TRY_plant_veg_reproduction$TraitName)
@@ -357,13 +352,15 @@ TRY_data <- rbind(
   # deal with synonyms
   synonym_func() %>%
   # Remove non-focal species
-  filter(Species_full %in% c(full_data$Species_full)) %>% 
+  filter(Synonym %in% full_data$Synonym) %>%
   # Add Family names in
-  right_join(select(full_data, Species_full, Family), by = "Species_full")
+  right_join(select(full_data, Synonym, Family), by = "Synonym") %>% 
+  filter(!is.na(Species_full))
 
-full_species_synonyms_list <- rbind(full_species_synonyms_list,
-                                    data.frame(original_name = TRY_data$original_name,
-                                               synonym = TRY_data$Synonym)) %>% 
+full_species_synonyms_list <- rbind(
+  full_species_synonyms_list,
+  select(TRY_data, original_name, Synonym)
+) %>%
   unique()
 
 # # Uncomment this to see which species are missing from TRY data
@@ -396,7 +393,6 @@ TRY_data_processed <- TRY_data %>%
   ) %>%
   dplyr::select(DatasetID, Species_full, TraitName:ValueKindName, Comment:Family) %>%
   group_by(DatasetID, Species_full, TraitName, ValueKindName) %>%
-  partition(cluster) %>%
   # Additional processing needed for the "Plant woodiness" categorical trait (KD: not sure we need such fine grain detail for this trait)
   mutate(OrigValueStr = case_when(
     TraitName == "Plant woodiness" ~ case_when(
@@ -416,7 +412,6 @@ TRY_data_processed <- TRY_data %>%
     ValueKindName == "Single" ~ (mean(as.double(OrigValueStr))),
     TRUE ~ OrigValueStr
   )) %>%
-  collect() %>%
   select(-OrigValueStr) %>%
   distinct() %>%
   ungroup() %>%
@@ -467,25 +462,25 @@ TRY_data_processed_wide <- TRY_data_processed %>%
 # 4) Combine data sets -----------------------------------------------------
 
 # Deal with any species with multiple synonyms
-synonym_doubles <- full_species_synonyms_list %>% 
+synonym_doubles <- full_species_synonyms_list %>%
   # We don't need to keep track of "synonyms" if they're the same as the original name
-  filter(original_name != synonym) %>%  # 569 left
+  filter(original_name != Synonym) %>% # 569 left
   # Check if there are multiple synonyms assigned to one original name
-  group_by(original_name) %>% 
-  filter(n() > 1) %>% # 16 left, these all seem to differ in how subspecies or variant is spelled
-  mutate(original_species = stringr::word(original_name, 1, 2, sep = " ")) %>%
-  mutate(original_sspvar = stringr::word(original_name, 4, 4, sep = " ")) %>%
-  mutate(synonym_species = stringr::word(synonym, 1, 2, sep = " ")) %>%
-  mutate(synonym_sspvar = stringr::word(synonym, 4, 4, sep = " "))
+  group_by(original_name) %>%
+  # filter(n() > 1) %>% # 16 left, these all seem to differ in how subspecies or variant is spelled
+  # mutate(original_species = stringr::word(original_name, 1, 2, sep = " ")) %>%
+  mutate(original_sspvar = stringr::word(original_name, 3, 3, sep = " ")) %>%
+  # mutate(synonym_species = stringr::word(Synonym, 1, 2, sep = " ")) %>%
+  mutate(synonym_sspvar = stringr::word(Synonym, 3, 3, sep = " "))
 
 write_csv(synonym_doubles, "synonym_doubles.csv")
 
 # Save a list of all the species synonyms we encountered in the datasets
 custom_synonyms_list <- read_csv("data/clean/synonym_list.csv", show_col_types = FALSE)
-full_species_synonyms_list %>% 
+full_species_synonyms_list %>%
   # Add in Elisa's custom list
-  rbind(rename(custom_synonyms_list, synonym = Synonym)) %>% 
-  unique() %>% 
+  rbind(rename(custom_synonyms_list, Synonym = Synonym)) %>%
+  unique() %>%
   write_csv("data/clean/all_synonyms.csv")
 
 # Join Diaz and TRY data sets, preferring data entries from Diaz
@@ -493,9 +488,11 @@ full_species_synonyms_list %>%
 final_data <- full_join(
   Diaz_data_sel,
   TRY_data_processed_wide,
-  by = c("Species_full", "Family", "origin",
-         "LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness"
-  )) %>%
+  by = c(
+    "Species_full", "Family", "origin",
+    "LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness"
+  )
+) %>%
   arrange(Species_full, origin) %>%
   select(c(
     "Species_full", "Family", "origin",
@@ -528,20 +525,26 @@ final_data <- full_join(
   ) %>%
   pivot_wider(names_from = "trait") %>%
   # Change numeric variables back to type double
-  mutate_at(vars(`LDMC (g/g)`:`Leaf area (mm2)`), as.double) %>% 
+  mutate_at(vars(`LDMC (g/g)`:`Leaf area (mm2)`), as.double) %>%
   # Add back in species which lack trait data along with TEK data
-  full_join(select(full_data,
-                   c("Species_full", "Family",
-                     "N_Names", "N_Langs", "N_Uses")), 
-            by = c("Species_full", "Family")) %>% 
-  ungroup() %>% 
+  full_join(
+    select(
+      full_data,
+      c(
+        "Species_full", "Family",
+        "N_Names", "N_Langs", "N_Uses"
+      )
+    ),
+    by = c("Species_full", "Family")
+  ) %>%
+  ungroup() %>%
   mutate(Species = stringr::word(Species_full, 1, 2, sep = " ")) %>%
-  mutate(Ssp_var = stringr::word(Species_full, 3, 4, sep = " ")) 
+  mutate(Ssp_var = stringr::word(Species_full, 3, 4, sep = " "))
 
 # Look for repeats of species
-subspecies_list <- final_data %>% 
-  group_by(Species) %>% 
-  filter(n()>1)
+subspecies_list <- final_data %>%
+  group_by(Species) %>%
+  filter(n() > 1)
 
 # Write the final data
 # write_csv(final_data, "data/clean/final_dataset.csv")
@@ -555,7 +558,7 @@ test_data <- final_data %>%
 
 # Get coverage of traits
 coverage_df <- final_data %>%
-  ungroup() %>% 
+  ungroup() %>%
   summarise(across(everything(), ~ sum(!is.na(.)) / dim(final_data)[1]))
 
 write_csv(coverage_df, "data/clean/coverage_pcts.csv")
@@ -564,9 +567,11 @@ write_csv(coverage_df, "data/clean/coverage_pcts.csv")
 # 5) Impute missing trait data --------------------------------------------
 
 # Put trait data in workable form
-data_in <- final_data %>% 
-  select("Species_full","Family","LDMC (g/g)", "Plant height (m)", 
-         "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness") %>% 
+data_in <- final_data %>%
+  select(
+    "Species_full", "Family", "LDMC (g/g)", "Plant height (m)",
+    "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness"
+  ) %>%
   mutate(Genus = stringr::word(Species_full, 1, 1, sep = " ")) %>%
   mutate(Species = stringr::word(Species_full, 2, 2, sep = " ")) %>%
   mutate(Ssp_var = stringr::word(Species_full, 3, 4, sep = " ")) %>%
@@ -576,13 +581,13 @@ data_in <- final_data %>%
 traits_df <- data_in %>%
   # expand binomial
   mutate(LeafArea_log = log(`Leaf area (mm2)`)) %>%
-  mutate(PlantHeight_log = log(`Plant height (m)`)) %>% 
+  mutate(PlantHeight_log = log(`Plant height (m)`)) %>%
   # Remove original variables replaced by "logged" versions
-  select(-c("Leaf area (mm2)", "Plant height (m)")) #%>% #, "Diaspore mass (mg)")) 
+  select(-c("Leaf area (mm2)", "Plant height (m)")) # %>% #, "Diaspore mass (mg)"))
 
 # Run missForest algorithm to impute missing traits
 # get taxonomic columns
-taxa <- select(traits_df, Genus)#, Species, Ssp_var) # Get order and family level data
+taxa <- select(traits_df, Genus) # , Species, Ssp_var) # Get order and family level data
 test <- rep(1, nrow(taxa))
 taxa <- cbind(taxa, test)
 
@@ -593,24 +598,24 @@ taxa <- predict(dummies, newdata = taxa)
 # select traits to be imputed
 traits_to_impute <- as.data.frame(traits_df) %>%
   select(-c("Genus":"Species_full")) %>%
-  mutate(Family = as.factor(Family)) %>%  
-  select(-Family) %>% 
-  mutate(Woodiness = as.factor(Woodiness)) 
+  mutate(Family = as.factor(Family)) %>%
+  select(-Family) %>%
+  mutate(Woodiness = as.factor(Woodiness))
 
 # combine dummy vars with traits (comment this line out to not use taxa in imputation)
 traits_to_impute <- cbind(traits_to_impute, taxa)
 
 # run missForest imputation
 PNW_imp <- missForest(traits_to_impute,
-                      maxiter = 1000, # maximum number of iterations to be performed given the stopping criterion isn't met
-                      ntree = 1000, # number of trees to grow in each forest
-                      verbose = TRUE, # if 'TRUE', gives additional output between iterations
-                      variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
+  maxiter = 1000, # maximum number of iterations to be performed given the stopping criterion isn't met
+  ntree = 1000, # number of trees to grow in each forest
+  verbose = TRUE, # if 'TRUE', gives additional output between iterations
+  variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
 )
 
 # add actual taxonomic columns back in and remove dummy variables
-imputed_traits <- cbind(traits_df[, 1:5], PNW_imp$ximp[, 1:5]) %>% 
-  mutate("Plant height (m)" = exp(PlantHeight_log), .keep = "unused") %>% 
+imputed_traits <- cbind(traits_df[, 1:5], PNW_imp$ximp[, 1:5]) %>%
+  mutate("Plant height (m)" = exp(PlantHeight_log), .keep = "unused") %>%
   mutate("Leaf area (mm2)" = exp(LeafArea_log), .keep = "unused")
 
 imputed_data <- right_join(
@@ -626,7 +631,7 @@ write_csv(imputed_data, "data/clean/final_dataset.csv")
 
 # Reduce dataset to only include data used in simulations
 data_in <- final_data %>%
-  select("Species_full","Family","LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness") %>% 
+  select("Species_full", "Family", "LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness") %>%
   melt(
     id = c("Species_full"), # , "Status"),
     variable.name = "Trait"
