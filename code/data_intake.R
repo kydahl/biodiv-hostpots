@@ -138,6 +138,9 @@ synonym_func <- function(in_df) {
     left_join(rename(synonyms_list, Species_full = name_in, Synonym = name_out),
       by = "Species_full"
     ) %>%
+    # If synonym isn't a binomial, revert to original name
+    mutate(Synonym = ifelse(is.na(stringr::word(Synonym, 2, 2)),
+                            Species_full, Synonym)) %>% 
     # keep track of original name
     mutate(original_name = Species_full) %>%
     # rename species to their main synonym
@@ -165,7 +168,14 @@ base_data <- read_csv("data/raw/PNW_Species_w_Metadata.csv", show_col_types = FA
   # Remove rows with NA as species name
   filter(!is.na(Species)) %>%
   # Remove species for which we lack phylogenetic data: Pterospora andromedea
-  filter(Species != "Pterospora andromedea")
+  # filter(Species != "Pterospora andromedea") %>% 
+  synonym_func()
+
+full_species_synonyms_list <- data.frame(
+  original_name = base_data$original_name,
+  Synonym = base_data$Synonym
+) %>%
+  unique()
 
 # Read in TEK data set
 TEK_data <- read_csv("data/raw/TEKdata.csv", show_col_types = FALSE) %>%
@@ -178,24 +188,28 @@ TEK_data <- read_csv("data/raw/TEKdata.csv", show_col_types = FALSE) %>%
     N_Names = `Number of unique names (Indigenous)`,
     N_Langs = `Number of unique  languages (from Appendix 2B)`,
     N_Uses = `Number of uses`
-  )
+  ) %>% 
+  synonym_func()
 
+full_species_synonyms_list <- rbind(full_species_synonyms_list,
+                                    data.frame(
+                                      original_name = TEK_data$original_name,
+                                      Synonym = TEK_data$Synonym
+                                    )
+                                    ) %>%
+  unique()
 
 # species in base_data but not in TEK_data: L Hierochloe, Ledum groenlandicum, and Ledum glandulosum
 
-full_data <- full_join(base_data, TEK_data) %>%
+full_data <- full_join(select(base_data, 
+                              c("Synonym", "Family", "IUCN Status")), 
+                       select(TEK_data,
+                              c("Synonym", "N_Names":"N_Uses")), 
+                       by = "Synonym") %>%
   # remove species for which we lack TEK data
-  filter(!is.na(N_Names)) %>%
-  # rename with synonyms
-  synonym_func() %>%
-  # select columns relevant for analysis
-  dplyr::select(Species:Genus, N_Names:original_name)
+  filter(!is.na(N_Names))
 
-full_species_synonyms_list <- data.frame(
-  original_name = full_data$original_name,
-  Synonym = full_data$Synonym
-) %>%
-  unique()
+
 
 
 # # Uncomment and run the code below to take a closer look at which species were renamed
@@ -481,7 +495,7 @@ TRY_data_processed_wide <- TRY_data_processed %>%
 # Deal with any species with multiple synonyms
 synonym_doubles <- full_species_synonyms_list %>%
   # We don't need to keep track of "synonyms" if they're the same as the original name
-  filter(original_name != Synonym) %>% # 569 left
+  filter(original_name != Synonym) %>% # 15 left
   # Check if there are multiple synonyms assigned to one original name
   group_by(original_name) %>%
   # filter(n() > 1) %>% # 16 left, these all seem to differ in how subspecies or variant is spelled
@@ -502,22 +516,21 @@ full_species_synonyms_list %>%
 
 # Join Diaz and TRY data sets, preferring data entries from Diaz
 
-final_data <- full_join(
-  Diaz_data_sel,
+final_data <- rbind(
+  Diaz_data_sel %>% rename(original_name = original_name_Diaz),
   TRY_data_processed_wide,
-  by = c(
-    "Synonym", "Family", "origin",
-    "LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness"
-  )
-) %>%
+  # Add back in species which lack trait data along with TEK data
+  full_data %>% mutate(origin = "this_study")
+  ) %>%
   arrange(Synonym, origin) %>%
   select(c(
     "Synonym", "Family", "origin",
-    "LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness"
+    "LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness",
+    "N_Names":"N_Uses"
   )) %>%
   # if there is data for a trait from both the Diaz and TRY data sets, just use the value from Diaz
   pivot_longer(
-    cols = c("LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness"),
+    cols = c("Family", "LDMC (g/g)":"N_Uses"),
     names_to = "trait", values_to = "value",
     values_transform = list(value = as.character)
   ) %>%
@@ -528,32 +541,23 @@ final_data <- full_join(
   ) %>%
   # if value is not NA for origin = "TRY" and origin = "Diaz",
   # set value to value from "Diaz"
-  group_by(Synonym, Family, trait) %>%
+  group_by(Synonym, trait) %>%
   # select(c("Synonym", "Family", "trait", "Diaz", "TRY")) %>%
   mutate(
     value = case_when(
       !is.na(Diaz) & !is.na(TRY) ~ Diaz,
       is.na(Diaz) & !is.na(TRY) ~ TRY,
       !is.na(Diaz) & is.na(TRY) ~ Diaz,
+      is.na(Diaz) & is.na(TRY) ~ this_study,
       TRUE ~ NA
     ),
     # delete origin column
     .keep = "unused"
   ) %>%
+  # !!! Assign Family names with this priority: Diaz > TRY > original
   pivot_wider(names_from = "trait") %>%
   # Change numeric variables back to type double
-  mutate_at(vars(`LDMC (g/g)`:`Leaf area (mm2)`), as.double) %>%
-  # Add back in species which lack trait data along with TEK data
-  full_join(
-    select(
-      full_data,
-      c(
-        "Synonym", "Family",
-        "N_Names", "N_Langs", "N_Uses"
-      )
-    ),
-    by = c("Synonym", "Family")
-  ) %>%
+  mutate_at(vars(`LDMC (g/g)`:`Leaf area (mm2)`, "N_Names":"N_Uses"), as.double) %>%
   ungroup() %>%
   mutate(Species = stringr::word(Synonym, 1, 2, sep = " ")) %>%
   mutate(Ssp_var = stringr::word(Synonym, 3, 4, sep = " "))
@@ -583,7 +587,7 @@ write_csv(coverage_df, "data/clean/coverage_pcts.csv")
 
 # 5) Impute missing trait data --------------------------------------------
 
-# Put trait data in workable form
+# Put trait data in workable form for imputation
 data_in <- final_data %>%
   select(
     "Synonym", "Family", "LDMC (g/g)", "Plant height (m)",
@@ -640,6 +644,7 @@ imputed_data <- right_join(
   select(imputed_traits, -c(Genus:Ssp_var))
 )
 
+
 # 6) Put data set into workable form for imputation and phylogeny steps --------
 
 write_csv(imputed_data, "data/clean/final_dataset.csv")
@@ -663,25 +668,25 @@ write_csv(imputed_data, "data/clean/final_dataset.csv")
 
 
 # * Diagnostics and visualization -----------------------------------------
-
-# Compare trait data from Diaz and directly from TRY
-comp_DiazTRY <- final_data %>%
-  select(Species, "SSD combined (mg/mm3)":"Leaf area (mm2)", "TRY_Nmass (mg/g)":"TRY_RRD") %>%
-  pivot_longer(cols = "TRY_Nmass (mg/g)":"TRY_RRD", names_to = "TRY_name", values_to = "value_TRY", names_prefix = "TRY_") %>%
-  mutate(value_TRY = as.double(value_TRY)) %>%
-  # Rename Diaz traits that don't match up exactly with TRY data...
-  rename(SSD = "SSD combined (mg/mm3)") %>%
-  pivot_longer(cols = "SSD":"Leaf area (mm2)", names_to = "Diaz_name", values_to = "value_Diaz") %>%
-  filter(TRY_name == Diaz_name) %>%
-  # rename() %>%
-  select(Species, TraitName = TRY_name, value_TRY, value_Diaz) %>%
-  filter(!is.na(value_TRY), !is.na(value_Diaz)) %>%
-  mutate(diff = value_TRY - value_Diaz)
-
-# Distribution of differences across each trait
-comp_plot <- comp_DiazTRY %>%
-  ggplot(aes(x = diff)) +
-  geom_histogram(bins = 10) +
-  facet_wrap(~TraitName, scales = "free") +
-  ggtitle("Distributions of differences between TRY and Diaz trait values")
-comp_plot
+# 
+# # Compare trait data from Diaz and directly from TRY
+# comp_DiazTRY <- final_data %>%
+#   select(Species, "SSD combined (mg/mm3)":"Leaf area (mm2)", "TRY_Nmass (mg/g)":"TRY_RRD") %>%
+#   pivot_longer(cols = "TRY_Nmass (mg/g)":"TRY_RRD", names_to = "TRY_name", values_to = "value_TRY", names_prefix = "TRY_") %>%
+#   mutate(value_TRY = as.double(value_TRY)) %>%
+#   # Rename Diaz traits that don't match up exactly with TRY data...
+#   rename(SSD = "SSD combined (mg/mm3)") %>%
+#   pivot_longer(cols = "SSD":"Leaf area (mm2)", names_to = "Diaz_name", values_to = "value_Diaz") %>%
+#   filter(TRY_name == Diaz_name) %>%
+#   # rename() %>%
+#   select(Species, TraitName = TRY_name, value_TRY, value_Diaz) %>%
+#   filter(!is.na(value_TRY), !is.na(value_Diaz)) %>%
+#   mutate(diff = value_TRY - value_Diaz)
+# 
+# # Distribution of differences across each trait
+# comp_plot <- comp_DiazTRY %>%
+#   ggplot(aes(x = diff)) +
+#   geom_histogram(bins = 10) +
+#   facet_wrap(~TraitName, scales = "free") +
+#   ggtitle("Distributions of differences between TRY and Diaz trait values")
+# comp_plot

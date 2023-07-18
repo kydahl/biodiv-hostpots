@@ -72,7 +72,7 @@ MaxNumEntities <- SpeciesOccs %>%
 
 # Assign species to patches -----------------------------------------------
 
-Patch_df <- tibble(Patch = as.integer(), Level = as.double(), Species = as.character())
+Patch_df <- tibble(Patch = as.integer(), Level = as.double(), Synonym = as.character())
 
 # For each patch, get its level
 for (index_patch in Init_df$Patch) {
@@ -80,7 +80,7 @@ for (index_patch in Init_df$Patch) {
   level <- filter(Init_df, Patch == index_patch)$Level
   
   # Get species list from the right level
-  species_list <- filter(SpeciesOccs, Level == level)$Species
+  species_list <- filter(SpeciesOccs, Level == level)$Synonym
   
   # Get number of entities in patch
   entity_count <- min(get.NumEntities(MaxNumEntities, level), length(species_list))
@@ -109,8 +109,7 @@ full_df <- right_join(Patch_df, final_data, by = "Synonym") %>%
 #################################
 
 get.full_df <- function(NumPatches) {
-  SpeciesOccs <- read_rds("data/clean/species_occurrences.rds", 
-                          show_col_types = FALSE)
+  SpeciesOccs <- read_rds("data/clean/species_occurrences.rds")
   
   ### Assign levels to patches ###
   
@@ -128,7 +127,7 @@ get.full_df <- function(NumPatches) {
   
   ### Assign species to patches ###
   
-  Patch_df <- tibble(Patch = as.integer(), Level = as.double(), Species = as.character())
+  Patch_df <- tibble(Patch = as.integer(), Level = as.double(), Synonym = as.character())
   
   # For each patch, get its level
   for (index_patch in Init_df$Patch) {
@@ -136,7 +135,7 @@ get.full_df <- function(NumPatches) {
     level <- filter(Init_df, Patch == index_patch)$Level
     
     # Get species list from the right level
-    species_list <- filter(SpeciesOccs, Level == level)$Species
+    species_list <- filter(SpeciesOccs, Level == level)$Synonym
     
     # Get number of entities in patch
     entity_count <- min(get.NumEntities(MaxNumEntities, level), length(species_list))
@@ -144,13 +143,13 @@ get.full_df <- function(NumPatches) {
     # Sample entities without replacement from species list
     entities <- sample(species_list, entity_count, replace = FALSE)
     
-    temp_df <- tibble(Patch = index_patch, Level = level, Species = entities)
+    temp_df <- tibble(Patch = index_patch, Level = level, Synonym = entities)
     
     Patch_df <- rbind(Patch_df, temp_df)
   }
   
   ### Add species traits to the dataframe ###
-  full_df <- right_join(Patch_df, final_data, by = "Species", relationship = "many-to-many") %>% 
+  full_df <- right_join(Patch_df, final_data, by = "Synonym", relationship = "many-to-many") %>% 
     filter(!is.na(Patch), !is.na(Level))
 }
 

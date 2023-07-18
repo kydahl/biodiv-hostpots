@@ -5,6 +5,7 @@ Abies lasiocarpa,Abies lasiocarpa
 Chamaecyparis nootkatensis,Chamaecyparis nootkatensis
 Juniperus communis,Juniperus communis
 Juniperus scopulorum,Juniperus scopulorum
+Juniperus maritima,Juniperus maritima
 Larix laricina,Larix laricina
 Larix occidentalis,Larix occidentalis
 Picea engelmannii,Picea engelmannii
@@ -29,7 +30,7 @@ Athyrium filix-femina ssp. cyclosorum,Athyrium filix-femina var. cyclosorum
 Blechnum spicant,Blechnum spicant
 Dryopteris expansa,Dryopteris expansa
 Gymnocarpium dryopteris,Gymnocarpium dryopteris
-Polypodium glycyrrhiza,Polypodium
+Polypodium glycyrrhiza,Polypodium glycyrrhiza
 Polystichum munitum,Polystichum munitum
 Pteridium aquilinum,Pteridium aquilinum
 Acer circinatum,Acer circinatum
@@ -110,23 +111,27 @@ Comandra umbellata,Comandra umbellata
 Comarum palustre,Comarum palustre
 Conioselinum gmelinii,Conioselinum gmelinii
 Cornus canadensis,Cornus canadensis
-Cornus unalaschkensis,Cornus
+Cornus unalaschkensis,Cornus unalaschkensis
 Cornus suecica,Cornus suecica
 Cornus nuttallii,Cornus nuttallii
 Cornus sericea,Cornus sericea
 Corylus cornuta,Corylus cornuta
 Crataegus douglasii,Crataegus douglasii
+Dasiphora fruticosa,Dasiphora fruticosa
 Delphinium nuttallianum,Delphinium nuttallianum
 Dicentra formosa,Dicentra formosa
 Dodecatheon hendersonii,Dodecatheon hendersonii
+Dodecatheon pauciflorum,Dodecatheon pauciflorum
 Dodecatheon pulchellum,Dodecatheon pulchellum
 Dodecatheon jeffreyi,Dodecatheon jeffreyi
 Drosera rotundifolia,Drosera rotundifolia
+Drosera anglica,Drosera anglica
 Elaeagnus commutata,Elaeagnus commutata
 Empetrum nigrum,Empetrum nigrum
 Epilobium angustifolium,Epilobium angustifolium
 Ericameria nauseosa,Ericameria nauseosa
 Eriophorum angustifolium,Eriophorum angustifolium
+Eriophorum chamissonis,Eriophorum chamissonis
 Erythronium grandiflorum,Erythronium grandiflorum
 Eurybia conspicua,Eurybia conspicua
 Fragaria chiloensis,Fragaria chiloensis
@@ -151,6 +156,8 @@ Lappula occidentalis,Lappula occidentalis
 Hedysarum alpinum,Hedysarum alpinum
 Heracleum maximum,Heracleum maximum
 Heuchera cylindrica,Heuchera cylindrica
+Heuchera chlorantha,Heuchera chlorantha
+Hierochloe hirta,Hierochloe hirta
 Hordeum jubatum,Hordeum jubatum
 Holodiscus discolor,Holodiscus discolor
 Juncus effusus,Juncus effusus
@@ -213,6 +220,7 @@ Plantago major,Plantago major
 Plantago maritima,Plantago maritima
 Platanthera dilatata,Platanthera dilatata
 Platanthera stricta,Platanthera stricta
+Platanthera hyperborea,Platanthera hyperborea
 Populus balsamifera ssp. balsamifera,Populus balsamifera
 Populus balsamifera ssp. trichocarpa,Populus balsamifera subsp. trichocarpa
 Populus tremuloides,Populus tremuloides
@@ -221,6 +229,7 @@ Prunus emarginata,Prunus emarginata
 Prunus pensylvanica,Prunus pensylvanica
 Prunus virginiana,Prunus virginiana
 Pseudoroegneria spicata,Pseudoroegneria spicata
+Pterospora andromedea,Pterospora andromedea
 Purshia tridentata,Purshia tridentata
 Pyrola asarifolia,Pyrola asarifolia
 Quercus garryana,Quercus garryana
@@ -229,6 +238,8 @@ Ranunculus acris,Ranunculus acris
 Ranunculus occidentalis,Ranunculus occidentalis
 Rhodiola rosea,Rhodiola rosea
 Rhododendron albiflorum,Rhododendron albiflorum
+Rhododendron groenlandicum,Rhododendron groenlandicum
+Rhododendron neoglandulosum,Rhododendron neoglandulosum
 Rhus glabra,Rhus glabra
 Ribes aureum,Ribes aureum
 Ribes bracteosum,Ribes bracteosum
@@ -260,6 +271,7 @@ Rubus ursinus,Rubus ursinus
 Rumex aquaticus,Rumex aquaticus
 Sagittaria latifolia,Sagittaria latifolia
 Sagittaria cuneata,Sagittaria cuneata
+Salix barclayi,Salix barclayi
 Salix bebbiana,Salix bebbiana
 Salix discolor,Salix discolor
 Salix hookeriana,Salix hookeriana
@@ -273,6 +285,7 @@ Schoenoplectus acutus,Schoenoplectus acutus
 Schoenoplectus americanus,Schoenoplectus americanus
 Scirpus microcarpus,Scirpus microcarpus
 Sedum divergens,Sedum divergens
+Sedum oreganum,Sedum oreganum
 Shepherdia canadensis,Shepherdia canadensis
 Sium suave,Sium suave
 Solidago canadensis,Solidago canadensis
@@ -280,7 +293,9 @@ Sorbus sitchensis,Sorbus sitchensis
 Sorbus scopulina,Sorbus scopulina
 Spiraea betulifolia,Spiraea betulifolia
 Spiraea douglasii,Spiraea douglasii
+Stachys chamissonis,Stachys chamissonis
 Streptopus amplexifolius,Streptopus amplexifolius
+Streptopus streptopoides,Streptopus streptopoides
 Symphoricarpos albus,Symphoricarpos albus
 Thalictrum occidentale,Thalictrum occidentale
 Toxicodendron rydbergii,Toxicodendron rydbergii
@@ -291,6 +306,7 @@ Trillium petiolatum,Trillium petiolatum
 Triteleia grandiflora,Triteleia grandiflora
 Typha latifolia,Typha latifolia
 Urtica dioica,Urtica dioica
+Vaccinium alaskaense,Vaccinium alaskaense
 Vaccinium caespitosum,Vaccinium caespitosum
 Vaccinium membranaceum,Vaccinium membranaceum
 Vaccinium myrtilloides,Vaccinium myrtilloides
@@ -314,9 +330,7 @@ Zigadenus venenosus,Zigadenus venenosus
 Zigadenus elegans,Zigadenus elegans
 Zostera marina,Zostera marina
 Hierochloe odorata,Hierochloe odorata
-Pterospora andromedea,Pterospora andromedea
-Ledum groenlandicum,Ledum groenlandicum
-Ledum glandulosum,Ledum glandulosum
+Rhododendron columbianum,Rhododendron columbianum
 Alnus incana subsp. tenuifolia,Alnus incana subsp. tenuifolia
 Arctous alpina,Arctous alpina
 Ericameria nauseosa var. nauseosa,Ericameria nauseosa
@@ -333,6 +347,8 @@ Cornus unalaschkensis,Cornus canadensis
 Eurybia conspicua,Aster conspicuus
 Glaux maritima,Lysimachia maritima
 Lappula occidentalis,Lappula redowskii
+Ledum glandulosum,Ledum glandulosum
+Ledum groenlandicum,Ledum groenlandicum
 Mahonia nervosa,Berberis nervosa
 Phyllospadix scouleri,Phyllospadix iwatensis
 Platanthera stricta,Platanthera dilatata
