@@ -22,14 +22,14 @@ Tsuga heterophylla,Tsuga heterophylla
 Tsuga mertensiana,Tsuga mertensiana
 Equisetum arvense,Equisetum arvense
 Equisetum telmateia,Equisetum telmateia
-Equisetum hyemale ssp. affine,Equisetum hyemale subsp. affine
+Equisetum hyemale ssp. affine,Equisetum hyemale var. affine
 Lycopodium clavatum,Lycopodium clavatum
 Adiantum aleuticum,Adiantum aleuticum
-Athyrium filix-femina ssp. cyclosorum,Athyrium filix-femina subsp. cyclosorum
+Athyrium filix-femina ssp. cyclosorum,Athyrium filix-femina var. cyclosorum
 Blechnum spicant,Blechnum spicant
 Dryopteris expansa,Dryopteris expansa
 Gymnocarpium dryopteris,Gymnocarpium dryopteris
-Polypodium glycyrrhiza,Polypodium glycyrrhiza
+Polypodium glycyrrhiza,Polypodium
 Polystichum munitum,Polystichum munitum
 Pteridium aquilinum,Pteridium aquilinum
 Acer circinatum,Acer circinatum
@@ -58,7 +58,7 @@ Aquilegia formosa,Aquilegia formosa
 Aralia nudicaulis,Aralia nudicaulis
 Arbutus menziesii,Arbutus menziesii
 Arctostaphylos uva-ursi,Arctostaphylos uva-ursi
-Arctous ruber,Arctous ruber
+Arctous ruber,Arctous alpina
 Argentina egedii,Argentina egedii
 Argentina anserina,Argentina anserina
 Arnica cordifolia,Arnica cordifolia
@@ -72,7 +72,7 @@ Asarum caudatum,Asarum caudatum
 Asclepias speciosa,Asclepias speciosa
 Balsamorhiza sagittata,Balsamorhiza sagittata
 Betula nana,Betula nana
-Betula pumila var. glandulifera,Betula pumila var. glandulifera
+Betula pumila var. glandulifera,Betula pumila subsp. glandulifera
 Betula occidentalis,Betula occidentalis
 Betula papyrifera,Betula papyrifera
 Boschniakia hookeri,Boschniakia hookeri
@@ -110,7 +110,7 @@ Comandra umbellata,Comandra umbellata
 Comarum palustre,Comarum palustre
 Conioselinum gmelinii,Conioselinum gmelinii
 Cornus canadensis,Cornus canadensis
-Cornus unalaschkensis,Cornus unalaschkensis
+Cornus unalaschkensis,Cornus
 Cornus suecica,Cornus suecica
 Cornus nuttallii,Cornus nuttallii
 Cornus sericea,Cornus sericea
@@ -213,7 +213,7 @@ Plantago major,Plantago major
 Plantago maritima,Plantago maritima
 Platanthera dilatata,Platanthera dilatata
 Platanthera stricta,Platanthera stricta
-Populus balsamifera ssp. balsamifera,Populus balsamifera ssp. balsamifera
+Populus balsamifera ssp. balsamifera,Populus balsamifera
 Populus balsamifera ssp. trichocarpa,Populus balsamifera subsp. trichocarpa
 Populus tremuloides,Populus tremuloides
 Potamogeton natans,Potamogeton natans
@@ -307,7 +307,7 @@ Valeriana sitchensis,Valeriana sitchensis
 Veratrum viride,Veratrum viride
 Viburnum edule,Viburnum edule
 Viburnum opulus,Viburnum opulus
-Vicia nigricans ssp. gigantea,Vicia nigricans var. gigantea
+Vicia nigricans ssp. gigantea,Vicia nigricans subsp. gigantea
 Viola adunca,Viola adunca
 Xerophyllum tenax,Xerophyllum tenax
 Zigadenus venenosus,Zigadenus venenosus
@@ -318,9 +318,13 @@ Pterospora andromedea,Pterospora andromedea
 Ledum groenlandicum,Ledum groenlandicum
 Ledum glandulosum,Ledum glandulosum
 Alnus incana subsp. tenuifolia,Alnus incana subsp. tenuifolia
+Arctous alpina,Arctous alpina
+Ericameria nauseosa var. nauseosa,Ericameria nauseosa
+Populus balsamifera,Populus balsamifera
+Potamogeton nitens,Potamogeton natans
+Rhodiola rosea var. rosea,Rhodiola rosea
 Adiantum aleuticum,Adiantum pedatum
 Alnus incana ssp. tenuifolia,Alnus incana ssp. tenuifolia
-Arctous ruber,Arctous alpina
 Argentina anserina,Potentilla anserina
 Argentina egedii,Potentilla anserina ssp. groenlandica
 Betula pumila var. glandulifera,Betula pumila
@@ -333,7 +337,6 @@ Mahonia nervosa,Berberis nervosa
 Phyllospadix scouleri,Phyllospadix iwatensis
 Platanthera stricta,Platanthera dilatata
 Polypodium glycyrrhiza,Polypodium vulgare
-Populus balsamifera ssp. balsamifera,Populus balsamifera
 Pseudoroegneria spicata,Elymus spicatus
 Rhodiola rosea,Rhodiola rosea var. rosea
 Toxicodendron rydbergii,Toxicodendron radicans

@@ -5,6 +5,11 @@
 # Kyle Dahlin, September 2022
 ##* Load libraries---------------------------------------------------------------
 library(tidyverse)
+# For phylogenetic diversity metrics
+library(stringr)
+library(V.PhyloMaker2)
+library(picante)
+library(maditr)
 
 ##* Load necessary data---------------------------------------------------------
 final_data <- read_csv("data/clean/final_dataset_IMPUTED.csv", 
@@ -90,34 +95,25 @@ assign.states <- function(regional_df) {
 }
 
 ## Create full data.frame of entities and their traits in patches with assigned states
-get.full_df <- function(NumPatches, LevelOrder) {
-  SpeciesOccs <- if (LevelOrder == 1) {
-    read_csv("data/clean/species_occurences_L1.csv", show_col_types = FALSE) %>% 
-      rename(Level = LEVEL1)
-  } else if (LevelOrder == 2) {
-    read_csv("data/clean/species_occurences_L2.csv", show_col_types = FALSE) %>% 
-      rename(Level = LEVEL2)
-  } else if (LevelOrder == 3) {
-    read_csv("data/clean/species_occurences_L3.csv", show_col_types = FALSE) %>% 
-      rename(Level = LEVEL3)
-  } 
+get.full_df <- function(NumPatches) {
+  SpeciesOccs <- read_rds("data/clean/species_occurrences.rds", 
+                          show_col_types = FALSE)
   
-  # Assign levels to patches 
+  ### Assign levels to patches ###
   
   # Equal numbers across each level (for now)
   Levels <- sample(SpeciesOccs$Level, NumPatches, replace = TRUE)
   
   Init_df <- tibble(Patch = 1:NumPatches, Level = Levels)
   
-  # Assign number of species to each patch 
+  ### Assign number of species to each patch ###
   
   # Maximum needs to be set to the total number of species at that level
   MaxNumEntities <- SpeciesOccs %>% 
     group_by(Level) %>% 
     summarise(count = n())
   
-  
-  # Assign species to patches -----------------------------------------------
+  ### Assign species to patches ###
   
   Patch_df <- tibble(Patch = as.integer(), Level = as.double(), Species = as.character())
   
@@ -138,10 +134,9 @@ get.full_df <- function(NumPatches, LevelOrder) {
     temp_df <- tibble(Patch = index_patch, Level = level, Species = entities)
     
     Patch_df <- rbind(Patch_df, temp_df)
-    
   }
   
-  # Add species traits to the dataframe
+  ### Add species traits to the dataframe ###
   full_df <- right_join(Patch_df, final_data, by = "Species", relationship = "many-to-many") %>% 
     filter(!is.na(Patch), !is.na(Level))
 }
@@ -302,7 +297,34 @@ trait.fdiv.metrics <- function(in_df, trait_names){
 phylodiv.metrics <- function(full_df) {
   
   print("Create and prune phylogenetic tree")
-  source("phylo.div.R") # Load phylogenetic tree
+  # Create list of all species in the data set
+  list_species_unique <- full_df %>%
+    mutate(Genus = stringr::word(Synonym, 1, 1, sep = " ")) %>%
+    # dplyr::select(Species, Genus, Family) %>%
+    dplyr::select(Synonym, Genus, Family) %>%
+    mutate(Synonym = str_replace_all(Synonym, "ssp.", "subsp.")) %>%
+    unique() %>%
+    as.data.frame()
+  # Generate a phylogeny for the species list
+  tree.LCVP.S3 <- V.PhyloMaker2::phylo.maker(sp.list = list_species_unique, 
+                                             tree = GBOTB.extended.LCVP, # botanical nomenclature of the Leipzig catalogue of vascular plants
+                                             nodes = nodes.info.1.LCVP, 
+                                             output.tree = TRUE,
+                                             scenarios = "S3")
+  # Create a community matrix for pruning:
+  # convert full_df to wide format
+  # Attention: Species names should have a dash between genus and species name
+  full_df_for_comm <- full_df %>%
+    mutate(Species_full = str_replace_all(Species_full, "ssp.", "subsp.")) %>%
+    mutate(Species_full2 = str_replace_all(Species_full," ","_")) %>%
+    dplyr::select(Species_full2, Patch) %>% 
+    unique()
+  # Community matrix
+  comm <- dcast(full_df_for_comm, formula = Patch ~ Species_full2, fun.aggregate = length) %>%
+    column_to_rownames(var="Patch")
+  # Pruned phylogenetic tree
+  tree_pruned <- prune.sample(comm,tree$tree.scenario.3)
+  
   # output:
   # - tree_pruned
   # - comm

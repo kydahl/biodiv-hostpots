@@ -15,10 +15,10 @@
 library(stringr)
 
 list_species_unique <- full_df %>%
-  mutate(Genus = stringr::word(Species, 1, 1, sep = " ")) %>%
+  mutate(Genus = stringr::word(Synonym, 1, 1, sep = " ")) %>%
   # dplyr::select(Species, Genus, Family) %>%
-  dplyr::select(Species_full, Genus, Family) %>%
-  mutate(Species_full = str_replace_all(Species_full, "ssp.", "subsp.")) %>%
+  dplyr::select(Synonym, Genus, Family) %>%
+  mutate(Synonym = str_replace_all(Synonym, "ssp.", "subsp.")) %>%
   unique() %>%
   as.data.frame()
 # dim(list_species_unique)

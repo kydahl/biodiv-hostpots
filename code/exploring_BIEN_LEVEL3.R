@@ -237,9 +237,9 @@ species_occurences <- foreach(index_species = species_slice,
 # Assign proper synonyms to each species in list
 species_occurences_out <- species_occurences %>% 
   select(-occ_time) %>% 
-  left_join(rename(all_synonyms, species = original_name),
+  left_join(rename(synonym_list, species = original_name),
             relationship = "many-to-many") %>% 
-  select(species = Synonym, level = LEVEL3) %>% 
+  select(Synonym, Level = LEVEL3) %>% 
   unique()
 
-write_rds(species_occurences_out, "data/clean/species_occurrences_LEVEL3_only.rds", compress = 'gz')
+write_rds(species_occurences_out, "data/clean/species_occurrences.rds", compress = 'gz')
