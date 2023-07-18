@@ -29,19 +29,19 @@ dir_fig <- "figures/Species_occurrence/"
 ## ---- Load BIEN list of species --------------
 
 # Load in list of all the species synonyms we found in the original datasets
-synonym_list <- read_csv("data/clean/all_synonyms.csv") %>% 
+synonym_list <- read_csv("data/clean/all_synonyms.csv") %>%
   mutate(dropped_sspvar = stringr::word(original_name, 1,2))
 
 all_species <- tibble(species = c(synonym_list$original_name,
-                                  synonym_list$Synonym, 
-                                  synonym_list$dropped_sspvar)) %>% 
+                                  synonym_list$Synonym,
+                                  synonym_list$dropped_sspvar)) %>%
   unique()
 
-species_list <- BIEN_list_all() %>% 
-  filter(species %in% all_species) %>% 
+species_list <- BIEN_list_all() %>%
+  filter(species %in% all_species) %>%
   mutate(Species_full = species) %>%
-  right_join(rename(synonym_list, species = original_name), by = "species") %>% 
-  select(species = Synonym) %>% 
+  right_join(rename(synonym_list, species = original_name), by = "species") %>%
+  select(species = Synonym) %>%
   unique()
 
 dim(species_list)
@@ -78,9 +78,9 @@ Ecoregions3 <- read_sf("data/raw/NA_Terrestrial_Ecoregions_v2_Level_III_Shapefil
 # str(Ecoregions2)
 # class(Ecoregions2)
 # Ecoregions2$geometry # Projected CRS: Sphere_ARC_INFO_Lambert_Azimuthal_Equal_Area
-# st_crs(Ecoregions2_PNW) 
+# st_crs(Ecoregions2_PNW)
 
-# Quick visualization 
+# Quick visualization
 # plot(Ecoregions2["LEVEL2"])
 # plot(st_geometry(Ecoregions2), axes=T)
 
@@ -97,15 +97,15 @@ Ecoregions3_PNW <- Ecoregions3 %>%
 #######################################################
 # 3) Loop through all species and extract the locations and ecoregion(s) they occur in
 #######################################################
-# This idea is based on Echeverría-Londoño et al. 2018: 
-# "We overlaid the BIEN 2.0 plant species maps on a 100 × 100 km grid map with a 
+# This idea is based on Echeverría-Londoño et al. 2018:
+# "We overlaid the BIEN 2.0 plant species maps on a 100 × 100 km grid map with a
 # Lambert Azimuthal Equal Area projection to obtain a presence/absence matrix of species for each grid cell."
 
 # function to extract species occurence and PNW regions for each species
 extract_species_occ <- function(species, Ecoregions){
   start = Sys.time()
   print(paste0("Extracting information for species ", species))
-  
+
   # Extract species occurrences from BIEN database
   # This can take a while
   system.time(
@@ -115,7 +115,7 @@ extract_species_occ <- function(species, Ecoregions){
                                                all.taxonomy = F) %>%  # KD: do we need all the taxonomy info? This might not actually speed things up, however
     rename(species_full = scrubbed_species_binomial)
   )
-  
+
   if (nrow(species_occ) == 0){
     print("The species is has no occurrence data")
     occ_time <- Sys.time() - start
@@ -123,11 +123,11 @@ extract_species_occ <- function(species, Ecoregions){
     # output <- list("species_occ_Lb" = NA,
     #                "species_occ_eco" = NA)
   } else {
-    
+
     species_occ <- species_occ %>%
       drop_na(longitude) %>%
       drop_na(latitude)
-    
+
     if (nrow(species_occ) == 0){
       print("The species is has no records for longitude and latitude")
       occ_time <- Sys.time() - start
@@ -135,26 +135,26 @@ extract_species_occ <- function(species, Ecoregions){
       # output <- list("species_occ_Lb" = NA,
       #                "species_occ_eco" = NA)
     } else {
-      
+
       # Optional: Quickly visualize points on a map
       # library(maps)
-      # map('world', fill = TRUE, col= "grey", bg = "light blue") 
+      # map('world', fill = TRUE, col= "grey", bg = "light blue")
       # points(cbind(species_occ$longitude,
       #              species_occ$latitude),
       #        col = "red",
       #        pch = 20,
-      #        cex = 1) 
-      
-      # Project occurrence map to the same projection as the PNW map 
+      #        cex = 1)
+
+      # Project occurrence map to the same projection as the PNW map
       # I assume that the BIEN dataset is in WGS84 (EPSG: 4326) but I can't find documentation on that
       # According to this code it is in WGS84 indeed:
       # https://github.com/NiDEvA/R-protocols/blob/main/R_Protocol_get%26curate_data.R#L330
-      species_occ_Lb <- species_occ %>% 
+      species_occ_Lb <- species_occ %>%
         st_as_sf(coords = c("longitude","latitude")) %>%
         st_set_crs(4326) %>%
         st_transform(st_crs(Ecoregions))
-      
-      # Overlap BIEN occurrence data with PNW map: Extract ecoregion(s) where species occurs 
+
+      # Overlap BIEN occurrence data with PNW map: Extract ecoregion(s) where species occurs
       # This takes a while!
       # Slow option, using sf objects:
       # system.time (species_occ_eco <- st_join(species_occ_Lb, Ecoregions, join = st_within))
@@ -163,27 +163,27 @@ extract_species_occ <- function(species, Ecoregions){
       species_occ_eco <- data.frame(species = character(), LEVEL3 = double())
       for (index_species in species) {
         filter_occ = filter(species_occ_Lb, species_full == index_species)
-        
-        temp_eco <- over(as_Spatial(filter_occ), as_Spatial(Ecoregions)) %>% 
-          select(LEVEL3) %>%  
-          distinct() %>% 
-          filter(!is.na(LEVEL3)) %>% 
+
+        temp_eco <- over(as_Spatial(filter_occ), as_Spatial(Ecoregions)) %>%
+          select(LEVEL3) %>%
+          distinct() %>%
+          filter(!is.na(LEVEL3)) %>%
           mutate(species = index_species)
-        
+
         species_occ_eco <- rbind(temp_eco, species_occ_eco)
-        
+
       }
 
       # KD: don't we just need the levels the species occur at at this point?
       occ_time <- Sys.time() - start
-      
+
       output <- species_occ_eco %>% mutate(occ_time = occ_time)# Levels 1 and 2 can be recreated later by subtracting suffixes
-      
+
       # output <- list("species_occ_Lb" = species_occ_Lb,
       #                "species_occ_eco" = species_occ_eco)
-      
+
     }
-    
+
   }
   return(output)
 }
@@ -196,7 +196,7 @@ extract_species_occ <- function(species, Ecoregions){
 cluster_size <- parallel::detectCores()
 
 my.cluster <- parallel::makeCluster(
-  cluster_size, 
+  cluster_size,
   type = "PSOCK"
 )
 # Register cluster for doParallel
@@ -212,7 +212,7 @@ species_slice <- slice_func(species_list$species, 1) # ceiling(length(species_li
 pb <- progress_bar$new(
   format = ":spin :system progress = :percent [:bar] :elapsed | eta: :eta",
   total = length(species_slice),
-  width = 120)          
+  width = 120)
 
 progress <- function(n){
   pb$tick(tokens = list(system = n))
@@ -235,11 +235,11 @@ species_occurences <- foreach(index_species = species_slice,
 #######################################################
 
 # Assign proper synonyms to each species in list
-species_occurences_out <- species_occurences %>% 
-  select(-occ_time) %>% 
+species_occurences_out <- species_occurences %>%
+  select(-occ_time) %>%
   left_join(rename(synonym_list, species = original_name),
-            relationship = "many-to-many") %>% 
-  select(Synonym, Level = LEVEL3) %>% 
+            relationship = "many-to-many") %>%
+  select(Synonym, Level = LEVEL3) %>%
   unique()
 
 write_rds(species_occurences_out, "data/clean/species_occurrences.rds", compress = 'gz')
