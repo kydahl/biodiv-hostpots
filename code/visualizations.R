@@ -8,16 +8,21 @@ require(cowplot)
 require(GGally) # used to make paired scatter plots
 
 # Load in simulations
-source("code/simulations.R")
+source("code/functions.R")
 
 # Figures -----------------------------------------------------------------
 
 # Figure 0: Distribution of TEK traits (across all species)
-data_in
 
 # Plot histograms in a single column
-trait_plot <- data_in %>%
-  select(Trait, value) %>% 
+trait_plot_no_impute <- read_csv("data/clean/dataset_no_imputation.csv") %>%
+  relocate("Synonym", "Family", "Species", "Ssp_var",
+           "N_Langs", "N_Names", "N_Uses") %>% 
+  mutate(Woodiness = Woodiness == "woody") %>% 
+  mutate(Leaf_area_log = log(`Leaf area (mm2)`), .keep = "unused") %>% 
+  mutate(Plant_height_log = log(`Plant height (m)`), .keep = "unused") %>% 
+  pivot_longer(cols = c("N_Langs":"Plant_height_log")) %>% 
+  select(name, value) %>% 
   ggplot(aes(x = value)) +
   # plot histogram using density instead of count
   geom_histogram(aes(x = value, y = ..density..),
@@ -30,22 +35,78 @@ trait_plot <- data_in %>%
                fill = "#FF6666"
   ) +
   # one histogram for each biodiversity metric
-  facet_wrap( ~ Trait, scales = "free") +
+  facet_wrap( ~ name, scales = "free") +
+  theme_cowplot(24)
+
+trait_plot_no_impute
+
+
+# Plot histograms in a single column
+trait_plot <- read_csv("data/clean/final_dataset.csv") %>%
+  relocate("Synonym", "Family", "Species", "Ssp_var",
+           "N_Langs", "N_Names", "N_Uses") %>% 
+  mutate(Woodiness = Woodiness == "woody") %>% 
+  mutate(Leaf_area_log = log(`Leaf area (mm2)`), .keep = "unused") %>% 
+  mutate(Plant_height_log = log(`Plant height (m)`), .keep = "unused") %>% 
+  pivot_longer(cols = c("N_Langs":"Plant_height_log")) %>% 
+  select(name, value) %>% 
+  ggplot(aes(x = value)) +
+  # plot histogram using density instead of count
+  geom_histogram(aes(x = value, y = ..density..),
+                 colour = "black",
+                 fill = "white"
+  ) +
+  # add a spline approximating the probability density function
+  geom_density(aes(x = value),
+               alpha = .2,
+               fill = "#FF6666"
+  ) +
+  # one histogram for each biodiversity metric
+  facet_wrap( ~ name, scales = "free") +
   theme_cowplot(24)
 
 trait_plot
 
-# Figure 1: Compare the distribution of biodiversity metric values across patches
+# Compare distributions of traits before and after imputation (only functional traits)
+
+compare_dists_plot <- read_csv("data/clean/final_dataset.csv") %>%
+  mutate(origin = "imputed") %>% 
+  rbind(read_csv("data/clean/dataset_no_imputation.csv") %>% 
+          mutate(origin = "original")) %>% 
+  select(-c(Synonym:Ssp_var)) %>% 
+  relocate(origin) %>% 
+  mutate(Woodiness = Woodiness == "woody") %>% 
+  mutate(Leaf_area_log = log(`Leaf area (mm2)`), .keep = "unused") %>% 
+  mutate(Plant_height_log = log(`Plant height (m)`), .keep = "unused") %>% 
+  pivot_longer(cols = c("LDMC (g/g)":"Plant_height_log")) %>% 
+  ggplot(aes(x = value, fill = origin)) +
+  # plot histogram using density instead of count
+  geom_histogram(aes(x = value, after_stat(density))) +
+  # # add a spline approximating the probability density function
+  # geom_density(alpha = .2) +
+  # one histogram for each biodiversity metric
+  facet_wrap( ~ name, scales = "free") +
+  theme_cowplot(24)
+compare_dists_plot
+
+
+# Figure 1: Compare the distribution of biodiversity metric values --------
+# Define the relevant trait names
+trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)")
+
+# Initialize the full phylogenetic tree
+tree <- get.phylo_tree(read_csv("data/clean/final_dataset.csv"))
 
 # Get a single simulation
-full_df_sample <- get.full_df(entity_df, numPatches, mean.NumEntities, sd.NumEntities)
+numPatches <- 400
+full_df_sample <- get.full_df(numPatches)
 
 # Calculate biodiversity metrics
-biodiv_df <- get.biodiv_df(full_df_sample)
+biodiv_df <- get.biodiv_df(full_df_sample, trait_names, tree)
 
 # Plot histograms in a single column
 histogram_plot <- biodiv_df %>%
-  melt(id = "patch") %>%
+  melt(id = "Patch") %>%
   ggplot() +
   # plot histogram using density instead of count
   geom_histogram(aes(x = value, y = ..density..),
@@ -59,19 +120,90 @@ histogram_plot <- biodiv_df %>%
   ) +
   # one histogram for each biodiversity metric
   facet_wrap(~variable, scales = "free") +
-  theme_cowplot(24)
+  theme_cowplot(12)
 
 histogram_plot
 
-# Figure 2: Scatterplots of biodiversity metrics against each other
+
+
+# Figure 2: Scatterplots of selected biodiversity metrics -----------------
 biodiv_scatter <- biodiv_df %>% 
-  select(-patch) %>% 
+  select(-c(Patch, NumEndemic, 
+            FDiv, FDis, FEve, Q,
+            richness, GiniSimpson, Margalef, Menhinick, McIntosh)) %>% 
   ggpairs(aes()) +
-  theme_cowplot(16)
+  theme_cowplot(11)
   
 biodiv_scatter
 
-# Figure 3: Comparing biodiversity hotspots relative to species richness -------
+
+
+# Figure 3: Comparing biodiversity hotspots -------------------------------
+
+# Number of patches to simulate
+NumPatches <- 400
+
+# Number of sets of simulated patches to create
+numIterations <- 100
+
+# Biodiversity metric to make comparisons with
+baseline_metric <- "FDiv" #aka species richness
+
+# Initialize comparison data frame
+compare_df <- tibble(
+  NumUnique = as.double(),
+  NumEndemic = as.double(), NumIndigName = as.double(),
+  NumIndigLang = as.double(), NumUse = as.double(),
+  richness = as.double(), GiniSimpson = as.double(),
+  Simpson = as.double(), Shannon = as.double(),
+  Margalef = as.double(), Menhinick = as.double(),
+  McIntosh = as.double(), PSVs = as.double(),
+  PSR = as.double(), FRic = as.integer(),  FDiv = as.integer(),  
+  FDis = as.integer(),  FEve = as.integer(),  Q = as.integer(),
+  iteration = as.integer()
+) %>%
+  # Remove the focal metric
+  select(-one_of(baseline_metric))
+
+# Start new cluster for doParallel
+cluster_size <- parallel::detectCores() - 2
+my.cluster <- parallel::makeCluster(cluster_size, type = "PSOCK")
+# Register cluster for doParallel
+doSNOW::registerDoSNOW(cl = my.cluster)
+
+# Set up progress bar
+pb <- progress_bar$new(
+  format = ":spin progress = :percent [:bar] elapsed: :elapsed | eta: :eta",
+  total = numIterations,
+  width = 100
+)
+progress <- function(n) {
+  pb$tick()
+}
+opts <- list(progress = progress)
+
+# Calculate comparisons among diversity metrics
+compare_df <- foreach(
+  j = 1:numIterations,
+  # int = icount(),
+  .combine = "rbind",
+  .packages = c("tidyverse", "reshape2", "picante", "fundiversity", "adiv", "retry"),
+  .options.snow = opts
+) %dopar%
+  {
+    gc()
+    biodiv.compare_df <- retry(
+      biodiv_comp_helper_func(NumPatches, trait_names, tree),
+      until = function(val, cnd) {
+        !is.null(val)
+      }
+    ) %>% 
+      mutate(iteration = j)
+  } %>% unique()
+
+stopCluster(my.cluster)
+
+
 compare_plot <- compare_df %>%
   select(-iteration) %>%
   melt() %>%
@@ -79,7 +211,7 @@ compare_plot <- compare_df %>%
   mutate(mean = mean(value)) %>% 
   ggplot(aes(x = value)) +
   # plot histogram using density instead of count
-  geom_histogram(aes(x = value, y = ..density..),
+  geom_histogram(aes(x = value, after_stat(density)),
                  bins = 30
   ) +
   # add a vertical line showing the mean
@@ -98,8 +230,8 @@ compare_plot <- compare_df %>%
                    breaks = seq(0, 1, by = 0.1),
                    limits = c(0,1)) +
   # title
-  ggtitle("How similar is each biodiversity metric to species richness?") +
-  theme_cowplot(font_size = 24)
+  ggtitle("How similar is each biodiversity metric to functional divergence?") +
+  theme_cowplot(font_size = 11)
 
 compare_plot
 

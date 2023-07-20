@@ -168,7 +168,7 @@ compare_df <- foreach(
   {
     gc()
     biodiv.compare_df <- retry(
-      get.comparisons(NumPatches, trait_names, tree),
+      biodiv_comp_helper_func(NumPatches, trait_names, tree),
       until = function(val, cnd) {
         !is.null(val)
       }

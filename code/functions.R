@@ -5,6 +5,7 @@
 # Kyle Dahlin, September 2022
 ##* Load libraries---------------------------------------------------------------
 library(tidyverse)
+library(progress) # for progress bars for long-running tasks
 # For functional diversity metrics
 library(fundiversity)
 # For phylogenetic diversity metrics
@@ -119,7 +120,6 @@ get.full_df <- function(NumPatches) {
   
   # For each patch, get its level # !!! KD: this could use optimization
   for (index_patch in Init_df$Patch) {
-    print(index_patch)
     # Get the level of the patch
     level <- filter(Init_df, Patch == index_patch)$Level
     
@@ -418,7 +418,7 @@ phylodiv.metrics <- function(in_df, tree) {
 get.biodiv_df <- function(in_df, trait_names, tree) {
   # Metric 1: Species richness
   num.unique_df <- num.unique.metric(in_df)
-  # hotspots.unique <- find.hotspots(num.unique_df)
+  # hotspots.baseline <- find.hotspots(num.unique_df)
   
   # Metric 2: Number of endemic entities
   num.endemic_df <- num.endemic.metric(in_df)
@@ -491,26 +491,27 @@ find.hotspots <- function(in_df) {
 
 # simple function for now:
 # count the number of overlaps in which patches were considered hotspots
-calc.hotspot_compare <- function(hotspots.unique, hotspots.compare) {
-  unique.hotspots <- hotspots.unique$Patch
-  compare.hotspots <- hotspots.compare$Patch
+calc.hotspot_compare <- function(hotspots.baseline, hotspots.compare) {
+  hotspots.baseline <- hotspots.baseline$Patch
+  hotspots.compare <- hotspots.compare$Patch
   
-  TP_count <- sum(compare.hotspots %in% unique.hotspots)
+  # Number of true positives
+  TP_count <- sum(hotspots.compare %in% hotspots.baseline)
   
   # false_count <-
   
   # Use precision as our quantifier:
-  # of the identified hotspots, what proportion match with species diversity?
-  comparison.quantifier <- TP_count / length(compare.hotspots)
+  # of the identified hotspots, what proportion match with the baseline list?
+  comparison.quantifier <- TP_count / length(hotspots.compare)
   
-  # Use Jaccard similarity coefficient instead:
-  #  = number of hotspots shared in both lists / total number of hotspots identified
-  # measures the amount of overlap, without considering one list the "true" list
-  # This is not substantially different from above - you just also include 
-  # "false negatives" in the denominator. But may be more familiar to ecology
-  # and biology folks.
-  total.hotspots <- length(compare.hotspots)+length(unique.hotspots)-TP_count
-  Jaccard.sim.coef <- TP_count / total.hotspots
+  # # Use Jaccard similarity coefficient instead:
+  # #  = number of hotspots shared in both lists / total number of hotspots identified
+  # # measures the amount of overlap, without considering one list the "true" list
+  # # This is not substantially different from above - you just also include 
+  # # "false negatives" in the denominator. But may be more familiar to ecology
+  # # and biology folks.
+  # total.hotspots <- length(hotspots.compare)+length(hotspots.baseline)-TP_count
+  # Jaccard.sim.coef <- TP_count / total.hotspots
   
   return(comparison.quantifier)
 }
@@ -559,7 +560,7 @@ get.compare_df <- function(in_df, compare_metric) {
 }
 
 # Helper function that gets wrapped in the for-loop to collect biodiversity hotspot comparisons
-get.comparisons <- function(NumPatches, trait_names, tree) {
+biodiv_comp_helper_func <- function(NumPatches, trait_names, tree) {
   # Run a simulation
   full_df <- get.full_df(NumPatches)
   

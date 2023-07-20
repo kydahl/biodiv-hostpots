@@ -587,6 +587,8 @@ write_csv(coverage_df, "data/clean/coverage_pcts.csv")
 
 # 5) Impute missing trait data --------------------------------------------
 
+write_csv(final_data, "data/clean/dataset_no_imputation.csv")
+
 # Put trait data in workable form for imputation
 data_in <- final_data %>%
   select(
