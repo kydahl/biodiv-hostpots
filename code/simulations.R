@@ -6,17 +6,15 @@ library(doParallel)
 library(MetBrewer)
 require(cowplot)
 require(picante)
-
-# Register CPU cores for parallel processing
-numCores <- parallel::detectCores()
-registerDoParallel(cores = numCores)
+library(progress)
+library(retry)
 
 # Load in analysis functions
 source("code/functions.R")
 
 # Load in trait data
-final_data <- read_csv("data/clean/final_dataset.csv") #%>% 
-  # rename(Species = Species_full)
+final_data <- read_csv("data/clean/final_dataset.csv") # %>%
+# rename(Species = Species_full)
 
 # Load in phylogenetic tree data
 # tree <- read.tree(file = "data/clean/phylogenetic_tree.csv")
@@ -42,65 +40,7 @@ get.NumEntities <- function(MaxNumEntities, Level) {
 ## Number of iterations to compute biodiversity over
 numIterations <- 1000
 
-# Load species occurrences ------------------------------------------------
-
-# Output .csvs from "exploring_BIEN.R"
-SpeciesOccs <- read_rds("data/clean/species_occurrences.rds")
-
-# Create patches ----------------------------------------------------------
-
-# Define total number of patches
-NumPatches <- 400 # Just for testing purposes at this point. Need to settle on scale later
-
-
-# Assign levels to patches ------------------------------------------------
-
-# Each patch has an equal probability of being any of the levels
-Levels <- sample(unique(SpeciesOccs$Level), NumPatches, replace = T)
-
-Init_df <- tibble(Patch = 1:NumPatches, Level = Levels)
-
-# Change to repeat each level N times
-
-# Assign number of species to each patch ----------------------------------
-
-# Maximum needs to be set to the total number of species at that level
-MaxNumEntities <- SpeciesOccs %>% 
-  group_by(Level) %>% 
-  summarise(count = n())
-
-
-# Assign species to patches -----------------------------------------------
-
-Patch_df <- tibble(Patch = as.integer(), Level = as.double(), Synonym = as.character())
-
-# For each patch, get its level
-for (index_patch in Init_df$Patch) {
-  # Get the level of the patch
-  level <- filter(Init_df, Patch == index_patch)$Level
-  
-  # Get species list from the right level
-  species_list <- filter(SpeciesOccs, Level == level)$Synonym
-  
-  # Get number of entities in patch
-  entity_count <- min(get.NumEntities(MaxNumEntities, level), length(species_list))
-  
-  # Sample entities without replacement from species list
-  entities <- sample(species_list, entity_count, replace = FALSE)
-  
-  # Put together into a tibble
-  temp_df <- tibble(Patch = index_patch, Level = level, Synonym = entities)
-  
-  Patch_df <- rbind(Patch_df, temp_df)
-  
-}
-
-# Add species traits to the dataframe
-final_data <- rename(final_data)
-
-full_df <- right_join(Patch_df, final_data, by = "Synonym") %>%
-  filter(!is.na(Patch), !is.na(Level))
-  # Elisa: I added this to remove the patch with NA as a number, but it turns out there are more incomplete cases. 
+# Elisa: I added this to remove the patch with NA as a number, but it turns out there are more incomplete cases.
 # I didn't check the reason for this, but shouldn't this dataset be complete (because it has imputed trait data)
 # Kyle: I think na.omit removes rows where any of the columns are NA. So this is removing all the species with an NA in the subspecies or variant column. There may be species with NA in the Patch or Level column. These are the ones that weren't assigned to any of the patches. I made it so these get removed.
 
@@ -121,8 +61,8 @@ get.full_df <- function(NumPatches) {
   ### Assign number of species to each patch ###
   
   # Maximum needs to be set to the total number of species at that level
-  MaxNumEntities <- SpeciesOccs %>% 
-    group_by(Level) %>% 
+  MaxNumEntities <- SpeciesOccs %>%
+    group_by(Level) %>%
     summarise(count = n())
   
   ### Assign species to patches ###
@@ -149,57 +89,115 @@ get.full_df <- function(NumPatches) {
   }
   
   ### Add species traits to the dataframe ###
-  full_df <- right_join(Patch_df, final_data, by = "Synonym", relationship = "many-to-many") %>% 
+  full_df <- right_join(Patch_df, final_data, by = "Synonym", relationship = "many-to-many") %>%
     filter(!is.na(Patch), !is.na(Level))
 }
 
 # Compare hotspots identified by different metrics
-test_df <- get.full_df(NumPatches = 400)
+full_df <- get.full_df(NumPatches = 400)
 
 # I added trait_names to the input of get.biodiv_df
-trait_names = c("LDMC (g/g)","Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)" )
-biodiv_df <- get.biodiv_df(full_df, trait_names)
+trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)")
+# I set it up to just calculate the tree once
+tree <- get.phylo_tree(full_df)
 
-compare_biodiv_hotspots_df <- get.biodiv.compare_df(test_df)
+# KD: takes approximately 2 minutes, mostly because of phylogenetic diversity functions taking a long time
 
 
-compare_df <- tibble(iteration = as.integer(),
-                      endemic = as.double(),
-                      indig.name = as.double(),
-                      indig.lang = as.double(),
-                      use = as.double(),
-                      CV = as.double(),
-                      # SR = biodiv.compare_df$SR,
-                      # PD_unrooted = biodiv.compare_df$PD_unrooted
+# Explore an example simulation -------------------------------------------
+explore_df <- get.full_df(400) %>% 
+  get.biodiv_df(., trait_names, tree)
+
+
+# Plot correlations among biodiversity metrics
+library(GGally)
+pair_plot <- explore_df %>% 
+  select(-c(Patch, NumEndemic, richness, GiniSimpson, Margalef, Menhinick, McIntosh)) %>% 
+  ggpairs()
+
+
+# Set up iterated simulations ---------------------------------------------
+
+# Set comparison parameters
+numIterations <- 1000
+NumPatches <- 40
+
+baseline_metric <- "NumUnique"
+
+# Initialize comparison data frame
+compare_df <- tibble(
+  NumUnique = as.double(),
+  NumEndemic = as.double(), NumIndigName = as.double(),
+  NumIndigLang = as.double(), NumUse = as.double(),
+  richness = as.double(), GiniSimpson = as.double(),
+  Simpson = as.double(), Shannon = as.double(),
+  Margalef = as.double(), Menhinick = as.double(),
+  McIntosh = as.double(), PSVs = as.double(),
+  PSR = as.double(), FRic = as.integer(),  FDiv = as.integer(),  
+  FDis = as.integer(),  FEve = as.integer(),  Q = as.integer(),
+  iteration = as.integer()
+) %>%
+  # Remove the focal metric
+  select(-one_of(baseline_metric))
+
+# Start new cluster for doParallel
+cluster_size <- parallel::detectCores() - 2
+my.cluster <- parallel::makeCluster(cluster_size, type = "PSOCK")
+# Register cluster for doParallel
+doSNOW::registerDoSNOW(cl = my.cluster)
+
+# Set up progress bar
+pb <- progress_bar$new(
+  format = ":spin progress = :percent [:bar] elapsed: :elapsed | eta: :eta",
+  total = numIterations,
+  width = 100
 )
+progress <- function(n) {
+  pb$tick()
+}
+opts <- list(progress = progress)
 
-# Build data frame
+# Calculate comparisons among diversity metrics
 compare_df <- foreach(
   j = 1:numIterations,
-  int = icount(),
+  # int = icount(),
   .combine = "rbind",
-  .packages = c("tidyverse", "reshape2", "picante")
-) %dopar% {
-  # Run a simulation
-  full_df <- get.full_df(400)
+  .packages = c("tidyverse", "reshape2", "picante", "fundiversity", "adiv", "retry"),
+  .options.snow = opts
+) %dopar%
+  {
+    gc()
+    biodiv.compare_df <- retry(
+      get.comparisons(NumPatches, trait_names, tree),
+      until = function(val, cnd) {
+        !is.null(val)
+      }
+    ) %>% 
+      mutate(iteration = j)
+    
+    # # Add to the list
+    # compare_df <- add_row(
+    #   compare_df,
+    #   biodiv.compare_df
+    # )
+  } %>% unique()
 
-  # # Get hotspot comparison values
-  biodiv.compare_df <- get.biodiv.compare_df(full_df) %>%
-    pivot_wider(names_from = variable) %>%
-    unique()
+stopCluster(my.cluster)
 
-  # Add to the list
-  compare_df <- add_row(compare_df,
-                        iteration = int,
-                        endemic = biodiv.compare_df$NumEndemic,
-                        indig.name = biodiv.compare_df$NumIndigName,
-                        indig.lang = biodiv.compare_df$NumIndigLang,
-                        use = biodiv.compare_df$NumUse,
-                        CV = biodiv.compare_df$CoeffVar
-                        # SR = biodiv.compare_df$SR,
-                        # PD_unrooted = biodiv.compare_df$PD_unrooted
-  )
-  
-}
-
-
+# for (j in 1:numIterations) {
+#   print(paste0("########### ITERATION # ", j, " ########### " ))
+#   
+#   biodiv.compare_df <- retry(
+#     get.comparisons(NumPatches, trait_names, tree),
+#     until = function(val, cnd) {
+#       !is.null(val)
+#     }
+#   ) %>% 
+#     mutate(iteration = j)
+#   
+#   # Add to the list
+#   compare_df <- add_row(
+#     compare_df,
+#     biodiv.compare_df
+#   )
+# } 
