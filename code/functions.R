@@ -429,7 +429,7 @@ get.biodiv_df <- function(in_df, trait_names, tree) {
   # hotspots.indig.name <- find.hotspots(num.indig.name_df)
   
   # Metric 4: Number of Indigenous languages
-  num.indig.lang_df <- trait.count.metric(in_df, "N_Langs")
+  # num.indig.lang_df <- trait.count.metric(in_df, "N_Langs")
   # hotspots.indig.lang <- find.hotspots(num.indig.lang_df)
   
   # Metric 5: Number of uses
@@ -454,7 +454,7 @@ get.biodiv_df <- function(in_df, trait_names, tree) {
     # Number of Indigenous names
     right_join(rename(num.indig.name_df, NumIndigName = biodiv), by = "Patch") %>%
     # Number of Indigenous languages
-    right_join(rename(num.indig.lang_df, NumIndigLang = biodiv), by = "Patch") %>%
+    # right_join(rename(num.indig.lang_df, NumIndigLang = biodiv), by = "Patch") %>%
     # Number of uses
     right_join(rename(num.use_df, NumUse = biodiv), by = "Patch") %>% 
     # Coefficient of variation
