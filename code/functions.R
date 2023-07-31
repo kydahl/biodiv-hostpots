@@ -518,7 +518,7 @@ calc.hotspot_compare <- function(hotspots.baseline, hotspots.compare) {
 
 
 # Build hotspot comparison data frame ------------------------------------------
-get.compare_df <- function(in_df, compare_metric) {
+get.compare_df <- function(in_df, baseline_metric) {
   # Get biodiversity metrics
   temp_df <- in_df %>%
     melt(id = "Patch")
@@ -526,17 +526,29 @@ get.compare_df <- function(in_df, compare_metric) {
   # Pre-allocate table
   hotspot.compare_df <- tibble(
     variable = character(),
-    value = numeric()
+    value = numeric(), 
+    list_length = numeric()
   )
   
   # Get baseline hotspots
   hotspots.base <- temp_df %>%
-    filter(variable == compare_metric) %>%
+    filter(variable == baseline_metric) %>%
     select(-variable) %>%
     rename(biodiv = value) %>%
     find.hotspots()
   
-  other_metrics <- unique(filter(temp_df, variable != compare_metric)$variable)
+  num.hotspots.base <- dim(hotspots.base)[1]
+  
+  other_metrics <- unique(filter(temp_df, variable != baseline_metric)$variable)
+  
+  hotspot.compare_df <- add_row(hotspot.compare_df,
+                                variable = baseline_metric,
+                                value = 1,
+                                list_length = num.hotspots.base
+                                
+  )
+  
+  
   # Build hotspot comparison data frame
   for (j in other_metrics) {
     # Get hotspot list
@@ -547,28 +559,32 @@ get.compare_df <- function(in_df, compare_metric) {
       mutate(biodiv = ifelse(is.na(biodiv), 0, biodiv)) %>% 
       find.hotspots()
     
+    num.hotspots.compare <- dim(hotspot_list)[1]
+    
     # Compare lists
     compare_value <- calc.hotspot_compare(hotspot_list, hotspots.base)
     
     # Add to dataframe
     hotspot.compare_df <- add_row(hotspot.compare_df,
                                   variable = j,
-                                  value = compare_value
+                                  value = compare_value,
+                                  list_length = num.hotspots.compare
+                                  
     )
   }
+  
   return(hotspot.compare_df)
 }
 
 # Helper function that gets wrapped in the for-loop to collect biodiversity hotspot comparisons
-biodiv_comp_helper_func <- function(NumPatches, trait_names, tree) {
+biodiv_comp_helper_func <- function(NumPatches, trait_names, tree, baseline_metric) {
   # Run a simulation
   full_df <- get.full_df(NumPatches)
   
   # Get hotspot comparison values
   out_df <- get.biodiv_df(full_df, trait_names, tree) %>%
-    get.compare_df(., baseline_metric) %>%
-    pivot_wider(names_from = variable) %>%
-    unique() 
+    get.compare_df(., baseline_metric) 
+  
   gc()
   return(out_df)
 }

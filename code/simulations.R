@@ -120,8 +120,8 @@ pair_plot <- explore_df %>%
 # Set up iterated simulations ---------------------------------------------
 
 # Set comparison parameters
-numIterations <- 1000
-NumPatches <- 40
+numIterations <- 100
+NumPatches <- 400
 
 baseline_metric <- "NumUnique"
 
@@ -169,12 +169,27 @@ compare_df <- foreach(
   {
     gc()
     biodiv.compare_df <- retry(
-      biodiv_comp_helper_func(NumPatches, trait_names, tree),
+      biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
       until = function(val, cnd) {
         !is.null(val)
       }
     ) %>% 
       mutate(iteration = j)
+    
+    precision_df <- biodiv.compare_df %>%
+      select(-list_length) %>% 
+      pivot_wider(names_from = variable) %>%
+      unique() 
+    
+    list_length_df <- biodiv.compare_df %>%
+      select(-"value") %>% 
+      pivot_wider(names_from = variable, values_from = list_length) %>%
+      unique() 
+    
+    out_df <- rbind(
+      mutate(precision_df, type = "precision"),
+      mutate(list_length_df, type = "list_length")
+    )
     
     # # Add to the list
     # compare_df <- add_row(
