@@ -147,7 +147,7 @@ NumPatches <- 400
 numIterations <- 100
 
 # Biodiversity metric to make comparisons with
-baseline_metric <- "FDiv" #aka species richness
+baseline_metric <- "FDiv" # The full list is right below, the column names for compare_df
 
 # Initialize comparison data frame
 compare_df <- tibble(
@@ -185,7 +185,6 @@ opts <- list(progress = progress)
 # Calculate comparisons among diversity metrics
 compare_df <- foreach(
   j = 1:numIterations,
-  # int = icount(),
   .combine = "rbind",
   .packages = c("tidyverse", "reshape2", "picante", "fundiversity", "adiv", "retry"),
   .options.snow = opts

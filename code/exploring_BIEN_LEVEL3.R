@@ -243,3 +243,6 @@ species_occurences_out <- species_occurences %>%
   unique()
 
 write_rds(species_occurences_out, "data/clean/species_occurrences.rds", compress = 'gz')
+
+missing_occurrence_data <- filter(species_occurences_out, is.na(Level))
+write_rds(missing_occurrence_data, "data/clean/missing_species_occurrences.rds", compress = 'gz')

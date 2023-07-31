@@ -49,7 +49,8 @@ numIterations <- 1000
 #################################
 
 get.full_df <- function(NumPatches) {
-  SpeciesOccs <- read_rds("data/clean/species_occurrences.rds")
+  SpeciesOccs <- read_rds("data/clean/species_occurrences.rds") %>% 
+    mutate(Level = stringr::word(Level, 1, 2, sep = fixed(".")))
   
   ### Assign levels to patches ###
   
@@ -127,8 +128,8 @@ baseline_metric <- "NumUnique"
 # Initialize comparison data frame
 compare_df <- tibble(
   NumUnique = as.double(),
-  NumEndemic = as.double(), NumIndigName = as.double(),
-  NumIndigLang = as.double(), NumUse = as.double(),
+  NumEndemic = as.double(), NumIndigName = as.double(), NumUse = as.double(),
+  # NumIndigLang = as.double()
   richness = as.double(), GiniSimpson = as.double(),
   Simpson = as.double(), Shannon = as.double(),
   Margalef = as.double(), Menhinick = as.double(),
