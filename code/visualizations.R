@@ -107,7 +107,7 @@ biodiv_df <- get.biodiv_df(full_df_sample, trait_names, tree)
 # Plot histograms in a single column
 histogram_plot <- biodiv_df %>%
   melt(id = "Patch") %>%
-  ggplot() +
+  ggplot(aes(x = value)) +
   # plot histogram using density instead of count
   geom_histogram(aes(x = value, y = ..density..),
                  colour = "black",
@@ -118,6 +118,11 @@ histogram_plot <- biodiv_df %>%
                alpha = .2,
                fill = "#FF6666"
   ) +
+  # add a vertical line showing where the top 5% are
+  stat_summary(aes(xintercept = after_stat(x), y = 0),
+               fun = quantile, fun.args = list(0.95),
+               geom = "vline", orientation = "y",
+               color = "blue", lwd = 1) +
   # one histogram for each biodiversity metric
   facet_wrap(~variable, scales = "free") +
   theme_cowplot(12)
