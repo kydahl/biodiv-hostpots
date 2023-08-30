@@ -100,7 +100,7 @@ full_df <- get.full_df(NumPatches = 400)
 # I added trait_names to the input of get.biodiv_df
 trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)")
 # I set it up to just calculate the tree once
-tree <- get.phylo_tree(full_df)
+tree <- get.phylo_tree(final_data)
 
 # KD: takes approximately 2 minutes, mostly because of phylogenetic diversity functions taking a long time
 

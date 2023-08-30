@@ -526,6 +526,7 @@ final_data <- rbind(
   select(c(
     "Synonym", "Family", "origin",
     "LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness",
+    # "Diaspore mass (mg)", "SSD",
     "N_Names":"N_Uses"
   )) %>%
   # if there is data for a trait from both the Diaz and TRY data sets, just use the value from Diaz
