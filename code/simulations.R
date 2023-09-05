@@ -202,6 +202,10 @@ stopCluster(my.cluster)
 
 
 # WIP: Pairwise precision comparisons -------------------------------------
+# I added trait_names to the input of get.biodiv_df
+trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)")
+# I set it up to just calculate the tree once
+tree <- get.phylo_tree(final_data)
 
 # List of all metric names
 metric_names <- c("NumUnique", "NumEndemic", "NumIndigName", "NumUse",
@@ -221,8 +225,9 @@ NumPatches <- 400
 full_compare_df <- tibble(
   baseline = as.character(),
   comparison = as.character(),
-  prec_mean = as.double(),
-  prec_var = as.double()
+  type = as.character(),
+  mean = as.double(),
+  var = as.double()
 )
 
 for (metric_name in metric_names) {
@@ -306,13 +311,19 @@ stopCluster(my.cluster)
 
 
 out_df <- compare_df %>% 
-  filter(type == "precision") %>% 
-  select(-iteration, -type) %>% 
-  pivot_longer(cols = everything(), names_to = "comparison") %>% 
-  group_by(comparison) %>% 
-  summarise(prec_mean = mean(value), 
-            prec_var = var(value)) %>% 
+  # filter(type == "precision") %>% 
+  # select(-iteration, -type) %>%
+  select(-iteration) %>%
+  pivot_longer(cols = all_of(metric_names), names_to = "comparison") %>% 
+  group_by(comparison, type) %>% 
+  summarise(mean = mean(value), 
+            var = var(value)) %>% 
   mutate(baseline = baseline_metric)
+
 
 full_compare_df <- add_row(full_compare_df, out_df)
 }
+
+saveRDS(full_compare_df, file = "full_comparisons.rds")
+
+# TODO: save data on # of hotspots identified to calculate mean and stdev

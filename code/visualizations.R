@@ -396,3 +396,44 @@ phylo_compare_plot <- compare_df %>%
   theme_cowplot(font_size = 11)
 
 phylo_compare_plot
+
+# Figure 5: Pairwise precision heatmap ------------------------------------
+
+pair_prec_mean <- readRDS('full_comparisons.rds') %>% 
+  # arrange(baseline, comparison) %>% 
+  select(-prec_var) %>% 
+  pivot_wider(values_from = c("prec_mean"), 
+              names_sort = F,
+              names_from = "comparison")
+
+pair_prec_mean_mat <- matrix(unlist(pair_prec_mean[1:18, 2:19]), ncol = 18)
+
+# Check how far off this matrix is from being symmetric
+isSymmetric.matrix(pair_prec_mean_mat) # It's not symmetric
+# How far off is it? This value would be near zero if matrix is near symmetriic
+max(abs(pair_prec_mean_mat-t(pair_prec_mean_mat))) 
+
+pair_prec_plot <- readRDS('full_comparisons.rds') %>% 
+  ggplot(mapping = aes(x = baseline, y = comparison, fill = prec_mean
+                       #, alpha = rev(log(1+prec_var)))
+         )) +
+  geom_tile() +
+  geom_text(aes(label = round(prec_mean, 2)))  +
+  scale_fill_gradient(low = "white", high = "blue")
+
+
+# Cluster based on Euclidean distance
+m <- as.matrix((pair_prec_mean[, -1]), ncol = 18)
+pair_prec_cluster <- hclust(dist(t(m)), method = "ward.D2")
+
+# Clustered heatmap
+readRDS('full_comparisons.rds') %>% 
+  ggplot(aes(baseline, comparison, fill = prec_mean)) +
+  geom_tile() +
+  geom_text(aes(label = round(prec_mean, 2))) +
+  scale_fill_gradient(low = "white", high = "blue") +
+  scale_y_discrete(limits = colnames(m)[pair_prec_cluster$order]) +
+  scale_x_discrete(limits = colnames(m)[pair_prec_cluster$order])
+  
+
+
