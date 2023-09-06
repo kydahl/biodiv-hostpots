@@ -20,6 +20,7 @@ final_data <- read_csv("data/clean/final_dataset.csv") # %>%
 # tree <- read.tree(file = "data/clean/phylogenetic_tree.csv")
 # Elisa: I commented this out, because we have been playing around with species names and hence, the tree might be different now
 
+set.seed(9523)
 
 ## Helper functions ------------------------------------------------------------
 # Uniformly sample from interval [1, MaxNumEntities]
@@ -214,18 +215,12 @@ metric_names <- c("NumUnique", "NumEndemic", "NumIndigName", "NumUse",
                   "PSVs", "PSR")
 # Set comparison parameters
 numIterations <- 100
-NumPatches <- 400
-
-# final dataframe
-# column 1 = baseline metric
-# column 2 = comparison metric
-# column 3 = mean of precision
-# column 4 = variacne of precision
+NumPatches <- 1000
 
 full_compare_df <- tibble(
-  baseline = as.character(),
-  comparison = as.character(),
-  type = as.character(),
+  baseline = as.character(), # baseline biodiversity metric
+  comparison = as.character(), # comparison biodiversity metric
+  type = as.character(), # type (precision or list length)
   mean = as.double(),
   var = as.double()
 )

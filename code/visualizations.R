@@ -139,7 +139,7 @@ biodiv_scatter <- biodiv_df %>%
             richness, GiniSimpson, Margalef, Menhinick, McIntosh)) %>% 
   ggpairs(aes()) +
   theme_cowplot(11)
-  
+
 biodiv_scatter
 
 
@@ -263,12 +263,12 @@ compare_plot <- compare_df %>%
                alpha = .2,
                fill = "#FF6666"
   ) +
-
+  
   facet_wrap( ~ variable, scales = "free") +
   # x axis
   scale_x_continuous(name = "Relative precision", 
-                   breaks = seq(0, 1, by = 0.1),
-                   limits = c(0,1)) +
+                     breaks = seq(0, 1, by = 0.1),
+                     limits = c(0,1)) +
   # title
   ggtitle("How similar is each biodiversity metric to functional divergence?") +
   theme_cowplot(font_size = 11)
@@ -400,9 +400,9 @@ phylo_compare_plot
 # Figure 5: Pairwise precision heatmap ------------------------------------
 
 pair_prec_mean <- readRDS('full_comparisons.rds') %>% 
-  # arrange(baseline, comparison) %>% 
-  select(-prec_var) %>% 
-  pivot_wider(values_from = c("prec_mean"), 
+  filter(type == "precision") %>% 
+  select(-c(var, type)) %>% 
+  pivot_wider(values_from = c("mean"),
               names_sort = F,
               names_from = "comparison")
 
@@ -414,26 +414,41 @@ isSymmetric.matrix(pair_prec_mean_mat) # It's not symmetric
 max(abs(pair_prec_mean_mat-t(pair_prec_mean_mat))) 
 
 pair_prec_plot <- readRDS('full_comparisons.rds') %>% 
-  ggplot(mapping = aes(x = baseline, y = comparison, fill = prec_mean
+  filter(type == "precision") %>% 
+  ggplot(mapping = aes(x = baseline, y = comparison, fill = mean
                        #, alpha = rev(log(1+prec_var)))
-         )) +
+  )) +
   geom_tile() +
-  geom_text(aes(label = round(prec_mean, 2)))  +
+  geom_text(aes(label = round(mean, 2)))  +
   scale_fill_gradient(low = "white", high = "blue")
 
 
 # Cluster based on Euclidean distance
-m <- as.matrix((pair_prec_mean[, -1]), ncol = 18)
+pair_prec_mat <- readRDS('full_comparisons.rds') %>% 
+  filter(type == "precision") %>% 
+  select(-c(var, type)) %>% 
+  pivot_wider(values_from = c("mean"),
+              names_sort = F,
+              names_from = "comparison")
+m <- as.matrix((pair_prec_mat[, -1]), ncol = 18)
 pair_prec_cluster <- hclust(dist(t(m)), method = "ward.D2")
 
 # Clustered heatmap
 readRDS('full_comparisons.rds') %>% 
-  ggplot(aes(baseline, comparison, fill = prec_mean)) +
+  filter(type == "precision") %>% 
+  ggplot(aes(baseline, comparison, fill = mean)) +
   geom_tile() +
-  geom_text(aes(label = round(prec_mean, 2))) +
+  geom_text(aes(label = round(mean, 2))) +
   scale_fill_gradient(low = "white", high = "blue") +
   scale_y_discrete(limits = colnames(m)[pair_prec_cluster$order]) +
-  scale_x_discrete(limits = colnames(m)[pair_prec_cluster$order])
-  
+  scale_x_discrete(limits = colnames(m)[pair_prec_cluster$order]) +
+  ggtitle("Precision of comparison biodiversity metrics")
 
 
+
+# Table 1: Numbers of hot spots identified ---------------------------------
+
+hotspot_nums <- readRDS('full_comparisons.rds') %>% 
+  filter(type == "list_length") %>% 
+  filter(baseline == "NumUnique") %>% 
+  select(-c(baseline, type))
