@@ -24,7 +24,7 @@
 ##
 ## Outputs: data/clean/main_dataset.csv
 ##
-## Written and by: Karen Castillioni, Elisa Van Cleemput, Kyle Dahlin
+## Written by: Karen Castillioni, Elisa Van Cleemput, Kyle Dahlin
 ## Maintained by: Kyle Dahlin, kydahlin@gmail.com
 ## Initialized February 2023
 ## _____________________________________________________________________________
@@ -606,8 +606,9 @@ traits_df <- data_in %>%
   # expand binomial
   mutate(LeafArea_log = log(`Leaf area (mm2)`)) %>%
   mutate(PlantHeight_log = log(`Plant height (m)`)) %>%
+  mutate(LDMC_log = log(`LDMC (g/g)`)) %>%
   # Remove original variables replaced by "logged" versions
-  select(-c("Leaf area (mm2)", "Plant height (m)")) # %>% #, "Diaspore mass (mg)"))
+  select(-c("Leaf area (mm2)", "Plant height (m)", 'LDMC (g/g)')) # %>% #, "Diaspore mass (mg)"))
 
 # Run missForest algorithm to impute missing traits
 # get taxonomic columns
@@ -640,7 +641,8 @@ PNW_imp <- missForest(traits_to_impute,
 # add actual taxonomic columns back in and remove dummy variables
 imputed_traits <- cbind(traits_df[, 1:5], PNW_imp$ximp[, 1:5]) %>%
   mutate("Plant height (m)" = exp(PlantHeight_log), .keep = "unused") %>%
-  mutate("Leaf area (mm2)" = exp(LeafArea_log), .keep = "unused")
+  mutate("Leaf area (mm2)" = exp(LeafArea_log), .keep = "unused") %>% 
+  mutate("LDMC (g/g)" = exp(LDMC_log), .keep = "unused")
 
 imputed_data <- right_join(
   select(final_data, -c("LDMC (g/g)":Woodiness)),

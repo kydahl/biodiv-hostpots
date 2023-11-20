@@ -16,14 +16,28 @@ source("code/functions.R")
 # Figure 0: Distribution of TEK traits (across all species)
 
 # Plot histograms in a single column
-trait_plot_no_impute <- read_csv("data/clean/dataset_no_imputation.csv") %>%
+trait_no_impute <- read_csv("data/clean/dataset_no_imputation.csv") %>%
   relocate("Synonym", "Family", "Species", "Ssp_var",
            "N_Langs", "N_Names", "N_Uses") %>% 
   mutate(Woodiness = Woodiness == "woody") %>% 
   mutate(Leaf_area_log = log(`Leaf area (mm2)`), .keep = "unused") %>% 
   mutate(Plant_height_log = log(`Plant height (m)`), .keep = "unused") %>% 
-  pivot_longer(cols = c("N_Langs":"Plant_height_log")) %>% 
-  select(name, value) %>% 
+  mutate(LDMC_log = log(`LDMC (g/g)`), .keep = "unused") %>% 
+  pivot_longer(cols = c("N_Names":"LDMC_log")) %>% 
+  select(name, value)
+
+trait_no_impute$label <-  case_match(
+  trait_no_impute$name,
+  "N_Names" ~ "Number of Indigenous names",
+  "N_Uses" ~ "Number of recorded Indigenous uses",
+  "Nmass (mg/g)" ~ "Leaf nitrogen content per dry mass (mg/g)",
+  "Woodiness" ~ "Woodiness",
+  "Leaf_area_log" ~ "log(Leaf area (mm2))",
+  "Plant_height_log" ~ "log(Plant height (m))",
+  "LDMC_log" ~ "log(leaf dry matter content(g/g))"
+)
+
+plot_trait_no_impute <- trait_no_impute %>% 
   ggplot(aes(x = value)) +
   # plot histogram using density instead of count
   geom_histogram(aes(x = value, y = ..density..),
@@ -36,21 +50,36 @@ trait_plot_no_impute <- read_csv("data/clean/dataset_no_imputation.csv") %>%
                fill = "#FF6666"
   ) +
   # one histogram for each biodiversity metric
-  facet_wrap( ~ name, scales = "free") +
-  theme_cowplot(24)
+  facet_wrap( ~ label, scales = "free") +
+  theme_cowplot(12)
 
-trait_plot_no_impute
+plot_trait_no_impute
 
 
 # Plot histograms in a single column
-trait_plot <- read_csv("data/clean/final_dataset.csv") %>%
+trait_impute <- read_csv("data/clean/final_dataset.csv") %>%
   relocate("Synonym", "Family", "Species", "Ssp_var",
            "N_Langs", "N_Names", "N_Uses") %>% 
   mutate(Woodiness = Woodiness == "woody") %>% 
   mutate(Leaf_area_log = log(`Leaf area (mm2)`), .keep = "unused") %>% 
   mutate(Plant_height_log = log(`Plant height (m)`), .keep = "unused") %>% 
-  pivot_longer(cols = c("N_Langs":"Plant_height_log")) %>% 
-  select(name, value) %>% 
+  mutate(LDMC_log = log(`LDMC (g/g)`), .keep = "unused") %>% 
+  pivot_longer(cols = c("N_Names":"LDMC_log")) %>% 
+  select(name, value)
+
+trait_impute$label <-  case_match(
+  trait_impute$name,
+  "N_Names" ~ "Number of Indigenous names",
+  "N_Uses" ~ "Number of recorded Indigenous uses",
+  "Nmass (mg/g)" ~ "Leaf nitrogen content per dry mass (mg/g)",
+  "Woodiness" ~ "Woodiness",
+  "Leaf_area_log" ~ "log(Leaf area (mm2))",
+  "Plant_height_log" ~ "log(Plant height (m))",
+  "LDMC_log" ~ "log(leaf dry matter content(g/g))"
+)
+
+
+plot_trait_impute <- trait_impute %>% 
   ggplot(aes(x = value)) +
   # plot histogram using density instead of count
   geom_histogram(aes(x = value, y = ..density..),
@@ -63,23 +92,23 @@ trait_plot <- read_csv("data/clean/final_dataset.csv") %>%
                fill = "#FF6666"
   ) +
   # one histogram for each biodiversity metric
-  facet_wrap( ~ name, scales = "free") +
-  theme_cowplot(24)
+  facet_wrap( ~ label, scales = "free") +
+  theme_cowplot(12)
 
-trait_plot
+plot_trait_impute
 
 # Compare distributions of traits before and after imputation (only functional traits)
 
-compare_dists_plot <- read_csv("data/clean/final_dataset.csv") %>%
+compare_dists <- read_csv("data/clean/final_dataset.csv") %>%
   mutate(origin = "imputed") %>% 
   rbind(read_csv("data/clean/dataset_no_imputation.csv") %>% 
           mutate(origin = "original")) %>% 
   select(-c(Synonym:Ssp_var)) %>% 
   relocate(origin) %>% 
   mutate(Woodiness = Woodiness == "woody") %>% 
-  mutate(Leaf_area_log = log(`Leaf area (mm2)`), .keep = "unused") %>% 
-  mutate(Plant_height_log = log(`Plant height (m)`), .keep = "unused") %>% 
-  pivot_longer(cols = c("LDMC (g/g)":"Plant_height_log")) %>% 
+  pivot_longer(cols = c("Nmass (mg/g)":"LDMC (g/g)")) 
+
+plot_compare_dists <- compare_dists %>% 
   ggplot(aes(x = value, fill = origin)) +
   # plot histogram using density instead of count
   geom_histogram(aes(x = value, after_stat(density))) +
@@ -87,8 +116,9 @@ compare_dists_plot <- read_csv("data/clean/final_dataset.csv") %>%
   # geom_density(alpha = .2) +
   # one histogram for each biodiversity metric
   facet_wrap( ~ name, scales = "free") +
-  theme_cowplot(24)
-compare_dists_plot
+  theme_cowplot(12)
+
+plot_compare_dists
 
 
 # Figure 1: Compare the distribution of biodiversity metric values --------
@@ -489,13 +519,13 @@ full_comp_df$comparison_type <- case_match(full_comp_df$comparison,
 x_label_color_function <- function(string) {
   out <- #paste("<span style = 'color: ",
     case_match(string,
-                    "Basic" ~ "black",
-                    "TEK" ~ "blue",
-                    "Phylogenetic" ~ "orange",
-                    "Functional" ~ "red")#,
-    # ";'>",
-    # string,
-    # "</span>", sep = "")
+               "Basic" ~ "black",
+               "TEK" ~ "blue",
+               "Phylogenetic" ~ "orange",
+               "Functional" ~ "red")#,
+  # ";'>",
+  # string,
+  # "</span>", sep = "")
   out <- as.character(out)
 }
 
@@ -543,7 +573,7 @@ full_comp_df %>%
   theme_cowplot() +
   theme(
     axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)#, 
-                               #color = plot_colours$baseline_color),
+    #color = plot_colours$baseline_color),
     # axis.text.y = element_text(color = plot_colours$baseline_color),
   )
 
