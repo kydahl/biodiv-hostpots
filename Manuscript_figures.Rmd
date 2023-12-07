@@ -1,0 +1,58 @@
+---
+title: "Manuscript_figures"
+author: "Kyle Dahlin"
+date: "2023-11-15"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, cache = FALSE, warning = FALSE, message = FALSE, out.extra = ""
+)
+# Load Libraries ----
+require(tidyverse)
+library(doParallel)
+library(MetBrewer)
+require(cowplot)
+require(GGally) # used to make paired scatter plots
+library(retry)
+
+# Plot settings ----
+
+# Set theme
+theme_set(theme_minimal(8))
+
+# Load in data ----
+source("code/functions.R")
+```
+
+```{r Fig1-OrigTraitDistrs, dev = c('pdf','svg', 'png'), out.width='100%', fig.align='center', fig.height=6, fig.width=8, fig.align='center', fig.cap='Placeholder caption.'}
+# Figure 0: Distribution of TEK traits (across all species)
+
+# Plot histograms in a single column
+trait_plot_no_impute <- read_csv("data/clean/dataset_no_imputation.csv",
+                                 show_col_types = FALSE) %>%
+  relocate("Synonym", "Family", "Species", "Ssp_var",
+           "N_Langs", "N_Names", "N_Uses") %>% 
+  mutate(Woodiness = Woodiness == "woody") %>% 
+  mutate(Leaf_area_log = log10(`Leaf area (mm2)`), .keep = "unused") %>% 
+  mutate(Plant_height_log = log10(`Plant height (m)`), .keep = "unused") %>% 
+  pivot_longer(cols = c("N_Langs":"Plant_height_log")) %>% 
+  select(name, value) %>% 
+  ggplot(aes(x = value)) +
+  # plot histogram using density instead of count
+  geom_histogram(aes(x = value, y = ..density..),
+                 colour = "black",
+                 fill = "white"
+  ) +
+  # add a spline approximating the probability density function
+  geom_density(aes(x = value),
+               alpha = .2,
+               fill = "#FF6666"
+  ) +
+  # one histogram for each biodiversity metric
+  facet_wrap( ~ name, scales = "free")
+
+trait_plot_no_impute
+
+```

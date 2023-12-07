@@ -135,15 +135,44 @@ full_df_sample <- get.full_df(numPatches)
 # Calculate biodiversity metrics
 biodiv_df <- get.biodiv_df(full_df_sample, trait_names, tree)
 
+# Get mean and standard deviation values for each index
+meanSD_df <- biodiv_df %>% 
+  select(-NumEndemic) %>% 
+  pivot_longer(cols = NumUnique:PSR,
+               names_to = "variable") %>% 
+  filter(!is.na(value)) %>% 
+  group_by(variable) %>% 
+  mutate(mean = mean(value, na.rm = TRUE),
+            stdev = sd(value, na.rm = TRUE),
+            upper = mean + 1.96 * stdev,
+         hotspot_cutoff = quantile(value, c(0.95), na.rm = TRUE)
+  )
+
+hotspot_stats <- meanSD_df %>% 
+  filter(value > hotspot_cutoff) %>% 
+  summarise(mean = mean(value, na.rm = TRUE),
+         stdev = sd(value, na.rm = TRUE),
+         lower = mean - 1.96 * stdev
+  )
+
+nonhotspot_stats <- meanSD_df %>% 
+  filter(value <= hotspot_cutoff) %>% 
+  summarise(mean = mean(value, na.rm = TRUE),
+            stdev = sd(value, na.rm = TRUE),
+            upper = mean + 1.96 * stdev
+  )
+  
+
 # Plot histograms in a single column
 histogram_plot <- biodiv_df %>%
+  select(-NumEndemic) %>% 
   melt(id = "Patch") %>%
   ggplot(aes(x = value)) +
-  # plot histogram using density instead of count
-  geom_histogram(aes(x = value, y = ..density..),
-                 colour = "black",
-                 fill = "white"
-  ) +
+  # # plot histogram using density instead of count
+  # geom_histogram(aes(x = value, y = ..density..),
+  #                colour = "black",
+  #                fill = "white"
+  # ) +
   # add a spline approximating the probability density function
   geom_density(aes(x = value),
                alpha = .2,
@@ -153,7 +182,14 @@ histogram_plot <- biodiv_df %>%
   stat_summary(aes(xintercept = after_stat(x), y = 0),
                fun = quantile, fun.args = list(0.95),
                geom = "vline", orientation = "y",
-               color = "blue", lwd = 1) +
+               color = "blue", lwd = 1) + 
+  geom_vline(data = meanSD_df, aes(xintercept = mean), linetype = 2) +
+  # geom_vline(data = nonhotspot_stats, aes(xintercept = upper), 
+  #            color = "green", linetype = 2) +
+  # geom_vline(data = hotspot_stats, aes(xintercept = lower), 
+  #            color = "blue", linetype = 2) +
+  ylab('') +
+  xlab('') +
   # one histogram for each biodiversity metric
   facet_wrap(~variable, scales = "free") +
   theme_cowplot(12)
@@ -465,13 +501,13 @@ full_comp_df$baseline_label <-  case_match(full_comp_df$baseline,
                                            "FDis" ~ "Functional species dispersion",
                                            "FEve" ~ "Functional species evenness",
                                            "Q" ~ "Rao's entropy (Q)",
-                                           "richness" ~ "Faith (1992)",
-                                           "GiniSimpson" ~ "Gini (1912) and Simpson (1949)",
-                                           "Simpson" ~ "Simpson (1949)",
-                                           "Shannon" ~ "Shannon (1948)",
-                                           "Margalef" ~ "Margalef (1972)",
-                                           "Menhinick" ~ "Menhinick (1964)",
-                                           "McIntosh" ~ "McIntosh (1967)",
+                                           "richness" ~ "Faith",
+                                           "GiniSimpson" ~ "Gini and Simpson",
+                                           "Simpson" ~ "Simpson",
+                                           "Shannon" ~ "Shannon",
+                                           "Margalef" ~ "Margalef",
+                                           "Menhinick" ~ "Menhinick",
+                                           "McIntosh" ~ "McIntosh",
                                            "PSVs" ~ "Phylogenetic species variability",
                                            "PSR" ~ "Phylogenetic species richness"
 )
@@ -486,13 +522,13 @@ full_comp_df$comparison_label <-  case_match(full_comp_df$comparison,
                                              "FDis" ~ "Functional species dispersion",
                                              "FEve" ~ "Functional species evenness",
                                              "Q" ~ "Rao's entropy (Q)",
-                                             "richness" ~ "Faith (1992)",
-                                             "GiniSimpson" ~ "Gini (1912) and Simpson (1949)",
-                                             "Simpson" ~ "Simpson (1949)",
-                                             "Shannon" ~ "Shannon (1948)",
-                                             "Margalef" ~ "Margalef (1972)",
-                                             "Menhinick" ~ "Menhinick (1964)",
-                                             "McIntosh" ~ "McIntosh (1967)",
+                                             "richness" ~ "Faith",
+                                             "GiniSimpson" ~ "Gini and Simpson",
+                                             "Simpson" ~ "Simpson",
+                                             "Shannon" ~ "Shannon",
+                                             "Margalef" ~ "Margalef",
+                                             "Menhinick" ~ "Menhinick",
+                                             "McIntosh" ~ "McIntosh",
                                              "PSVs" ~ "Phylogenetic species variability",
                                              "PSR" ~ "Phylogenetic species richness"
 )
@@ -546,6 +582,19 @@ m <- as.matrix((pair_prec_mat[, -1]), ncol = 18)
 
 pair_prec_cluster <- hclust(dist(t(m)), method = "ward.D2")
 
+# Cluster dendrogram
+require(ggdendro)
+
+dhc <- as.dendrogram(pair_prec_cluster)
+
+ddata <- dendro_data(pair_prec_cluster, type="rectangle")
+
+ggdendrogram(ddata, rotate = TRUE) +
+  xlab('Biodiversity index') +
+  theme(axis.text = element_text(size = 12)) 
+
+dendrogram <- plot(pair_prec_cluster)
+
 # Clustered heatmap
 
 plot_colours <- full_comp_df %>% 
@@ -563,8 +612,8 @@ full_comp_df %>%
   geom_text(aes(label = round(mean, 2)), color = "black") +
   # geom_blank() +
   scale_fill_gradient("Mean precision", low = "white", high = "blue") +
-  scale_y_discrete("Comparison metric", limits = colnames(m)[pair_prec_cluster$order]) +
-  scale_x_discrete("Baseline metric", limits = colnames(m)[pair_prec_cluster$order]) +
+  scale_y_discrete("Comparison index", limits = colnames(m)[pair_prec_cluster$order]) +
+  scale_x_discrete("Baseline index", limits = colnames(m)[pair_prec_cluster$order]) +
   # scale_color_manual("test", values = c(
   #   "Basic" = "black", "TEK" = "blue", "Phylogenetic" = "orange", "Functional" = "red")) +
   # guides("test", colour = guide_legend(override.aes = 
@@ -572,9 +621,11 @@ full_comp_df %>%
   # ggtitle("Precision of comparison biodiversity metrics") +
   theme_cowplot() +
   theme(
-    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)#, 
-    #color = plot_colours$baseline_color),
-    # axis.text.y = element_text(color = plot_colours$baseline_color),
+
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, 
+                               color = plot_colours$baseline_color),
+    axis.text.y = element_text(color = plot_colours$baseline_color)
+
   )
 
 # Table 1: Numbers of hot spots identified ---------------------------------

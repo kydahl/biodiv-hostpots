@@ -107,7 +107,7 @@ tree <- get.phylo_tree(final_data)
 
 
 # Explore an example simulation -------------------------------------------
-explore_df <- get.full_df(400) %>% 
+explore_df <- get.full_df(40) %>% 
   get.biodiv_df(., trait_names, tree)
 
 
