@@ -129,7 +129,7 @@ trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", 
 tree <- get.phylo_tree(read_csv("data/clean/final_dataset.csv"))
 
 # Get a single simulation
-numPatches <- 400
+numPatches <- 1000
 full_df_sample <- get.full_df(numPatches)
 
 # Calculate biodiversity metrics
@@ -373,7 +373,7 @@ tree <- get.phylo_tree(read_csv("data/clean/final_dataset.csv"))
 trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)")
 
 # Get a single simulation
-numPatches <- 400
+numPatches <- 1000
 full_df_sample <- get.full_df(numPatches)
 
 # Calculate biodiversity metrics

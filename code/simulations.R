@@ -96,7 +96,7 @@ get.full_df <- function(NumPatches) {
 }
 
 # Compare hotspots identified by different metrics
-full_df <- get.full_df(NumPatches = 400)
+full_df <- get.full_df(NumPatches = 1000)
 
 # I added trait_names to the input of get.biodiv_df
 trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)")
@@ -122,7 +122,7 @@ pair_plot <- explore_df %>%
 
 # Set comparison parameters
 numIterations <- 100
-NumPatches <- 400
+NumPatches <- 1000
 
 baseline_metric <- "NumUnique"
 
@@ -168,6 +168,7 @@ compare_df <- foreach(
   .options.snow = opts
 ) %dopar%
   {
+    j=j+1
     gc()
     biodiv.compare_df <- retry(
       biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
@@ -178,18 +179,24 @@ compare_df <- foreach(
       mutate(iteration = j)
     
     precision_df <- biodiv.compare_df %>%
-      select(-list_length) %>% 
+      select(-c(list_length, recall)) %>% 
       pivot_wider(names_from = variable) %>%
       unique() 
     
     list_length_df <- biodiv.compare_df %>%
-      select(-"value") %>% 
+      select(-c(value, recall)) %>% 
       pivot_wider(names_from = variable, values_from = list_length) %>%
+      unique() 
+    
+    recall_df <- biodiv.compare_df %>%
+      select(-c(value, list_length)) %>% 
+      pivot_wider(names_from = variable, values_from = recall) %>%
       unique() 
     
     out_df <- rbind(
       mutate(precision_df, type = "precision"),
-      mutate(list_length_df, type = "list_length")
+      mutate(list_length_df, type = "list_length"),
+      mutate(recall_df, type = "recall")
     )
     
     # # Add to the list
@@ -202,7 +209,7 @@ compare_df <- foreach(
 stopCluster(my.cluster)
 
 
-# WIP: Pairwise precision comparisons -------------------------------------
+# Pairwise precision comparisons -------------------------------------
 # I added trait_names to the input of get.biodiv_df
 trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)")
 # I set it up to just calculate the tree once

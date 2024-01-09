@@ -498,11 +498,15 @@ calc.hotspot_compare <- function(hotspots.baseline, hotspots.compare) {
   # Number of true positives
   TP_count <- sum(hotspots.compare %in% hotspots.baseline)
   
-  # false_count <-
-  
   # Use precision as our quantifier:
   # of the identified hotspots, what proportion match with the baseline list?
-  comparison.quantifier <- TP_count / length(hotspots.compare)
+  
+  # comparison.quantifier <- if_else(type == "precision",
+  #   TP_count / length(hotspots.compare),
+  #   TP_count / P_count)
+  
+  out <- tibble(precision = TP_count / length(hotspots.compare),
+                recall = TP_count / length(hotspots.baseline))
   
   # # Use Jaccard similarity coefficient instead:
   # #  = number of hotspots shared in both lists / total number of hotspots identified
@@ -513,7 +517,7 @@ calc.hotspot_compare <- function(hotspots.baseline, hotspots.compare) {
   # total.hotspots <- length(hotspots.compare)+length(hotspots.baseline)-TP_count
   # Jaccard.sim.coef <- TP_count / total.hotspots
   
-  return(comparison.quantifier)
+  return(out)
 }
 
 
@@ -527,6 +531,7 @@ get.compare_df <- function(in_df, baseline_metric) {
   hotspot.compare_df <- tibble(
     variable = character(),
     value = numeric(), 
+    recall = numeric(), 
     list_length = numeric()
   )
   
@@ -548,7 +553,6 @@ get.compare_df <- function(in_df, baseline_metric) {
                                 
   )
   
-  
   # Build hotspot comparison data frame
   for (j in other_metrics) {
     # Get hotspot list
@@ -562,12 +566,13 @@ get.compare_df <- function(in_df, baseline_metric) {
     num.hotspots.compare <- dim(hotspot_list)[1]
     
     # Compare lists
-    compare_value <- calc.hotspot_compare(hotspot_list, hotspots.base)
+    compare_values <- calc.hotspot_compare(hotspot_list, hotspots.base)
     
     # Add to dataframe
     hotspot.compare_df <- add_row(hotspot.compare_df,
                                   variable = j,
-                                  value = compare_value,
+                                  value = compare_values$precision,
+                                  recall = compare_values$recall,
                                   list_length = num.hotspots.compare
                                   
     )
