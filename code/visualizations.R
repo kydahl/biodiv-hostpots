@@ -7,6 +7,7 @@ library(MetBrewer)
 require(cowplot)
 require(GGally) # used to make paired scatter plots
 library(retry)
+library(cols4all)
 
 # Load in simulations
 source("code/functions.R")
@@ -552,13 +553,16 @@ full_comp_df$comparison_type <- case_match(full_comp_df$comparison,
                                            c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
 )
 
+# Remove number of "endemic" from analysis
+full_comp_df <- filter(full_comp_df, baseline != "NumEndemic", comparison != "NumEndemic")
+
 x_label_color_function <- function(string) {
   out <- #paste("<span style = 'color: ",
     case_match(string,
                "Basic" ~ "black",
-               "TEK" ~ "blue",
-               "Phylogenetic" ~ "orange",
-               "Functional" ~ "red")#,
+               "TEK" ~ c4a("brewer.set1", 3)[1],
+               "Phylogenetic" ~ c4a("brewer.set1", 3)[2],
+               "Functional" ~ c4a("brewer.set1", 3)[3],)#,
   # ";'>",
   # string,
   # "</span>", sep = "")
@@ -634,3 +638,24 @@ hotspot_nums <- readRDS('full_comparisons.rds') %>%
   filter(type == "list_length") %>% 
   filter(baseline == "NumUnique") %>% 
   select(-c(baseline, type))
+
+hotspot_nums$metric_label <-  case_match(hotspot_nums$comparison,
+                                           "NumUnique" ~ "Species richness",
+                                           "NumEndemic" ~ "Number of 'endemic' species",
+                                           "NumIndigName" ~ "Number of Indigenous names",
+                                           "NumUse" ~ "Number of recorded Indigenous uses",
+                                           "FRic" ~ "Functional species richness",
+                                           "FDiv" ~ "Functional species divergence",
+                                           "FDis" ~ "Functional species dispersion",
+                                           "FEve" ~ "Functional species evenness",
+                                           "Q" ~ "Rao's entropy (Q)",
+                                           "richness" ~ "Faith",
+                                           "GiniSimpson" ~ "Gini and Simpson",
+                                           "Simpson" ~ "Simpson",
+                                           "Shannon" ~ "Shannon",
+                                           "Margalef" ~ "Margalef",
+                                           "Menhinick" ~ "Menhinick",
+                                           "McIntosh" ~ "McIntosh",
+                                           "PSVs" ~ "Phylogenetic species variability",
+                                           "PSR" ~ "Phylogenetic species richness"
+)
