@@ -8,13 +8,15 @@ require(cowplot)
 require(GGally) # used to make paired scatter plots
 library(retry)
 library(cols4all)
+library(gridExtra)
+library(ggh4x)
 
 # Load in simulations
 source("code/functions.R")
 
 # Figures -----------------------------------------------------------------
 
-# Figure 0: Distribution of TEK traits (across all species)
+# Figure 0: Distribution of TEK traits (across all species) ----
 
 # Plot histograms in a single column
 trait_no_impute <- read_csv("data/clean/dataset_no_imputation.csv") %>%
@@ -35,10 +37,13 @@ trait_no_impute$label <-  case_match(
   "Woodiness" ~ "Woodiness",
   "Leaf_area_log" ~ "log(Leaf area (mm2))",
   "Plant_height_log" ~ "log(Plant height (m))",
-  "LDMC_log" ~ "log(leaf dry matter content(g/g))"
+  "LDMC_log" ~ "log(Leaf dry matter content(g/g))"
 )
 
-plot_trait_no_impute <- trait_no_impute %>% 
+logged_plots <- trait_no_impute %>% 
+  filter(label %in% c("log(Leaf area (mm2))",
+                      "log(Plant height (m))",
+                      "log(Leaf dry matter content(g/g))")) %>% 
   ggplot(aes(x = value)) +
   # plot histogram using density instead of count
   geom_histogram(aes(x = value, y = ..density..),
@@ -50,11 +55,74 @@ plot_trait_no_impute <- trait_no_impute %>%
                alpha = .2,
                fill = "#FF6666"
   ) +
+  scale_x_continuous(name = "Value") +
+  scale_y_continuous(name = "Density") +
   # one histogram for each biodiversity metric
-  facet_wrap( ~ label, scales = "free") +
+  facet_wrap(~label, scales = "free") +
   theme_cowplot(12)
 
-plot_trait_no_impute
+LNPDM_plot <- trait_no_impute %>% 
+  filter(label %in% c("Leaf nitrogen content per dry mass (mg/g)")) %>% 
+  ggplot(aes(x = value)) +
+  # plot histogram using density instead of count
+  geom_histogram(aes(x = value, y = ..density..),
+                 colour = "black",
+                 fill = "white"
+  ) +
+  # add a spline approximating the probability density function
+  geom_density(aes(x = value),
+               alpha = .2,
+               fill = "#FF6666"
+  ) +
+  scale_x_continuous(name = "Value") +
+  scale_y_continuous(name = "Density") +
+  # one histogram for each biodiversity metric
+  facet_wrap(~label, scales = "free") +
+  theme_cowplot(12)
+
+Woodiness_plot <- trait_no_impute %>% 
+  filter(label %in% c("Woodiness")) %>% 
+  ggplot(aes(x = value)) +
+  # plot histogram using density instead of count
+  geom_histogram(aes(x = value, y = ..density..),
+                 colour = "black",
+                 fill = "white"
+  ) +
+  # add a spline approximating the probability density function
+  geom_density(aes(x = value),
+               alpha = .2,
+               fill = "#FF6666"
+  ) +
+  scale_x_continuous(name = "Value", limits = c(-1,2)) +
+  scale_y_continuous(name = "Density") +
+  # one histogram for each biodiversity metric
+  facet_wrap(~label, scales = "free") +
+  theme_cowplot(12)
+
+remaining_plots <- grid.arrange(LNPDM_plot, Woodiness_plot, nrow = 1)
+
+Indig_plots <- trait_no_impute %>% 
+  filter(label %in% c(
+    "Number of Indigenous names",
+    "Number of recorded Indigenous uses")) %>% 
+  ggplot(aes(x = value)) +
+  # plot histogram using density instead of count
+  geom_histogram(aes(x = value, y = ..density..),
+                 colour = "black",
+                 fill = "white"
+  ) +
+  # add a spline approximating the probability density function
+  geom_density(aes(x = value),
+               alpha = .2,
+               fill = "#FF6666"
+  ) +
+  scale_x_continuous(name = "Value") +
+  scale_y_continuous(name = "Density") +
+  # one histogram for each biodiversity metric
+  facet_wrap(~label, scales = "free") +
+  theme_cowplot(12)
+
+plot_trait_no_impute <- grid.arrange(logged_plots, remaining_plots, Indig_plots, nrow = 3)
 
 
 # Plot histograms in a single column
@@ -76,11 +144,13 @@ trait_impute$label <-  case_match(
   "Woodiness" ~ "Woodiness",
   "Leaf_area_log" ~ "log(Leaf area (mm2))",
   "Plant_height_log" ~ "log(Plant height (m))",
-  "LDMC_log" ~ "log(leaf dry matter content(g/g))"
+  "LDMC_log" ~ "log(Leaf dry matter content(g/g))"
 )
 
-
-plot_trait_impute <- trait_impute %>% 
+logged_plots <- trait_impute %>% 
+  filter(label %in% c("log(Leaf area (mm2))",
+                      "log(Plant height (m))",
+                      "log(Leaf dry matter content(g/g))")) %>% 
   ggplot(aes(x = value)) +
   # plot histogram using density instead of count
   geom_histogram(aes(x = value, y = ..density..),
@@ -92,11 +162,74 @@ plot_trait_impute <- trait_impute %>%
                alpha = .2,
                fill = "#FF6666"
   ) +
+  scale_x_continuous(name = "Value") +
+  scale_y_continuous(name = "Density") +
   # one histogram for each biodiversity metric
-  facet_wrap( ~ label, scales = "free") +
+  facet_wrap(~label, scales = "free") +
   theme_cowplot(12)
 
-plot_trait_impute
+LNPDM_plot <- trait_impute %>% 
+  filter(label %in% c("Leaf nitrogen content per dry mass (mg/g)")) %>% 
+  ggplot(aes(x = value)) +
+  # plot histogram using density instead of count
+  geom_histogram(aes(x = value, y = ..density..),
+                 colour = "black",
+                 fill = "white"
+  ) +
+  # add a spline approximating the probability density function
+  geom_density(aes(x = value),
+               alpha = .2,
+               fill = "#FF6666"
+  ) +
+  scale_x_continuous(name = "Value") +
+  scale_y_continuous(name = "Density") +
+  # one histogram for each biodiversity metric
+  facet_wrap(~label, scales = "free") +
+  theme_cowplot(12)
+
+Woodiness_plot <- trait_impute %>% 
+  filter(label %in% c("Woodiness")) %>% 
+  ggplot(aes(x = value)) +
+  # plot histogram using density instead of count
+  geom_histogram(aes(x = value, y = ..density..),
+                 colour = "black",
+                 fill = "white"
+  ) +
+  # add a spline approximating the probability density function
+  geom_density(aes(x = value),
+               alpha = .2,
+               fill = "#FF6666"
+  ) +
+  scale_x_continuous(name = "Value", limits = c(-1,2)) +
+  scale_y_continuous(name = "Density") +
+  # one histogram for each biodiversity metric
+  facet_wrap(~label, scales = "free") +
+  theme_cowplot(12)
+
+remaining_plots <- grid.arrange(LNPDM_plot, Woodiness_plot, nrow = 1)
+
+Indig_plots <- trait_impute %>% 
+  filter(label %in% c(
+    "Number of Indigenous names",
+    "Number of recorded Indigenous uses")) %>% 
+  ggplot(aes(x = value)) +
+  # plot histogram using density instead of count
+  geom_histogram(aes(x = value, y = ..density..),
+                 colour = "black",
+                 fill = "white"
+  ) +
+  # add a spline approximating the probability density function
+  geom_density(aes(x = value),
+               alpha = .2,
+               fill = "#FF6666"
+  ) +
+  scale_x_continuous(name = "Value") +
+  scale_y_continuous(name = "Density") +
+  # one histogram for each biodiversity metric
+  facet_wrap(~label, scales = "free") +
+  theme_cowplot(12)
+
+plot_trait_impute <- grid.arrange(logged_plots, remaining_plots, Indig_plots, nrow = 3)
 
 # Compare distributions of traits before and after imputation (only functional traits)
 
@@ -136,24 +269,88 @@ full_df_sample <- get.full_df(numPatches)
 # Calculate biodiversity metrics
 biodiv_df <- get.biodiv_df(full_df_sample, trait_names, tree)
 
+# Set up label colors to indicate what type of index it is
+biodiv_plot_df <- biodiv_df %>% 
+  pivot_longer(cols = -Patch)
+
+biodiv_plot_df$group <- case_match(biodiv_plot_df$name,
+                                   c("NumUnique", "NumEndemic") ~ "Basic",
+                                   c("NumIndigName", "NumUse") ~ "TEK",
+                                   c("richness", "GiniSimpson", "Simpson",
+                                     "Shannon", "Margalef", "Menhinick",
+                                     "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
+                                   c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
+)
+
+# Remove number of "endemic" from analysis
+x_label_color_function <- function(string) {
+  out <- #paste("<span style = 'color: ",
+    case_match(string,
+               "Basic" ~ "black",
+               "TEK" ~ c4a("brewer.set1", 3)[1],
+               "Phylogenetic" ~ c4a("brewer.set1", 3)[2],
+               "Functional" ~ c4a("brewer.set1", 3)[3],)#,
+  # ";'>",
+  # string,
+  # "</span>", sep = "")
+  out <- as.character(out)
+}
+
+biodiv_plot_df$color <- x_label_color_function(biodiv_plot_df$group)
+
+# Make labels more descriptive
+biodiv_plot_df$label <-  case_match(biodiv_plot_df$name,
+                                    "NumUnique" ~ "Species richness",
+                                    "NumEndemic" ~ "Number of 'endemic' species",
+                                    "NumIndigName" ~ "Number of Indigenous names",
+                                    "NumUse" ~ "Number of recorded Indigenous uses",
+                                    "FRic" ~ "Functional species richness",
+                                    "FDiv" ~ "Functional species divergence",
+                                    "FDis" ~ "Functional species dispersion",
+                                    "FEve" ~ "Functional species evenness",
+                                    "Q" ~ "Rao's entropy (Q)",
+                                    "richness" ~ "Faith",
+                                    "GiniSimpson" ~ "Gini and Simpson",
+                                    "Simpson" ~ "Simpson",
+                                    "Shannon" ~ "Shannon",
+                                    "Margalef" ~ "Margalef",
+                                    "Menhinick" ~ "Menhinick",
+                                    "McIntosh" ~ "McIntosh",
+                                    "PSVs" ~ "Phylogenetic species variability",
+                                    "PSR" ~ "Phylogenetic species richness"
+)
+
+biodiv_plot_df$label <-  factor(biodiv_plot_df$label, levels = c(
+  "Species richness","Number of Indigenous names",   "Number of recorded Indigenous uses", 
+  "Number of 'endemic' species",
+  "Functional species richness", "Functional species divergence",  "Functional species dispersion",  "Functional species evenness", "Rao's entropy (Q)",
+  "Faith", "Gini and Simpson", "Margalef", "McIntosh", "Menhinick",   "Phylogenetic species variability",  "Phylogenetic species richness", "Shannon", "Simpson"
+)
+)
+
+# biodiv_plot_df <- biodiv_plot_df %>%
+#   select(Patch, value, label) %>%
+#   pivot_wider(names_from = label, values_from = value)
+
 # Get mean and standard deviation values for each index
-meanSD_df <- biodiv_df %>% 
-  select(-NumEndemic) %>% 
-  pivot_longer(cols = NumUnique:PSR,
-               names_to = "variable") %>% 
-  filter(!is.na(value)) %>% 
-  group_by(variable) %>% 
+meanSD_df <- biodiv_plot_df %>% 
+  filter(label != "Number of 'endemic' species") %>%
+  # select(-`Number of 'endemic' species`) %>% 
+  # pivot_longer(cols = `Species richness`:`Phylogenetic species richness`,
+  #              names_to = "variable") %>% 
+  # filter(!is.na(value)) %>% 
+  group_by(label) %>% 
   mutate(mean = mean(value, na.rm = TRUE),
-            stdev = sd(value, na.rm = TRUE),
-            upper = mean + 1.96 * stdev,
+         stdev = sd(value, na.rm = TRUE),
+         upper = mean + 1.96 * stdev,
          hotspot_cutoff = quantile(value, c(0.95), na.rm = TRUE)
   )
 
 hotspot_stats <- meanSD_df %>% 
   filter(value > hotspot_cutoff) %>% 
   summarise(mean = mean(value, na.rm = TRUE),
-         stdev = sd(value, na.rm = TRUE),
-         lower = mean - 1.96 * stdev
+            stdev = sd(value, na.rm = TRUE),
+            lower = mean - 1.96 * stdev
   )
 
 nonhotspot_stats <- meanSD_df %>% 
@@ -162,12 +359,15 @@ nonhotspot_stats <- meanSD_df %>%
             stdev = sd(value, na.rm = TRUE),
             upper = mean + 1.96 * stdev
   )
-  
 
 # Plot histograms in a single column
-histogram_plot <- biodiv_df %>%
-  select(-NumEndemic) %>% 
-  melt(id = "Patch") %>%
+histogram_colors = c("black", rep("#E41A1C",2), rep("#4DAF4A", 5), rep("#377EB8", 9))
+
+strip_theme = strip_themed(background_x = elem_list_rect(fill = histogram_colors),
+                           text_x = element_text(color = "white",face = "bold", size = 14))
+
+histogram_plot <- biodiv_plot_df %>%
+  filter(label != "Number of 'endemic' species") %>%
   ggplot(aes(x = value)) +
   # # plot histogram using density instead of count
   # geom_histogram(aes(x = value, y = ..density..),
@@ -189,10 +389,11 @@ histogram_plot <- biodiv_df %>%
   #            color = "green", linetype = 2) +
   # geom_vline(data = hotspot_stats, aes(xintercept = lower), 
   #            color = "blue", linetype = 2) +
-  ylab('') +
-  xlab('') +
+  ylab('Density') +
+  xlab('Value') +
   # one histogram for each biodiversity metric
-  facet_wrap(~variable, scales = "free") +
+  facet_wrap2( ~ label, ncol = 3, scales = "free",
+               strip = strip_theme) +
   theme_cowplot(12)
 
 histogram_plot
@@ -593,11 +794,65 @@ dhc <- as.dendrogram(pair_prec_cluster)
 
 ddata <- dendro_data(pair_prec_cluster, type="rectangle")
 
-ggdendrogram(ddata, rotate = TRUE) +
-  xlab('Biodiversity index') +
-  theme(axis.text = element_text(size = 12)) 
+ddata_labels = label(ddata)
+ddata_labels$color <- rev(c("#E41A1C", "#E41A1C", "#377EB8", "black", "#377EB8", "#377EB8", 
+                            "#4DAF4A", "#377EB8", "#377EB8", "#377EB8", "#4DAF4A", "#4DAF4A", 
+                            "#4DAF4A", "#4DAF4A", "#377EB8", "#377EB8", "#377EB8"))
 
-dendrogram <- plot(pair_prec_cluster)
+ddata_labels$group <- case_match(
+  ddata_labels$label,
+  "Species richness" ~ "Basic",
+  c("Number of Indigenous names", "Number of recorded Indigenous uses") ~ "TEK",
+  c("Faith", "Gini and Simpson", "Simpson",
+    "Shannon", "Margalef", "Menhinick",
+    "McIntosh", "Phylogenetic species variability", "Phylogenetic species richness") ~ "Phylogenetic",
+  c("Functional species richness", "Functional species divergence", "Functional species dispersion", "Functional species evenness", "Rao's entropy (Q)") ~ "Functional"         
+)
+
+x_label_color_function <- function(string) {
+  out <- #paste("<span style = 'color: ",
+    case_match(string,
+               "Basic" ~ "black",
+               "TEK" ~ c4a("brewer.set1", 3)[1],
+               "Phylogenetic" ~ c4a("brewer.set1", 3)[2],
+               "Functional" ~ c4a("brewer.set1", 3)[3],)#,
+  # ";'>",
+  # string,
+  # "</span>", sep = "")
+  out <- as.character(out)
+}
+
+ddata_labels$color <- x_label_color_function(ddata_labels$group)
+
+ddata_labels <- arrange(ddata_labels, label)
+
+ggplot() +
+  geom_segment(data = segment(ddata),
+               aes_string(x = "x", y = "y", xend = "xend", yend = "yend")) +
+  geom_text(data = ddata_labels, 
+            aes(x = x, y = y, label = label, color = label),
+            fontface = "bold",hjust = 0, angle = 0) + 
+  scale_color_manual(values = as.character(ddata_labels$color)) +
+  scale_y_continuous(expand=c(0.2, 0),
+                     trans = "reverse") + 
+  coord_flip() +
+  guides(color = "none") +
+  theme_cowplot(12) +
+  theme(
+    panel.background = element_blank(),
+    axis.title = element_blank(),
+    axis.line.x = element_blank(),
+    axis.line.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.y = element_blank(),
+    )
+
+
+ggdendrogram(ddata, rotate = FALSE) +
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 12, color = dendrogram_colors,
+                                   face = "bold", hjust = 1))
 
 # Clustered heatmap
 
@@ -625,12 +880,14 @@ full_comp_df %>%
   # ggtitle("Precision of comparison biodiversity metrics") +
   theme_cowplot() +
   theme(
-
+    
     axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, 
                                color = plot_colours$baseline_color),
     axis.text.y = element_text(color = plot_colours$baseline_color)
-
-  )
+    
+  ) +
+  guides(fill = guide_colorbar(barheight = 20,
+                               title.hjust = 0.5))
 
 # Table 1: Numbers of hot spots identified ---------------------------------
 
@@ -640,6 +897,56 @@ hotspot_nums <- readRDS('full_comparisons.rds') %>%
   select(-c(baseline, type))
 
 hotspot_nums$metric_label <-  case_match(hotspot_nums$comparison,
+                                         "NumUnique" ~ "Species richness",
+                                         "NumEndemic" ~ "Number of 'endemic' species",
+                                         "NumIndigName" ~ "Number of Indigenous names",
+                                         "NumUse" ~ "Number of recorded Indigenous uses",
+                                         "FRic" ~ "Functional species richness",
+                                         "FDiv" ~ "Functional species divergence",
+                                         "FDis" ~ "Functional species dispersion",
+                                         "FEve" ~ "Functional species evenness",
+                                         "Q" ~ "Rao's entropy (Q)",
+                                         "richness" ~ "Faith",
+                                         "GiniSimpson" ~ "Gini and Simpson",
+                                         "Simpson" ~ "Simpson",
+                                         "Shannon" ~ "Shannon",
+                                         "Margalef" ~ "Margalef",
+                                         "Menhinick" ~ "Menhinick",
+                                         "McIntosh" ~ "McIntosh",
+                                         "PSVs" ~ "Phylogenetic species variability",
+                                         "PSR" ~ "Phylogenetic species richness"
+)
+
+
+
+# Figure S1: Pairwise *recall* --------------------------------------------
+pair_prec_mean <- readRDS('full_comparisons.rds') %>% 
+  filter(type == "recall") %>% 
+  select(-c(var, type)) %>% 
+  pivot_wider(values_from = c("mean"),
+              names_sort = F,
+              names_from = "comparison")
+
+pair_prec_mean_mat <- matrix(unlist(pair_prec_mean[1:18, 2:19]), ncol = 18)
+
+# Check how far off this matrix is from being symmetric
+isSymmetric.matrix(pair_prec_mean_mat) # It's not symmetric
+# How far off is it? This value would be near zero if matrix is near symmetriic
+max(abs(pair_prec_mean_mat-t(pair_prec_mean_mat))) 
+
+pair_prec_plot <- readRDS('full_comparisons.rds') %>% 
+  filter(type == "recall") %>% 
+  ggplot(mapping = aes(x = baseline, y = comparison, fill = mean
+                       #, alpha = rev(log(1+prec_var)))
+  )) +
+  geom_tile() +
+  geom_text(aes(label = round(mean, 2)))  +
+  scale_fill_gradient(low = "white", high = "blue")
+
+# Make more descriptive labels for biodiversity metrics
+full_comp_df <- readRDS('full_comparisons.rds') 
+
+full_comp_df$baseline_label <-  case_match(full_comp_df$baseline,
                                            "NumUnique" ~ "Species richness",
                                            "NumEndemic" ~ "Number of 'endemic' species",
                                            "NumIndigName" ~ "Number of Indigenous names",
@@ -659,3 +966,124 @@ hotspot_nums$metric_label <-  case_match(hotspot_nums$comparison,
                                            "PSVs" ~ "Phylogenetic species variability",
                                            "PSR" ~ "Phylogenetic species richness"
 )
+
+full_comp_df$comparison_label <-  case_match(full_comp_df$comparison,
+                                             "NumUnique" ~ "Species richness",
+                                             "NumEndemic" ~ "Number of 'endemic' species",
+                                             "NumIndigName" ~ "Number of Indigenous names",
+                                             "NumUse" ~ "Number of recorded Indigenous uses",
+                                             "FRic" ~ "Functional species richness",
+                                             "FDiv" ~ "Functional species divergence",
+                                             "FDis" ~ "Functional species dispersion",
+                                             "FEve" ~ "Functional species evenness",
+                                             "Q" ~ "Rao's entropy (Q)",
+                                             "richness" ~ "Faith",
+                                             "GiniSimpson" ~ "Gini and Simpson",
+                                             "Simpson" ~ "Simpson",
+                                             "Shannon" ~ "Shannon",
+                                             "Margalef" ~ "Margalef",
+                                             "Menhinick" ~ "Menhinick",
+                                             "McIntosh" ~ "McIntosh",
+                                             "PSVs" ~ "Phylogenetic species variability",
+                                             "PSR" ~ "Phylogenetic species richness"
+)
+
+
+full_comp_df$baseline_type <- case_match(full_comp_df$baseline,
+                                         c("NumUnique", "NumEndemic") ~ "Basic",
+                                         c("NumIndigName", "NumUse") ~ "TEK",
+                                         c("richness", "GiniSimpson", "Simpson",
+                                           "Shannon", "Margalef", "Menhinick",
+                                           "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
+                                         c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
+)
+
+full_comp_df$comparison_type <- case_match(full_comp_df$comparison,
+                                           c("NumUnique", "NumEndemic") ~ "Basic",
+                                           c("NumIndigName", "NumUse") ~ "TEK",
+                                           c("richness", "GiniSimpson", "Simpson",
+                                             "Shannon", "Margalef", "Menhinick",
+                                             "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
+                                           c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
+)
+
+# Remove number of "endemic" from analysis
+full_comp_df <- filter(full_comp_df, baseline != "NumEndemic", comparison != "NumEndemic")
+
+x_label_color_function <- function(string) {
+  out <- #paste("<span style = 'color: ",
+    case_match(string,
+               "Basic" ~ "black",
+               "TEK" ~ c4a("brewer.set1", 3)[1],
+               "Phylogenetic" ~ c4a("brewer.set1", 3)[2],
+               "Functional" ~ c4a("brewer.set1", 3)[3],)#,
+  # ";'>",
+  # string,
+  # "</span>", sep = "")
+  out <- as.character(out)
+}
+
+full_comp_df$baseline_color <- x_label_color_function(full_comp_df$baseline_type)
+full_comp_df$comparison_color <- x_label_color_function(full_comp_df$comparison_type)
+
+# Cluster based on Euclidean distance
+
+pair_prec_mat <- full_comp_df %>%
+  filter(type == "recall") %>% 
+  select(-c(var, type, baseline, comparison, baseline_type, comparison_type,
+            baseline_color, comparison_color)) %>% 
+  pivot_wider(values_from = c("mean"),
+              names_sort = F,
+              names_from = "comparison_label")
+
+m <- as.matrix((pair_prec_mat[, -1]), ncol = 18)
+
+pair_prec_cluster <- hclust(dist(t(m)), method = "ward.D2")
+
+# Cluster dendrogram
+require(ggdendro)
+
+dhc <- as.dendrogram(pair_prec_cluster)
+
+ddata <- dendro_data(pair_prec_cluster, type="rectangle")
+
+ggdendrogram(ddata, rotate = TRUE) +
+  xlab('Biodiversity index') +
+  theme(axis.text = element_text(size = 12)) 
+
+dendrogram <- plot(pair_prec_cluster)
+
+# Clustered heatmap
+
+plot_colours <- full_comp_df %>% 
+  select(baseline_color, baseline_label) %>% 
+  unique() %>% 
+  # left_join(tibble(baseline_label = colnames(m)[pair_prec_cluster$order]))
+  slice(match(colnames(m)[pair_prec_cluster$order], baseline_label)) %>% 
+  select(baseline_color)
+
+
+full_comp_df %>% 
+  filter(type == "recall") %>% 
+  ggplot(aes(baseline_label, comparison_label, fill = mean, colour = baseline_type)) +
+  geom_tile(color = "black") +
+  geom_text(aes(label = round(mean, 2)), color = "black") +
+  # geom_blank() +
+  scale_fill_gradient("Mean recall", low = "white", high = "blue") +
+  scale_y_discrete("Comparison index", limits = colnames(m)[pair_prec_cluster$order]) +
+  scale_x_discrete("Baseline index", limits = colnames(m)[pair_prec_cluster$order]) +
+  # scale_color_manual("test", values = c(
+  #   "Basic" = "black", "TEK" = "blue", "Phylogenetic" = "orange", "Functional" = "red")) +
+  # guides("test", colour = guide_legend(override.aes = 
+  #                                        list(fill = "white"))) +
+  # ggtitle("Precision of comparison biodiversity metrics") +
+  theme_cowplot() +
+  theme(
+    
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, 
+                               color = plot_colours$baseline_color),
+    axis.text.y = element_text(color = plot_colours$baseline_color)
+    
+  ) +
+  guides(fill = guide_colorbar(barheight = 20,
+                               title.hjust = 0.5))

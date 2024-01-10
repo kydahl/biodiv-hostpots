@@ -39,7 +39,7 @@ get.NumEntities <- function(MaxNumEntities, Level) {
 # set.seed(8797)
 
 ## Number of iterations to compute biodiversity over
-numIterations <- 1000
+numIterations <- 100
 
 # Elisa: I added this to remove the patch with NA as a number, but it turns out there are more incomplete cases.
 # I didn't check the reason for this, but shouldn't this dataset be complete (because it has imputed trait data)
@@ -120,93 +120,93 @@ pair_plot <- explore_df %>%
 
 # Set up iterated simulations ---------------------------------------------
 
-# Set comparison parameters
-numIterations <- 100
-NumPatches <- 1000
-
-baseline_metric <- "NumUnique"
-
-# Initialize comparison data frame
-compare_df <- tibble(
-  NumUnique = as.double(),
-  NumEndemic = as.double(), NumIndigName = as.double(), NumUse = as.double(),
-  # NumIndigLang = as.double()
-  richness = as.double(), GiniSimpson = as.double(),
-  Simpson = as.double(), Shannon = as.double(),
-  Margalef = as.double(), Menhinick = as.double(),
-  McIntosh = as.double(), PSVs = as.double(),
-  PSR = as.double(), FRic = as.integer(),  FDiv = as.integer(),  
-  FDis = as.integer(),  FEve = as.integer(),  Q = as.integer(),
-  iteration = as.integer()
-) %>%
-  # Remove the focal metric
-  select(-one_of(baseline_metric))
-
-# Start new cluster for doParallel
-cluster_size <- parallel::detectCores() - 2
-my.cluster <- parallel::makeCluster(cluster_size, type = "PSOCK")
-# Register cluster for doParallel
-doSNOW::registerDoSNOW(cl = my.cluster)
-
-# Set up progress bar
-pb <- progress_bar$new(
-  format = ":spin progress = :percent [:bar] elapsed: :elapsed | eta: :eta",
-  total = numIterations,
-  width = 100
-)
-progress <- function(n) {
-  pb$tick()
-}
-opts <- list(progress = progress)
-
-# Calculate comparisons among diversity metrics
-compare_df <- foreach(
-  j = 1:numIterations,
-  # int = icount(),
-  .combine = "rbind",
-  .packages = c("tidyverse", "reshape2", "picante", "fundiversity", "adiv", "retry"),
-  .options.snow = opts
-) %dopar%
-  {
-    j=j+1
-    gc()
-    biodiv.compare_df <- retry(
-      biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
-      until = function(val, cnd) {
-        !is.null(val)
-      }
-    ) %>% 
-      mutate(iteration = j)
-    
-    precision_df <- biodiv.compare_df %>%
-      select(-c(list_length, recall)) %>% 
-      pivot_wider(names_from = variable) %>%
-      unique() 
-    
-    list_length_df <- biodiv.compare_df %>%
-      select(-c(value, recall)) %>% 
-      pivot_wider(names_from = variable, values_from = list_length) %>%
-      unique() 
-    
-    recall_df <- biodiv.compare_df %>%
-      select(-c(value, list_length)) %>% 
-      pivot_wider(names_from = variable, values_from = recall) %>%
-      unique() 
-    
-    out_df <- rbind(
-      mutate(precision_df, type = "precision"),
-      mutate(list_length_df, type = "list_length"),
-      mutate(recall_df, type = "recall")
-    )
-    
-    # # Add to the list
-    # compare_df <- add_row(
-    #   compare_df,
-    #   biodiv.compare_df
-    # )
-  } %>% unique()
-
-stopCluster(my.cluster)
+# # Set comparison parameters
+# numIterations <- 100
+# NumPatches <- 1000
+# 
+# baseline_metric <- "NumUnique"
+# 
+# # Initialize comparison data frame
+# compare_df <- tibble(
+#   NumUnique = as.double(),
+#   NumEndemic = as.double(), NumIndigName = as.double(), NumUse = as.double(),
+#   # NumIndigLang = as.double()
+#   richness = as.double(), GiniSimpson = as.double(),
+#   Simpson = as.double(), Shannon = as.double(),
+#   Margalef = as.double(), Menhinick = as.double(),
+#   McIntosh = as.double(), PSVs = as.double(),
+#   PSR = as.double(), FRic = as.integer(),  FDiv = as.integer(),  
+#   FDis = as.integer(),  FEve = as.integer(),  Q = as.integer(),
+#   iteration = as.integer()
+# ) %>%
+#   # Remove the focal metric
+#   select(-one_of(baseline_metric))
+# 
+# # Start new cluster for doParallel
+# cluster_size <- parallel::detectCores() - 2
+# my.cluster <- parallel::makeCluster(cluster_size, type = "PSOCK")
+# # Register cluster for doParallel
+# doSNOW::registerDoSNOW(cl = my.cluster)
+# 
+# # Set up progress bar
+# pb <- progress_bar$new(
+#   format = ":spin progress = :percent [:bar] elapsed: :elapsed | eta: :eta",
+#   total = numIterations,
+#   width = 100
+# )
+# progress <- function(n) {
+#   pb$tick()
+# }
+# opts <- list(progress = progress)
+# 
+# # Calculate comparisons among diversity metrics
+# compare_df <- foreach(
+#   j = 1:numIterations,
+#   # int = icount(),
+#   .combine = "rbind",
+#   .packages = c("tidyverse", "reshape2", "picante", "fundiversity", "adiv", "retry"),
+#   .options.snow = opts
+# ) %dopar%
+#   {
+#     j=j+1
+#     gc()
+#     biodiv.compare_df <- retry(
+#       biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
+#       until = function(val, cnd) {
+#         !is.null(val)
+#       }
+#     ) %>% 
+#       mutate(iteration = j)
+#     
+#     precision_df <- biodiv.compare_df %>%
+#       select(-c(list_length, recall)) %>% 
+#       pivot_wider(names_from = variable) %>%
+#       unique() 
+#     
+#     list_length_df <- biodiv.compare_df %>%
+#       select(-c(value, recall)) %>% 
+#       pivot_wider(names_from = variable, values_from = list_length) %>%
+#       unique() 
+#     
+#     recall_df <- biodiv.compare_df %>%
+#       select(-c(value, list_length)) %>% 
+#       pivot_wider(names_from = variable, values_from = recall) %>%
+#       unique() 
+#     
+#     out_df <- rbind(
+#       mutate(precision_df, type = "precision"),
+#       mutate(list_length_df, type = "list_length"),
+#       mutate(recall_df, type = "recall")
+#     )
+#     
+#     # # Add to the list
+#     # compare_df <- add_row(
+#     #   compare_df,
+#     #   biodiv.compare_df
+#     # )
+#   } %>% unique()
+# 
+# stopCluster(my.cluster)
 
 
 # Pairwise precision comparisons -------------------------------------
@@ -233,97 +233,102 @@ full_compare_df <- tibble(
 )
 
 for (metric_name in metric_names) {
-
-baseline_metric <- metric_name
-
-# Initialize comparison data frame
-compare_df <- tibble(
-  NumUnique = as.double(),
-  NumEndemic = as.double(), NumIndigName = as.double(), NumUse = as.double(),
-  # NumIndigLang = as.double()
-  richness = as.double(), GiniSimpson = as.double(),
-  Simpson = as.double(), Shannon = as.double(),
-  Margalef = as.double(), Menhinick = as.double(),
-  McIntosh = as.double(), PSVs = as.double(),
-  PSR = as.double(), FRic = as.integer(),  FDiv = as.integer(),  
-  FDis = as.integer(),  FEve = as.integer(),  Q = as.integer(),
-  iteration = as.integer()
-) %>%
-  # Remove the focal metric
-  select(-one_of(baseline_metric))
-
-# Start new cluster for doParallel
-cluster_size <- parallel::detectCores() - 2
-my.cluster <- parallel::makeCluster(cluster_size, type = "PSOCK")
-# Register cluster for doParallel
-doSNOW::registerDoSNOW(cl = my.cluster)
-
-# Set up progress bar
-pb <- progress_bar$new(
-  format = ":spin progress = :percent [:bar] elapsed: :elapsed | eta: :eta",
-  total = numIterations,
-  width = 100
-)
-progress <- function(n) {
-  pb$tick()
-}
-opts <- list(progress = progress)
-
-# Calculate comparisons among diversity metrics
-compare_df <- foreach(
-  j = 1:numIterations,
-  # int = icount(),
-  .combine = "rbind",
-  .packages = c("tidyverse", "reshape2", "picante", "fundiversity", "adiv", "retry"),
-  .options.snow = opts
-) %dopar%
-  {
-    gc()
-    biodiv.compare_df <- retry(
-      biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
-      until = function(val, cnd) {
-        !is.null(val)
-      }
-    ) %>% 
-      mutate(iteration = j)
-    
-    precision_df <- biodiv.compare_df %>%
-      select(-list_length) %>% 
-      pivot_wider(names_from = variable) %>%
-      unique() 
-    
-    list_length_df <- biodiv.compare_df %>%
-      select(-"value") %>% 
-      pivot_wider(names_from = variable, values_from = list_length) %>%
-      unique() 
-    
-    out_df <- rbind(
-      mutate(precision_df, type = "precision"),
-      mutate(list_length_df, type = "list_length")
-    )
-    
-    # # Add to the list
-    # compare_df <- add_row(
-    #   compare_df,
-    #   biodiv.compare_df
-    # )
-  } %>% unique()
-
-stopCluster(my.cluster)
-
-
-out_df <- compare_df %>% 
-  # filter(type == "precision") %>% 
-  # select(-iteration, -type) %>%
-  select(-iteration) %>%
-  pivot_longer(cols = all_of(metric_names), names_to = "comparison") %>% 
-  group_by(comparison, type) %>% 
-  summarise(mean = mean(value), 
-            var = var(value)) %>% 
-  mutate(baseline = baseline_metric)
-
-
-full_compare_df <- add_row(full_compare_df, out_df)
+  
+  baseline_metric <- metric_name
+  
+  # Initialize comparison data frame
+  compare_df <- tibble(
+    NumUnique = as.double(),
+    NumEndemic = as.double(), NumIndigName = as.double(), NumUse = as.double(),
+    # NumIndigLang = as.double()
+    richness = as.double(), GiniSimpson = as.double(),
+    Simpson = as.double(), Shannon = as.double(),
+    Margalef = as.double(), Menhinick = as.double(),
+    McIntosh = as.double(), PSVs = as.double(),
+    PSR = as.double(), FRic = as.integer(),  FDiv = as.integer(),  
+    FDis = as.integer(),  FEve = as.integer(),  Q = as.integer(),
+    iteration = as.integer()
+  ) %>%
+    # Remove the focal metric
+    select(-one_of(baseline_metric))
+  
+  # Start new cluster for doParallel
+  cluster_size <- parallel::detectCores() - 4
+  my.cluster <- parallel::makeCluster(cluster_size, type = "PSOCK")
+  # Register cluster for doParallel
+  doSNOW::registerDoSNOW(cl = my.cluster)
+  
+  # Set up progress bar
+  pb <- progress_bar$new(
+    format = ":spin progress = :percent [:bar] elapsed: :elapsed | eta: :eta",
+    total = numIterations,
+    width = 100
+  )
+  progress <- function(n) {
+    pb$tick()
+  }
+  opts <- list(progress = progress)
+  
+  # Calculate comparisons among diversity metrics
+  compare_df <- foreach(
+    j = 1:numIterations,
+    # int = icount(),
+    .combine = "rbind",
+    .packages = c("tidyverse", "reshape2", "picante", "fundiversity", "adiv", "retry"),
+    .options.snow = opts
+  ) %dopar%
+    {
+      gc()
+      biodiv.compare_df <- retry(
+        biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
+        until = function(val, cnd) {
+          !is.null(val)
+        }
+      ) %>% 
+        mutate(iteration = j)
+      
+      precision_df <- biodiv.compare_df %>%
+        select(-c(list_length, recall)) %>% 
+        pivot_wider(names_from = variable) %>%
+        unique() 
+      
+      list_length_df <- biodiv.compare_df %>%
+        select(-c(value, recall)) %>% 
+        pivot_wider(names_from = variable, values_from = list_length) %>%
+        unique() 
+      
+      recall_df <- biodiv.compare_df %>%
+        select(-c(value, list_length)) %>% 
+        pivot_wider(names_from = variable, values_from = recall) %>%
+        unique() 
+      
+      out_df <- rbind(
+        mutate(precision_df, type = "precision"),
+        mutate(list_length_df, type = "list_length"),
+        mutate(recall_df, type = "recall")
+      )
+      
+      # # Add to the list
+      # compare_df <- add_row(
+      #   compare_df,
+      #   biodiv.compare_df
+      # )
+    } %>% unique()
+  
+  stopCluster(my.cluster)
+  
+  
+  out_df <- compare_df %>% 
+    # filter(type == "precision") %>% 
+    # select(-iteration, -type) %>%
+    select(-iteration) %>%
+    pivot_longer(cols = all_of(metric_names), names_to = "comparison") %>% 
+    group_by(comparison, type) %>% 
+    summarise(mean = mean(value), 
+              var = var(value)) %>% 
+    mutate(baseline = baseline_metric)
+  
+  full_compare_df <- add_row(full_compare_df, out_df)
 }
 
 saveRDS(full_compare_df, file = "full_comparisons.rds")
