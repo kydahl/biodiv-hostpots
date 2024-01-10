@@ -302,12 +302,12 @@ biodiv_plot_df$color <- x_label_color_function(biodiv_plot_df$group)
 biodiv_plot_df$label <-  case_match(biodiv_plot_df$name,
                                     "NumUnique" ~ "Species richness",
                                     "NumEndemic" ~ "Number of 'endemic' species",
-                                    "NumIndigName" ~ "Number of Indigenous names",
-                                    "NumUse" ~ "Number of recorded Indigenous uses",
-                                    "FRic" ~ "Functional species richness",
-                                    "FDiv" ~ "Functional species divergence",
-                                    "FDis" ~ "Functional species dispersion",
-                                    "FEve" ~ "Functional species evenness",
+                                    "NumIndigName" ~ "Indigenous names",
+                                    "NumUse" ~ "Recorded Indigenous uses",
+                                    "FRic" ~ "Functional sp. richness",
+                                    "FDiv" ~ "Functional sp. divergence",
+                                    "FDis" ~ "Functional sp. dispersion",
+                                    "FEve" ~ "Functional sp. evenness",
                                     "Q" ~ "Rao's entropy (Q)",
                                     "richness" ~ "Faith",
                                     "GiniSimpson" ~ "Gini and Simpson",
@@ -316,8 +316,8 @@ biodiv_plot_df$label <-  case_match(biodiv_plot_df$name,
                                     "Margalef" ~ "Margalef",
                                     "Menhinick" ~ "Menhinick",
                                     "McIntosh" ~ "McIntosh",
-                                    "PSVs" ~ "Phylogenetic species variability",
-                                    "PSR" ~ "Phylogenetic species richness"
+                                    "PSVs" ~ "Phylogenetic sp. variability",
+                                    "PSR" ~ "Phylogenetic sp. richness"
 )
 
 biodiv_plot_df$label <-  factor(biodiv_plot_df$label, levels = c(
@@ -696,12 +696,12 @@ full_comp_df <- readRDS('full_comparisons.rds')
 full_comp_df$baseline_label <-  case_match(full_comp_df$baseline,
                                            "NumUnique" ~ "Species richness",
                                            "NumEndemic" ~ "Number of 'endemic' species",
-                                           "NumIndigName" ~ "Number of Indigenous names",
-                                           "NumUse" ~ "Number of recorded Indigenous uses",
-                                           "FRic" ~ "Functional species richness",
-                                           "FDiv" ~ "Functional species divergence",
-                                           "FDis" ~ "Functional species dispersion",
-                                           "FEve" ~ "Functional species evenness",
+                                           "NumIndigName" ~ "Indigenous names",
+                                           "NumUse" ~ "Recorded Indigenous uses",
+                                           "FRic" ~ "Functional sp. richness",
+                                           "FDiv" ~ "Functional sp. divergence",
+                                           "FDis" ~ "Functional sp. dispersion",
+                                           "FEve" ~ "Functional sp. evenness",
                                            "Q" ~ "Rao's entropy (Q)",
                                            "richness" ~ "Faith",
                                            "GiniSimpson" ~ "Gini and Simpson",
@@ -710,19 +710,19 @@ full_comp_df$baseline_label <-  case_match(full_comp_df$baseline,
                                            "Margalef" ~ "Margalef",
                                            "Menhinick" ~ "Menhinick",
                                            "McIntosh" ~ "McIntosh",
-                                           "PSVs" ~ "Phylogenetic species variability",
-                                           "PSR" ~ "Phylogenetic species richness"
+                                           "PSVs" ~ "Phylogenetic sp. variability",
+                                           "PSR" ~ "Phylogenetic sp. richness"
 )
 
 full_comp_df$comparison_label <-  case_match(full_comp_df$comparison,
                                              "NumUnique" ~ "Species richness",
                                              "NumEndemic" ~ "Number of 'endemic' species",
-                                             "NumIndigName" ~ "Number of Indigenous names",
-                                             "NumUse" ~ "Number of recorded Indigenous uses",
-                                             "FRic" ~ "Functional species richness",
-                                             "FDiv" ~ "Functional species divergence",
-                                             "FDis" ~ "Functional species dispersion",
-                                             "FEve" ~ "Functional species evenness",
+                                             "NumIndigName" ~ "Indigenous names",
+                                             "NumUse" ~ "Recorded Indigenous uses",
+                                             "FRic" ~ "Functional sp. richness",
+                                             "FDiv" ~ "Functional sp. divergence",
+                                             "FDis" ~ "Functional sp. dispersion",
+                                             "FEve" ~ "Functional sp. evenness",
                                              "Q" ~ "Rao's entropy (Q)",
                                              "richness" ~ "Faith",
                                              "GiniSimpson" ~ "Gini and Simpson",
@@ -731,8 +731,8 @@ full_comp_df$comparison_label <-  case_match(full_comp_df$comparison,
                                              "Margalef" ~ "Margalef",
                                              "Menhinick" ~ "Menhinick",
                                              "McIntosh" ~ "McIntosh",
-                                             "PSVs" ~ "Phylogenetic species variability",
-                                             "PSR" ~ "Phylogenetic species richness"
+                                             "PSVs" ~ "Phylogenetic sp. variability",
+                                             "PSR" ~ "Phylogenetic sp. richness"
 )
 
 
@@ -802,11 +802,11 @@ ddata_labels$color <- rev(c("#E41A1C", "#E41A1C", "#377EB8", "black", "#377EB8",
 ddata_labels$group <- case_match(
   ddata_labels$label,
   "Species richness" ~ "Basic",
-  c("Number of Indigenous names", "Number of recorded Indigenous uses") ~ "TEK",
+  c("Indigenous names", "Recorded Indigenous uses") ~ "TEK",
   c("Faith", "Gini and Simpson", "Simpson",
     "Shannon", "Margalef", "Menhinick",
-    "McIntosh", "Phylogenetic species variability", "Phylogenetic species richness") ~ "Phylogenetic",
-  c("Functional species richness", "Functional species divergence", "Functional species dispersion", "Functional species evenness", "Rao's entropy (Q)") ~ "Functional"         
+    "McIntosh", "Phylogenetic sp. variability", "Phylogenetic sp. richness") ~ "Phylogenetic",
+  c("Functional sp. richness", "Functional sp. divergence", "Functional sp. dispersion", "Functional sp. evenness", "Rao's entropy (Q)") ~ "Functional"         
 )
 
 x_label_color_function <- function(string) {
@@ -867,6 +867,7 @@ plot_colours <- full_comp_df %>%
 full_comp_df %>% 
   arrange(desc(baseline), desc(comparison)) %>% 
   filter(type == "precision") %>% 
+  mutate(mean = ifelse(baseline_label == comparison_label, NA, mean)) %>% 
   ggplot(aes(baseline_label, comparison_label, fill = mean, colour = baseline_type)) +
   geom_tile(color = "black") +
   geom_text(aes(label = round(mean, 2)), color = "black") +
@@ -900,12 +901,12 @@ hotspot_nums <- readRDS('full_comparisons.rds') %>%
 hotspot_nums$metric_label <-  case_match(hotspot_nums$comparison,
                                          "NumUnique" ~ "Species richness",
                                          "NumEndemic" ~ "Number of 'endemic' species",
-                                         "NumIndigName" ~ "Number of Indigenous names",
-                                         "NumUse" ~ "Number of recorded Indigenous uses",
-                                         "FRic" ~ "Functional species richness",
-                                         "FDiv" ~ "Functional species divergence",
-                                         "FDis" ~ "Functional species dispersion",
-                                         "FEve" ~ "Functional species evenness",
+                                         "NumIndigName" ~ "Indigenous names",
+                                         "NumUse" ~ "Recorded Indigenous uses",
+                                         "FRic" ~ "Functional sp. richness",
+                                         "FDiv" ~ "Functional sp. divergence",
+                                         "FDis" ~ "Functional sp. dispersion",
+                                         "FEve" ~ "Functional sp. evenness",
                                          "Q" ~ "Rao's entropy (Q)",
                                          "richness" ~ "Faith",
                                          "GiniSimpson" ~ "Gini and Simpson",
@@ -914,8 +915,8 @@ hotspot_nums$metric_label <-  case_match(hotspot_nums$comparison,
                                          "Margalef" ~ "Margalef",
                                          "Menhinick" ~ "Menhinick",
                                          "McIntosh" ~ "McIntosh",
-                                         "PSVs" ~ "Phylogenetic species variability",
-                                         "PSR" ~ "Phylogenetic species richness"
+                                         "PSVs" ~ "Phylogenetic sp. variability",
+                                         "PSR" ~ "Phylogenetic sp. richness"
 )
 
 
@@ -950,12 +951,12 @@ full_comp_df <- readRDS('full_comparisons.rds')
 full_comp_df$baseline_label <-  case_match(full_comp_df$baseline,
                                            "NumUnique" ~ "Species richness",
                                            "NumEndemic" ~ "Number of 'endemic' species",
-                                           "NumIndigName" ~ "Number of Indigenous names",
-                                           "NumUse" ~ "Number of recorded Indigenous uses",
-                                           "FRic" ~ "Functional species richness",
-                                           "FDiv" ~ "Functional species divergence",
-                                           "FDis" ~ "Functional species dispersion",
-                                           "FEve" ~ "Functional species evenness",
+                                           "NumIndigName" ~ "Indigenous names",
+                                           "NumUse" ~ "Recorded Indigenous uses",
+                                           "FRic" ~ "Functional sp. richness",
+                                           "FDiv" ~ "Functional sp. divergence",
+                                           "FDis" ~ "Functional sp. dispersion",
+                                           "FEve" ~ "Functional sp. evenness",
                                            "Q" ~ "Rao's entropy (Q)",
                                            "richness" ~ "Faith",
                                            "GiniSimpson" ~ "Gini and Simpson",
@@ -964,19 +965,19 @@ full_comp_df$baseline_label <-  case_match(full_comp_df$baseline,
                                            "Margalef" ~ "Margalef",
                                            "Menhinick" ~ "Menhinick",
                                            "McIntosh" ~ "McIntosh",
-                                           "PSVs" ~ "Phylogenetic species variability",
-                                           "PSR" ~ "Phylogenetic species richness"
+                                           "PSVs" ~ "Phylogenetic sp. variability",
+                                           "PSR" ~ "Phylogenetic sp. richness"
 )
 
 full_comp_df$comparison_label <-  case_match(full_comp_df$comparison,
                                              "NumUnique" ~ "Species richness",
                                              "NumEndemic" ~ "Number of 'endemic' species",
-                                             "NumIndigName" ~ "Number of Indigenous names",
-                                             "NumUse" ~ "Number of recorded Indigenous uses",
-                                             "FRic" ~ "Functional species richness",
-                                             "FDiv" ~ "Functional species divergence",
-                                             "FDis" ~ "Functional species dispersion",
-                                             "FEve" ~ "Functional species evenness",
+                                             "NumIndigName" ~ "Indigenous names",
+                                             "NumUse" ~ "Recorded Indigenous uses",
+                                             "FRic" ~ "Functional sp. richness",
+                                             "FDiv" ~ "Functional sp. divergence",
+                                             "FDis" ~ "Functional sp. dispersion",
+                                             "FEve" ~ "Functional sp. evenness",
                                              "Q" ~ "Rao's entropy (Q)",
                                              "richness" ~ "Faith",
                                              "GiniSimpson" ~ "Gini and Simpson",
@@ -985,8 +986,8 @@ full_comp_df$comparison_label <-  case_match(full_comp_df$comparison,
                                              "Margalef" ~ "Margalef",
                                              "Menhinick" ~ "Menhinick",
                                              "McIntosh" ~ "McIntosh",
-                                             "PSVs" ~ "Phylogenetic species variability",
-                                             "PSR" ~ "Phylogenetic species richness"
+                                             "PSVs" ~ "Phylogenetic sp. variability",
+                                             "PSR" ~ "Phylogenetic sp. richness"
 )
 
 
@@ -1030,7 +1031,7 @@ full_comp_df$comparison_color <- x_label_color_function(full_comp_df$comparison_
 # Cluster based on Euclidean distance
 
 pair_prec_mat <- full_comp_df %>%
-  filter(type == "recall") %>% 
+  filter(type == "precision") %>% 
   select(-c(var, type, baseline, comparison, baseline_type, comparison_type,
             baseline_color, comparison_color)) %>% 
   pivot_wider(values_from = c("mean"),
@@ -1071,8 +1072,8 @@ full_comp_df %>%
   geom_text(aes(label = round(mean, 2)), color = "black") +
   # geom_blank() +
   scale_fill_gradient("Mean recall", low = "white", high = "blue") +
-  scale_y_discrete("Comparison index", limits = colnames(m)[pair_prec_cluster$order]) +
-  scale_x_discrete("Baseline index", limits = colnames(m)[pair_prec_cluster$order]) +
+  scale_y_discrete("Comparison index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
+  scale_x_discrete("Baseline index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
   # scale_color_manual("test", values = c(
   #   "Basic" = "black", "TEK" = "blue", "Phylogenetic" = "orange", "Functional" = "red")) +
   # guides("test", colour = guide_legend(override.aes = 
@@ -1082,8 +1083,8 @@ full_comp_df %>%
   theme(
     
     axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, 
-                               color = plot_colours$baseline_color),
-    axis.text.y = element_text(color = plot_colours$baseline_color)
+                               color = rev(plot_colours$baseline_color)),
+    axis.text.y = element_text(color = rev(plot_colours$baseline_color))
     
   ) +
   guides(fill = guide_colorbar(barheight = 20,
