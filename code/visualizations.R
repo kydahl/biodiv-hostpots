@@ -865,14 +865,15 @@ plot_colours <- full_comp_df %>%
 
 
 full_comp_df %>% 
+  arrange(desc(baseline), desc(comparison)) %>% 
   filter(type == "precision") %>% 
   ggplot(aes(baseline_label, comparison_label, fill = mean, colour = baseline_type)) +
   geom_tile(color = "black") +
   geom_text(aes(label = round(mean, 2)), color = "black") +
   # geom_blank() +
   scale_fill_gradient("Mean precision", low = "white", high = "blue") +
-  scale_y_discrete("Comparison index", limits = colnames(m)[pair_prec_cluster$order]) +
-  scale_x_discrete("Baseline index", limits = colnames(m)[pair_prec_cluster$order]) +
+  scale_y_discrete("Comparison index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
+  scale_x_discrete("Baseline index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
   # scale_color_manual("test", values = c(
   #   "Basic" = "black", "TEK" = "blue", "Phylogenetic" = "orange", "Functional" = "red")) +
   # guides("test", colour = guide_legend(override.aes = 
@@ -882,8 +883,8 @@ full_comp_df %>%
   theme(
     
     axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, 
-                               color = plot_colours$baseline_color),
-    axis.text.y = element_text(color = plot_colours$baseline_color)
+                               color = rev(plot_colours$baseline_color)),
+    axis.text.y = element_text(color = rev(plot_colours$baseline_color))
     
   ) +
   guides(fill = guide_colorbar(barheight = 20,
