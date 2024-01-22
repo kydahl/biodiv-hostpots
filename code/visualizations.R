@@ -1089,3 +1089,18 @@ full_comp_df %>%
   ) +
   guides(fill = guide_colorbar(barheight = 20,
                                title.hjust = 0.5))
+
+
+# Figure S???: Joint density of TEK data ----------------------------------
+
+
+TEK_data <- read_csv("data/clean/final_dataset.csv") %>%
+  select(Synonym, N_Names, N_Uses)
+  
+joint_TEK_plot <- ggplot(TEK_data, aes(x = N_Names, y = N_Uses))  +
+  geom_density_2d_filled()+ geom_point(color = "white", size = 1) +
+  xlab("Number of Indigenous names") +
+  ylab("Number of Indigenous uses") +
+  scale_fill_viridis_d("Density") +
+  guides(fill = guide_colorsteps(barheight = 20, title.hjust = 0.5)) +
+  theme_cowplot(16)
