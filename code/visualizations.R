@@ -166,7 +166,7 @@ logged_plots <- trait_impute %>%
   scale_y_continuous(name = "Density") +
   # one histogram for each biodiversity metric
   facet_wrap(~label, scales = "free") +
-  theme_cowplot(12)
+  theme_cowplot(16)
 
 LNPDM_plot <- trait_impute %>% 
   filter(label %in% c("Leaf nitrogen content per dry mass (mg/g)")) %>% 
@@ -185,7 +185,7 @@ LNPDM_plot <- trait_impute %>%
   scale_y_continuous(name = "Density") +
   # one histogram for each biodiversity metric
   facet_wrap(~label, scales = "free") +
-  theme_cowplot(12)
+  theme_cowplot(16)
 
 Woodiness_plot <- trait_impute %>% 
   filter(label %in% c("Woodiness")) %>% 
@@ -204,7 +204,7 @@ Woodiness_plot <- trait_impute %>%
   scale_y_continuous(name = "Density") +
   # one histogram for each biodiversity metric
   facet_wrap(~label, scales = "free") +
-  theme_cowplot(12)
+  theme_cowplot(16)
 
 remaining_plots <- grid.arrange(LNPDM_plot, Woodiness_plot, nrow = 1)
 
@@ -227,7 +227,7 @@ Indig_plots <- trait_impute %>%
   scale_y_continuous(name = "Density") +
   # one histogram for each biodiversity metric
   facet_wrap(~label, scales = "free") +
-  theme_cowplot(12)
+  theme_cowplot(16)
 
 plot_trait_impute <- grid.arrange(logged_plots, remaining_plots, Indig_plots, nrow = 3)
 
@@ -665,232 +665,6 @@ phylo_compare_plot <- compare_df %>%
 
 phylo_compare_plot
 
-# Figure 5: Pairwise precision heatmap ------------------------------------
-
-pair_prec_mean <- readRDS('full_comparisons.rds') %>% 
-  filter(type == "precision") %>% 
-  select(-c(var, type)) %>% 
-  pivot_wider(values_from = c("mean"),
-              names_sort = F,
-              names_from = "comparison")
-
-pair_prec_mean_mat <- matrix(unlist(pair_prec_mean[1:18, 2:19]), ncol = 18)
-
-# Check how far off this matrix is from being symmetric
-isSymmetric.matrix(pair_prec_mean_mat) # It's not symmetric
-# How far off is it? This value would be near zero if matrix is near symmetriic
-max(abs(pair_prec_mean_mat-t(pair_prec_mean_mat))) 
-
-pair_prec_plot <- readRDS('full_comparisons.rds') %>% 
-  filter(type == "precision") %>% 
-  ggplot(mapping = aes(x = baseline, y = comparison, fill = mean
-                       #, alpha = rev(log(1+prec_var)))
-  )) +
-  geom_tile() +
-  geom_text(aes(label = round(mean, 2)))  +
-  scale_fill_gradient(low = "white", high = "blue")
-
-# Make more descriptive labels for biodiversity metrics
-full_comp_df <- readRDS('full_comparisons.rds') 
-
-full_comp_df$baseline_label <-  case_match(full_comp_df$baseline,
-                                           "NumUnique" ~ "Species richness",
-                                           "NumEndemic" ~ "Number of 'endemic' species",
-                                           "NumIndigName" ~ "Indigenous names",
-                                           "NumUse" ~ "Recorded Indigenous uses",
-                                           "FRic" ~ "Functional sp. richness",
-                                           "FDiv" ~ "Functional sp. divergence",
-                                           "FDis" ~ "Functional sp. dispersion",
-                                           "FEve" ~ "Functional sp. evenness",
-                                           "Q" ~ "Rao's entropy (Q)",
-                                           "richness" ~ "Faith",
-                                           "GiniSimpson" ~ "Gini and Simpson",
-                                           "Simpson" ~ "Simpson",
-                                           "Shannon" ~ "Shannon",
-                                           "Margalef" ~ "Margalef",
-                                           "Menhinick" ~ "Menhinick",
-                                           "McIntosh" ~ "McIntosh",
-                                           "PSVs" ~ "Phylogenetic sp. variability",
-                                           "PSR" ~ "Phylogenetic sp. richness"
-)
-
-full_comp_df$comparison_label <-  case_match(full_comp_df$comparison,
-                                             "NumUnique" ~ "Species richness",
-                                             "NumEndemic" ~ "Number of 'endemic' species",
-                                             "NumIndigName" ~ "Indigenous names",
-                                             "NumUse" ~ "Recorded Indigenous uses",
-                                             "FRic" ~ "Functional sp. richness",
-                                             "FDiv" ~ "Functional sp. divergence",
-                                             "FDis" ~ "Functional sp. dispersion",
-                                             "FEve" ~ "Functional sp. evenness",
-                                             "Q" ~ "Rao's entropy (Q)",
-                                             "richness" ~ "Faith",
-                                             "GiniSimpson" ~ "Gini and Simpson",
-                                             "Simpson" ~ "Simpson",
-                                             "Shannon" ~ "Shannon",
-                                             "Margalef" ~ "Margalef",
-                                             "Menhinick" ~ "Menhinick",
-                                             "McIntosh" ~ "McIntosh",
-                                             "PSVs" ~ "Phylogenetic sp. variability",
-                                             "PSR" ~ "Phylogenetic sp. richness"
-)
-
-
-full_comp_df$baseline_type <- case_match(full_comp_df$baseline,
-                                         c("NumUnique", "NumEndemic") ~ "Basic",
-                                         c("NumIndigName", "NumUse") ~ "TEK",
-                                         c("richness", "GiniSimpson", "Simpson",
-                                           "Shannon", "Margalef", "Menhinick",
-                                           "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
-                                         c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
-)
-
-full_comp_df$comparison_type <- case_match(full_comp_df$comparison,
-                                           c("NumUnique", "NumEndemic") ~ "Basic",
-                                           c("NumIndigName", "NumUse") ~ "TEK",
-                                           c("richness", "GiniSimpson", "Simpson",
-                                             "Shannon", "Margalef", "Menhinick",
-                                             "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
-                                           c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
-)
-
-# Remove number of "endemic" from analysis
-full_comp_df <- filter(full_comp_df, baseline != "NumEndemic", comparison != "NumEndemic")
-
-x_label_color_function <- function(string) {
-  out <- #paste("<span style = 'color: ",
-    case_match(string,
-               "Basic" ~ "black",
-               "TEK" ~ c4a("brewer.set1", 3)[1],
-               "Phylogenetic" ~ c4a("brewer.set1", 3)[2],
-               "Functional" ~ c4a("brewer.set1", 3)[3],)#,
-  # ";'>",
-  # string,
-  # "</span>", sep = "")
-  out <- as.character(out)
-}
-
-full_comp_df$baseline_color <- x_label_color_function(full_comp_df$baseline_type)
-full_comp_df$comparison_color <- x_label_color_function(full_comp_df$comparison_type)
-
-# Cluster based on Euclidean distance
-
-pair_prec_mat <- full_comp_df %>%
-  filter(type == "precision") %>% 
-  select(-c(var, type, baseline, comparison, baseline_type, comparison_type,
-            baseline_color, comparison_color)) %>% 
-  pivot_wider(values_from = c("mean"),
-              names_sort = F,
-              names_from = "comparison_label")
-
-m <- as.matrix((pair_prec_mat[, -1]), ncol = 18)
-
-pair_prec_cluster <- hclust(dist(t(m)), method = "ward.D2")
-
-# Cluster dendrogram
-require(ggdendro)
-
-dhc <- as.dendrogram(pair_prec_cluster)
-
-ddata <- dendro_data(pair_prec_cluster, type="rectangle")
-
-ddata_labels = label(ddata)
-ddata_labels$color <- rev(c("#E41A1C", "#E41A1C", "#377EB8", "black", "#377EB8", "#377EB8", 
-                            "#4DAF4A", "#377EB8", "#377EB8", "#377EB8", "#4DAF4A", "#4DAF4A", 
-                            "#4DAF4A", "#4DAF4A", "#377EB8", "#377EB8", "#377EB8"))
-
-ddata_labels$group <- case_match(
-  ddata_labels$label,
-  "Species richness" ~ "Basic",
-  c("Indigenous names", "Recorded Indigenous uses") ~ "TEK",
-  c("Faith", "Gini and Simpson", "Simpson",
-    "Shannon", "Margalef", "Menhinick",
-    "McIntosh", "Phylogenetic sp. variability", "Phylogenetic sp. richness") ~ "Phylogenetic",
-  c("Functional sp. richness", "Functional sp. divergence", "Functional sp. dispersion", "Functional sp. evenness", "Rao's entropy (Q)") ~ "Functional"         
-)
-
-x_label_color_function <- function(string) {
-  out <- #paste("<span style = 'color: ",
-    case_match(string,
-               "Basic" ~ "black",
-               "TEK" ~ c4a("brewer.set1", 3)[1],
-               "Phylogenetic" ~ c4a("brewer.set1", 3)[2],
-               "Functional" ~ c4a("brewer.set1", 3)[3],)#,
-  # ";'>",
-  # string,
-  # "</span>", sep = "")
-  out <- as.character(out)
-}
-
-ddata_labels$color <- x_label_color_function(ddata_labels$group)
-
-ddata_labels <- arrange(ddata_labels, label)
-
-ggplot() +
-  geom_segment(data = segment(ddata),
-               aes_string(x = "x", y = "y", xend = "xend", yend = "yend")) +
-  geom_text(data = ddata_labels, 
-            aes(x = x, y = y, label = label, color = label),
-            fontface = "bold",hjust = 0, angle = 0) + 
-  scale_color_manual(values = as.character(ddata_labels$color)) +
-  scale_y_continuous(expand=c(0.2, 0),
-                     trans = "reverse") + 
-  coord_flip() +
-  guides(color = "none") +
-  theme_cowplot(12) +
-  theme(
-    panel.background = element_blank(),
-    axis.title = element_blank(),
-    axis.line.x = element_blank(),
-    axis.line.y = element_blank(),
-    axis.ticks.y = element_blank(),
-    axis.ticks.x = element_blank(),
-    axis.text.y = element_blank(),
-    )
-
-
-ggdendrogram(ddata, rotate = FALSE) +
-  coord_flip() +
-  theme(axis.text.y = element_text(size = 12, color = dendrogram_colors,
-                                   face = "bold", hjust = 1))
-
-# Clustered heatmap
-
-plot_colours <- full_comp_df %>% 
-  select(baseline_color, baseline_label) %>% 
-  unique() %>% 
-  # left_join(tibble(baseline_label = colnames(m)[pair_prec_cluster$order]))
-  slice(match(colnames(m)[pair_prec_cluster$order], baseline_label)) %>% 
-  select(baseline_color)
-
-
-full_comp_df %>% 
-  arrange(desc(baseline), desc(comparison)) %>% 
-  filter(type == "precision") %>% 
-  mutate(mean = ifelse(baseline_label == comparison_label, NA, mean)) %>% 
-  ggplot(aes(baseline_label, comparison_label, fill = mean, colour = baseline_type)) +
-  geom_tile(color = "black") +
-  geom_text(aes(label = round(mean, 2)), color = "black") +
-  # geom_blank() +
-  scale_fill_gradient("Mean precision", low = "white", high = "blue") +
-  scale_y_discrete("Comparison index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
-  scale_x_discrete("Baseline index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
-  # scale_color_manual("test", values = c(
-  #   "Basic" = "black", "TEK" = "blue", "Phylogenetic" = "orange", "Functional" = "red")) +
-  # guides("test", colour = guide_legend(override.aes = 
-  #                                        list(fill = "white"))) +
-  # ggtitle("Precision of comparison biodiversity metrics") +
-  theme_cowplot() +
-  theme(
-    
-    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, 
-                               color = rev(plot_colours$baseline_color)),
-    axis.text.y = element_text(color = rev(plot_colours$baseline_color))
-    
-  ) +
-  guides(fill = guide_colorbar(barheight = 20,
-                               title.hjust = 0.5))
-
 # Table 1: Numbers of hot spots identified ---------------------------------
 
 hotspot_nums <- readRDS('full_comparisons.rds') %>% 
@@ -921,29 +695,8 @@ hotspot_nums$metric_label <-  case_match(hotspot_nums$comparison,
 
 
 
-# Figure S1: Pairwise *recall* --------------------------------------------
-pair_prec_mean <- readRDS('full_comparisons.rds') %>% 
-  filter(type == "recall") %>% 
-  select(-c(var, type)) %>% 
-  pivot_wider(values_from = c("mean"),
-              names_sort = F,
-              names_from = "comparison")
 
-pair_prec_mean_mat <- matrix(unlist(pair_prec_mean[1:18, 2:19]), ncol = 18)
-
-# Check how far off this matrix is from being symmetric
-isSymmetric.matrix(pair_prec_mean_mat) # It's not symmetric
-# How far off is it? This value would be near zero if matrix is near symmetriic
-max(abs(pair_prec_mean_mat-t(pair_prec_mean_mat))) 
-
-pair_prec_plot <- readRDS('full_comparisons.rds') %>% 
-  filter(type == "recall") %>% 
-  ggplot(mapping = aes(x = baseline, y = comparison, fill = mean
-                       #, alpha = rev(log(1+prec_var)))
-  )) +
-  geom_tile() +
-  geom_text(aes(label = round(mean, 2)))  +
-  scale_fill_gradient(low = "white", high = "blue")
+# Figure S1: Pairwise precision and recall heatmaps -----------------------
 
 # Make more descriptive labels for biodiversity metrics
 full_comp_df <- readRDS('full_comparisons.rds') 
@@ -1038,24 +791,75 @@ pair_prec_mat <- full_comp_df %>%
               names_sort = F,
               names_from = "comparison_label")
 
-m <- as.matrix((pair_prec_mat[, -1]), ncol = 18)
+m_prec <- as.matrix((pair_prec_mat[, -1]), ncol = 18)
+pair_prec_cluster <- hclust(dist(t(m_prec)), method = "ward.D2")
 
-pair_prec_cluster <- hclust(dist(t(m)), method = "ward.D2")
+pair_recall_mat <- full_comp_df %>%
+  filter(type == "recall") %>% 
+  select(-c(var, type, baseline, comparison, baseline_type, comparison_type,
+            baseline_color, comparison_color)) %>% 
+  pivot_wider(values_from = c("mean"),
+              names_sort = F,
+              names_from = "comparison_label")
 
-# Cluster dendrogram
+m_recall <- as.matrix((pair_recall_mat[, -1]), ncol = 18)
+pair_recall_cluster <- hclust(dist(t(m_recall)), method = "ward.D2")
+
+# Cluster dendrogram ----
 require(ggdendro)
 
 dhc <- as.dendrogram(pair_prec_cluster)
 
 ddata <- dendro_data(pair_prec_cluster, type="rectangle")
 
-ggdendrogram(ddata, rotate = TRUE) +
-  xlab('Biodiversity index') +
-  theme(axis.text = element_text(size = 12)) 
+ddata_labels = label(ddata)
+ddata_labels$color <- rev(c("#E41A1C", "#E41A1C", "#377EB8", "black", "#377EB8", "#377EB8", 
+                            "#4DAF4A", "#377EB8", "#377EB8", "#377EB8", "#4DAF4A", "#4DAF4A", 
+                            "#4DAF4A", "#4DAF4A", "#377EB8", "#377EB8", "#377EB8"))
 
-dendrogram <- plot(pair_prec_cluster)
+ddata_labels$group <- case_match(
+  ddata_labels$label,
+  "Species richness" ~ "Basic",
+  c("Indigenous names", "Recorded Indigenous uses") ~ "TEK",
+  c("Faith", "Gini and Simpson", "Simpson",
+    "Shannon", "Margalef", "Menhinick",
+    "McIntosh", "Phylogenetic sp. variability", "Phylogenetic sp. richness") ~ "Phylogenetic",
+  c("Functional sp. richness", "Functional sp. divergence", "Functional sp. dispersion", "Functional sp. evenness", "Rao's entropy (Q)") ~ "Functional"         
+)
 
-# Clustered heatmap
+ddata_labels$color <- x_label_color_function(ddata_labels$group)
+
+ddata_labels <- arrange(ddata_labels, label)
+
+ggplot() +
+  geom_segment(data = segment(ddata),
+               aes_string(x = "x", y = "y", xend = "xend", yend = "yend")) +
+  geom_text(data = ddata_labels, 
+            aes(x = x, y = y, label = label, color = label),
+            fontface = "bold",hjust = 0, angle = 0) + 
+  scale_color_manual(values = as.character(ddata_labels$color)) +
+  scale_y_continuous(expand=c(0.2, 0),
+                     trans = "reverse") + 
+  coord_flip() +
+  guides(color = "none") +
+  theme_cowplot(12) +
+  theme(
+    panel.background = element_blank(),
+    axis.title = element_blank(),
+    axis.line.x = element_blank(),
+    axis.line.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.y = element_blank(),
+  )
+
+
+ggdendrogram(ddata, rotate = FALSE) +
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 12, color = dendrogram_colors,
+                                   face = "bold", hjust = 1))
+
+# Precision clustered heatmap
 
 plot_colours <- full_comp_df %>% 
   select(baseline_color, baseline_label) %>% 
@@ -1065,13 +869,15 @@ plot_colours <- full_comp_df %>%
   select(baseline_color)
 
 
-full_comp_df %>% 
-  filter(type == "recall") %>% 
+precision_heatmap <- full_comp_df %>% 
+  arrange(desc(baseline), desc(comparison)) %>% 
+  filter(type == "precision") %>% 
+  mutate(mean = ifelse(baseline_label == comparison_label, NA, mean)) %>% 
   ggplot(aes(baseline_label, comparison_label, fill = mean, colour = baseline_type)) +
   geom_tile(color = "black") +
-  geom_text(aes(label = round(mean, 2)), color = "black") +
+  geom_text(aes(label = round(mean, 2)), color = "black", size = 2.5) +
   # geom_blank() +
-  scale_fill_gradient("Mean recall", low = "white", high = "blue") +
+  scale_fill_gradient("Mean value", low = "white", high = "blue") +
   scale_y_discrete("Comparison index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
   scale_x_discrete("Baseline index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
   # scale_color_manual("test", values = c(
@@ -1079,17 +885,52 @@ full_comp_df %>%
   # guides("test", colour = guide_legend(override.aes = 
   #                                        list(fill = "white"))) +
   # ggtitle("Precision of comparison biodiversity metrics") +
-  theme_cowplot() +
+  theme_cowplot(10) +
   theme(
     
-    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, 
+    axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1, 
                                color = rev(plot_colours$baseline_color)),
     axis.text.y = element_text(color = rev(plot_colours$baseline_color))
     
   ) +
-  guides(fill = guide_colorbar(barheight = 20,
+  guides(fill = guide_colorbar(barheight = 25,
+                               barwidth = 0.5,
                                title.hjust = 0.5))
 
+recall_heatmap <- full_comp_df %>% 
+  arrange(desc(baseline), desc(comparison)) %>% 
+  filter(type == "recall") %>% 
+  mutate(mean = ifelse(baseline_label == comparison_label, NA, mean)) %>% 
+  ggplot(aes(baseline_label, comparison_label, fill = mean, colour = baseline_type)) +
+  geom_tile(color = "black") +
+  geom_text(aes(label = round(mean, 2)), color = "black", size = 2.5) +
+  # geom_blank() +
+  scale_fill_gradient("Mean value", low = "white", high = "blue") +
+  scale_y_discrete("Comparison index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
+  scale_x_discrete("Baseline index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
+  # scale_color_manual("test", values = c(
+  #   "Basic" = "black", "TEK" = "blue", "Phylogenetic" = "orange", "Functional" = "red")) +
+  # guides("test", colour = guide_legend(override.aes = 
+  #                                        list(fill = "white"))) +
+  # ggtitle("Precision of comparison biodiversity metrics") +
+  theme_cowplot(10) +
+  theme(
+    axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1, 
+                               color = rev(plot_colours$baseline_color)),
+    axis.text.y = element_text(color = rev(plot_colours$baseline_color))
+    
+  ) +
+  guides(fill = guide_colorbar(barheight = 25,
+                               barwidth = 0.5,
+                               title.hjust = 0.5))
+library(ggpubr)
+heatmaps <- ggarrange(NULL, precision_heatmap, NULL, recall_heatmap, nrow = 4, 
+                      heights = c(0.1, 1, 0.05, 1),
+                      labels = c(NA, "A) Precision", NA, "B) Sensitivity"), 
+                      label.y = c(1.1, 1.1),
+                      legend = "right", common.legend = TRUE)
+
+ggsave("figures/heatmaps.png", heatmaps, width = 6.5, height = 7, units = "in")
 
 # Figure S???: Joint density of TEK data ----------------------------------
 
