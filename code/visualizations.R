@@ -271,7 +271,9 @@ biodiv_df <- get.biodiv_df(full_df_sample, trait_names, tree)
 
 # Set up label colors to indicate what type of index it is
 biodiv_plot_df <- biodiv_df %>% 
-  pivot_longer(cols = -Patch)
+  pivot_longer(cols = -Patch) %>% 
+  filter(!is.na(value)) %>%
+  add_row(Patch = 1, name = "dummy")
 
 biodiv_plot_df$group <- case_match(biodiv_plot_df$name,
                                    c("NumUnique", "NumEndemic") ~ "Basic",
@@ -317,14 +319,17 @@ biodiv_plot_df$label <-  case_match(biodiv_plot_df$name,
                                     "Menhinick" ~ "Menhinick",
                                     "McIntosh" ~ "McIntosh",
                                     "PSVs" ~ "Phylogenetic sp. variability",
-                                    "PSR" ~ "Phylogenetic sp. richness"
+                                    "PSR" ~ "Phylogenetic sp. richness",
+                                    "dummy" ~ ""
 )
 
 biodiv_plot_df$label <-  factor(biodiv_plot_df$label, levels = c(
-  "Species richness","Number of Indigenous names",   "Number of recorded Indigenous uses", 
-  "Number of 'endemic' species",
-  "Functional species richness", "Functional species divergence",  "Functional species dispersion",  "Functional species evenness", "Rao's entropy (Q)",
-  "Faith", "Gini and Simpson", "Margalef", "McIntosh", "Menhinick",   "Phylogenetic species variability",  "Phylogenetic species richness", "Shannon", "Simpson"
+  "Species richness", "Indigenous names",   "Recorded Indigenous uses",
+  "Number of 'endemic' species", "Functional sp. richness", 
+  "Functional sp. divergence",  "Functional sp. dispersion", 
+  "Functional sp. evenness", "Rao's entropy (Q)", "Faith", "Gini and Simpson", 
+  "Margalef", "McIntosh", "Menhinick", "Phylogenetic sp. richness", "Phylogenetic sp. variability", "Shannon", 
+  "Simpson", ""
 )
 )
 
@@ -340,34 +345,40 @@ meanSD_df <- biodiv_plot_df %>%
   #              names_to = "variable") %>% 
   # filter(!is.na(value)) %>% 
   group_by(label) %>% 
-  mutate(mean = mean(value, na.rm = TRUE),
-         stdev = sd(value, na.rm = TRUE),
-         upper = mean + 1.96 * stdev,
-         hotspot_cutoff = quantile(value, c(0.95), na.rm = TRUE)
-  )
-
-hotspot_stats <- meanSD_df %>% 
-  filter(value > hotspot_cutoff) %>% 
   summarise(mean = mean(value, na.rm = TRUE),
             stdev = sd(value, na.rm = TRUE),
-            lower = mean - 1.96 * stdev
+            upper = mean + 1.96 * stdev,
+            hotspot_cutoff = quantile(value, c(0.95), na.rm = TRUE)
   )
 
-nonhotspot_stats <- meanSD_df %>% 
-  filter(value <= hotspot_cutoff) %>% 
-  summarise(mean = mean(value, na.rm = TRUE),
-            stdev = sd(value, na.rm = TRUE),
-            upper = mean + 1.96 * stdev
-  )
+# hotspot_stats <- biodiv_plot_df %>% 
+#   group_by(label) %>% 
+#   filter(value > hotspot_cutoff) %>% 
+#   summarise(mean = mean(value, na.rm = TRUE),
+#             stdev = sd(value, na.rm = TRUE),
+#             lower = mean - 1.96 * stdev
+#   )
+# 
+# nonhotspot_stats <- biodiv_plot_df %>% 
+#   group_by(label) %>% 
+#   filter(value <= hotspot_cutoff) %>% 
+#   summarise(mean = mean(value, na.rm = TRUE),
+#             stdev = sd(value, na.rm = TRUE),
+#             upper = mean + 1.96 * stdev
+#   )
 
 # Plot histograms in a single column
-histogram_colors = c("black", rep("#E41A1C",2), rep("#4DAF4A", 5), rep("#377EB8", 9))
+histogram_colors = c("black", rep("#E41A1C",2), rep("#4DAF4A", 5), rep("#377EB8", 9), NA)
 
 strip_theme = strip_themed(background_x = elem_list_rect(fill = histogram_colors),
-                           text_x = element_text(color = "white",face = "bold", size = 14))
+                           text_x = element_text(color = "white",face = "bold", size = 8))
 
-histogram_plot <- biodiv_plot_df %>%
+biodiv_plot_df2 <- right_join(biodiv_plot_df, meanSD_df, by = c("label")) %>% 
+  distinct()
+
+histogram_plot <- biodiv_plot_df2 %>%
   filter(label != "Number of 'endemic' species") %>%
+  # filter(name == "PSR") %>%
   ggplot(aes(x = value)) +
   # # plot histogram using density instead of count
   # geom_histogram(aes(x = value, y = ..density..),
@@ -383,8 +394,8 @@ histogram_plot <- biodiv_plot_df %>%
   stat_summary(aes(xintercept = after_stat(x), y = 0),
                fun = quantile, fun.args = list(0.95),
                geom = "vline", orientation = "y",
-               color = "blue", lwd = 1) + 
-  geom_vline(data = meanSD_df, aes(xintercept = mean), linetype = 2) +
+               color = "blue", lwd = 1) +
+  geom_vline(aes(xintercept = mean), linetype = 2) +
   # geom_vline(data = nonhotspot_stats, aes(xintercept = upper), 
   #            color = "green", linetype = 2) +
   # geom_vline(data = hotspot_stats, aes(xintercept = lower), 
@@ -394,10 +405,10 @@ histogram_plot <- biodiv_plot_df %>%
   # one histogram for each biodiversity metric
   facet_wrap2( ~ label, ncol = 3, scales = "free",
                strip = strip_theme) +
-  theme_cowplot(12)
+  theme_cowplot(8)
 
 histogram_plot
-
+ggsave("figures/biodiv_distribution.png", histogram_plot, width = 6.5, height = 6, units = "in")
 
 
 # Figure 2: Scatterplots of selected biodiversity metrics -----------------
@@ -937,7 +948,7 @@ ggsave("figures/heatmaps.png", heatmaps, width = 6.5, height = 7, units = "in")
 
 TEK_data <- read_csv("data/clean/final_dataset.csv") %>%
   select(Synonym, N_Names, N_Uses)
-  
+
 joint_TEK_plot <- ggplot(TEK_data, aes(x = N_Names, y = N_Uses))  +
   geom_density_2d_filled()+ geom_point(color = "white", size = 1) +
   xlab("Number of Indigenous names") +
@@ -945,3 +956,8 @@ joint_TEK_plot <- ggplot(TEK_data, aes(x = N_Names, y = N_Uses))  +
   scale_fill_viridis_d("Density") +
   guides(fill = guide_colorsteps(barheight = 20, title.hjust = 0.5)) +
   theme_cowplot(16)
+
+# Correlation calculation and significance test
+cor(TEK_data$N_Names, TEK_data$N_Uses, method = c("pearson", "kendall", "spearman"))
+cor.test(TEK_data$N_Names, TEK_data$N_Uses, method=c("pearson", "kendall", "spearman"))
+

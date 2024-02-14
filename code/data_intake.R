@@ -646,7 +646,37 @@ imputed_data <- right_join(
   select(final_data, -c("LDMC (g/g)":Woodiness)),
   select(imputed_traits, -c(Genus:Ssp_var))
 )
-
+# 
+# full_df <- traits_df %>% 
+#   # keep track of which traits were original values
+#   mutate(type = "original") %>%
+#   rbind(imputed_traits %>% mutate(type = "imputed")) %>%
+#   select(-c("Genus", "Species", "Ssp_var", "Family")) %>%
+#   melt(id = c("Synonym", "type")) %>% 
+#   mutate(value = as.numeric(value))
+# 
+# var_df <- full_df %>% 
+#   filter(type == "imputed") %>% 
+#   select(-c("Synonym", "type")) %>% 
+#   # filter(!variable %in% c("Woodiness", "Growth Form")) %>% 
+#   group_by(variable) %>% 
+#   summarise(variance = case_when(
+#     (variable %in% c("Woodiness", "Growth Form")) ~ 0,
+#     (!variable %in% c("Woodiness", "Growth Form")) ~ var(value)
+#   )) %>% 
+#   unique()
+# 
+# error_df <- as.list(PNW_imp$OOBerror[1:5]) %>% 
+#   as_tibble(.name_repair = "universal") %>% 
+#   melt() %>% 
+#   rename(error_value = value) %>% 
+#   mutate(error_type = substr(as.character(variable), start = 1, stop = 3),
+#          .keep = "unused") %>% 
+#   cbind(variable = colnames(PNW_imp$ximp[,1:5])) %>% 
+#   # compute NRMSE from MSE
+#   inner_join(var_df, by = "variable") %>% 
+#   mutate(RMSE = sqrt(error_value)) %>% 
+#   mutate(NRMSE = RMSE / variance)
 
 # 6) Put data set into workable form for imputation and phylogeny steps --------
 

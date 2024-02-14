@@ -143,36 +143,6 @@ get.full_df <- function(NumPatches) {
 }
 
 
-##* Vulnerability function (NYI) -----------------------------------------------
-# take traits, current state, and patch number and outputs future state
-
-# simple function for now:
-# if average of traits > 0.5, increase IUCN status
-# if average of traits < -0.5, decrease IUCN status
-# otherwise maintain status
-get.vulnerability <- function(in_df) {
-  out_df <- in_df %>%
-    # group by all columns except traits
-    group_by(across(c(-Trait, -value)), .drop = FALSE) %>%
-    # compute average of traits
-    # mutate(trait_avg = mean(value)) %>%
-    # assign new states based on average of traits (in future, this will be a real function based on biology)
-    mutate(state = state + case_when(
-      state == 1 ~ ifelse(rnorm(1) > 3, 1, 0), # 2.326, 1, 0), # with small prob., extirpated species re-emerge
-      trait_avg > 0.5 ~ 1,
-      trait_avg < -0.5 ~ -1,
-      TRUE ~ 0
-    )) %>%
-    # 6 is the highest IUCN level (Least concern), so don't go higher than 6
-    mutate(state = ifelse(state > 7, 7, state)) %>%
-    mutate(trait.val = case_when(
-      trait.num == 1 ~ rnorm(1), # one trait changes randomly over time due to environmental changes, say
-      TRUE ~ trait.val
-    )) %>%
-    select(-trait_avg) %>%
-    ungroup()
-}
-
 ##* Biodiversity metric functions------------------------------------------------
 # for a patch, look at entities and their states & traits and output
 # biodiversity measure of the patch
@@ -276,7 +246,6 @@ trait.fdiv.metrics <- function(in_df, trait_names){
   } else {
     print("Warning: The species in the SpXTraits and PatchXSp dataframes are NOT in the same order, so check fdiv script")
   }
-  
   
   # Calculate functional diversity
   # FRic = functional richness = convex hull volume (Villéger et al. 2008)
