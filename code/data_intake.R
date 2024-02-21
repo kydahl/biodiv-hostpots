@@ -466,7 +466,7 @@ TRY_data_processed_wide <- TRY_data_processed %>%
     TraitName %in% c("Leaf nitrogen (N) content per leaf dry mass") ~ "Nmass (mg/g)",
     # TraitName %in% c() ~ "LMA (g/m2)",
     TraitName %in% c("Plant height vegetative") ~ "Plant height (m)",
-    # TraitName %in% c() ~ "Diaspore mass (mg)",
+    TraitName %in% c() ~ "Diaspore mass (mg)",
     TraitName %in% c("Leaf dry mass per leaf fresh mass (leaf dry matter content, LDMC)") ~ "LDMC (g/g)",
     # Extra ones I added just to make the trait names shorter
     TraitName %in% c("Stem specific density (SSD, stem dry mass per stem fresh volume) or wood density") ~ "SSD",
@@ -526,7 +526,7 @@ final_data <- rbind(
   select(c(
     "Synonym", "Family", "origin",
     "LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness",
-    # "Diaspore mass (mg)", "SSD",
+    "Diaspore mass (mg)", #"SSD",
     "N_Names":"N_Uses"
   )) %>%
   # if there is data for a trait from both the Diaz and TRY data sets, just use the value from Diaz
@@ -558,7 +558,7 @@ final_data <- rbind(
   # !!! Assign Family names with this priority: Diaz > TRY > original
   pivot_wider(names_from = "trait") %>%
   # Change numeric variables back to type double
-  mutate_at(vars(`LDMC (g/g)`:`Leaf area (mm2)`, "N_Names":"N_Uses"), as.double) %>%
+  mutate_at(vars(`LDMC (g/g)`:`Leaf area (mm2)`, "Diaspore mass (mg)":"N_Uses"), as.double) %>%
   ungroup() %>%
   mutate(Species = stringr::word(Synonym, 1, 2, sep = " ")) %>%
   mutate(Ssp_var = stringr::word(Synonym, 3, 4, sep = " "))
@@ -594,7 +594,7 @@ write_csv(final_data, "data/clean/dataset_no_imputation.csv")
 data_in <- final_data %>%
   select(
     "Synonym", "Family", "LDMC (g/g)", "Plant height (m)",
-    "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness"
+    "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness", "Diaspore mass (mg)"
   ) %>%
   mutate(Genus = stringr::word(Synonym, 1, 1, sep = " ")) %>%
   mutate(Species = stringr::word(Synonym, 2, 2, sep = " ")) %>%
@@ -603,80 +603,98 @@ data_in <- final_data %>%
 
 # Modify original data
 traits_df <- data_in %>%
-  # expand binomial
   mutate(LeafArea_log = log(`Leaf area (mm2)`)) %>%
   mutate(PlantHeight_log = log(`Plant height (m)`)) %>%
+  mutate(DiasporeMass_log = log(`Diaspore mass (mg)`)) %>%
+  mutate(LDMC_log = log(`LDMC (g/g)`)) %>%
   # Remove original variables replaced by "logged" versions
-  select(-c("Leaf area (mm2)", "Plant height (m)")) # %>% #, "Diaspore mass (mg)"))
+  select(-c("LDMC (g/g)", "Leaf area (mm2)", "Plant height (m)", "Diaspore mass (mg)"))
 
 # Run missForest algorithm to impute missing traits
 # get taxonomic columns
-taxa <- select(traits_df, Genus) # , Species, Ssp_var) # Get order and family level data
+taxa <- select(traits_df, c(Genus, Family)) # , Species, Ssp_var) # Get order and family level data
 test <- rep(1, nrow(taxa))
 taxa <- cbind(taxa, test)
 
 # turn taxonomic groupings into dummy binary variables
 dummies <- dummyVars(test ~ ., data = taxa)
-taxa <- predict(dummies, newdata = taxa)
+taxa <- predict(dummies, newdata = taxa) #%>% 
+  # as.data.frame() %>% 
+  # mutate_at(vars(`GenusAbies`:`GenusZostera`), as.character)
 
 # select traits to be imputed
 traits_to_impute <- as.data.frame(traits_df) %>%
-  select(-c("Genus":"Synonym")) %>%
-  mutate(Family = as.factor(Family)) %>%
-  select(-Family) %>%
+  select(-c("Genus":"Family")) %>%
+  # mutate(Family = as.factor(Family)) %>%
+  # select(-Family) %>%
   mutate(Woodiness = as.factor(Woodiness))
 
+# # Genera for which there are species with no trait data
+# emptyGenera_data <- traits_to_impute  %>%
+#   rowwise() %>%
+#   mutate(n_notNA = sum(!is.na(c_across(where(is.double))))) %>% 
+#   relocate(n_notNA) %>% 
+#   filter(n_notNA == 0) %>% 
+#   pivot_longer(cols = GenusAbies:GenusZostera, names_to = "Genus") %>% 
+#   filter(value == 1) %>% select(Genus)
+
 # combine dummy vars with traits (comment this line out to not use taxa in imputation)
-traits_to_impute <- cbind(traits_to_impute, taxa)
+traits_to_impute <- cbind(traits_to_impute, taxa) %>% 
+  mutate_if(is.character, function(x) {as.double(x) * 100})
+true_df = traits_to_impute %>% filter_at(vars(`LDMC_log`:`DiasporeMass_log`), all_vars(!is.na(.)))
 
 # run missForest imputation
 PNW_imp <- missForest(traits_to_impute,
-  maxiter = 1000, # maximum number of iterations to be performed given the stopping criterion isn't met
-  ntree = 1000, # number of trees to grow in each forest
+  maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
+  ntree = 10000, # number of trees to grow in each forest
   verbose = TRUE, # if 'TRUE', gives additional output between iterations
   variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
+  # classwt = as.list(c(NA, NA, NA, NA, NA, NA, rep(100, 191-6)))
 )
 
+imp_df = PNW_imp$ximp
+# traits_to_impute
+trait_names = c("LDMC_log", "Nmass (mg/g)", "LeafArea_log", "PlantHeight_log", "DiasporeMass_log")
+
+
 # add actual taxonomic columns back in and remove dummy variables
-imputed_traits <- cbind(traits_df[, 1:5], PNW_imp$ximp[, 1:5]) %>%
-  mutate("Plant height (m)" = exp(PlantHeight_log), .keep = "unused") %>%
-  mutate("Leaf area (mm2)" = exp(LeafArea_log), .keep = "unused")
+imputed_traits <- cbind(traits_df[, 1:5], PNW_imp$ximp[, 1:6]) 
 
 imputed_data <- right_join(
-  select(final_data, -c("LDMC (g/g)":Woodiness)),
+  select(final_data, -c("LDMC (g/g)":"Diaspore mass (mg)")),
   select(imputed_traits, -c(Genus:Ssp_var))
 )
 # 
-# full_df <- traits_df %>% 
-#   # keep track of which traits were original values
-#   mutate(type = "original") %>%
-#   rbind(imputed_traits %>% mutate(type = "imputed")) %>%
-#   select(-c("Genus", "Species", "Ssp_var", "Family")) %>%
-#   melt(id = c("Synonym", "type")) %>% 
-#   mutate(value = as.numeric(value))
-# 
-# var_df <- full_df %>% 
-#   filter(type == "imputed") %>% 
-#   select(-c("Synonym", "type")) %>% 
-#   # filter(!variable %in% c("Woodiness", "Growth Form")) %>% 
-#   group_by(variable) %>% 
-#   summarise(variance = case_when(
-#     (variable %in% c("Woodiness", "Growth Form")) ~ 0,
-#     (!variable %in% c("Woodiness", "Growth Form")) ~ var(value)
-#   )) %>% 
-#   unique()
-# 
-# error_df <- as.list(PNW_imp$OOBerror[1:5]) %>% 
-#   as_tibble(.name_repair = "universal") %>% 
-#   melt() %>% 
-#   rename(error_value = value) %>% 
-#   mutate(error_type = substr(as.character(variable), start = 1, stop = 3),
-#          .keep = "unused") %>% 
-#   cbind(variable = colnames(PNW_imp$ximp[,1:5])) %>% 
-#   # compute NRMSE from MSE
-#   inner_join(var_df, by = "variable") %>% 
-#   mutate(RMSE = sqrt(error_value)) %>% 
-#   mutate(NRMSE = RMSE / variance)
+full_df <- traits_df %>%
+  # keep track of which traits were original values
+  mutate(type = "original") %>%
+  rbind(imputed_traits %>% mutate(type = "imputed")) %>%
+  mutate("LDMC (g/g)" = exp(LDMC_log), .keep = "unused") %>%
+  mutate("Diaspore mass (mg)" = exp(DiasporeMass_log), .keep = "unused") %>%
+  mutate("Plant height (m)" = exp(PlantHeight_log), .keep = "unused") %>%
+  mutate("Leaf area (mm2)" = exp(LeafArea_log), .keep = "unused") %>%
+  select(-c("Genus", "Species", "Ssp_var", "Family")) %>%
+  melt(id = c("Synonym", "type")) %>%
+  mutate(value = as.numeric(value))
+
+# Calculate variance in each continuous variable
+var_df <- imputed_traits %>%
+  select(c("Nmass (mg/g)":"LDMC_log", -"Woodiness")) %>%
+  summarise(across("Nmass (mg/g)":"LDMC_log", var)) %>% 
+  cbind("Woodiness" = NA) %>% 
+  pivot_longer(cols = everything(), names_to = "variable", values_to = "variance")
+
+error_df <- as.list(PNW_imp$OOBerror[1:6]) %>%
+  as_tibble(.name_repair = "universal") %>%
+  melt() %>%
+  rename(error_value = value) %>%
+  mutate(error_type = substr(as.character(variable), start = 1, stop = 3),
+         .keep = "unused") %>%
+  cbind(variable = colnames(PNW_imp$ximp[,1:6])) %>%
+  # compute NRMSE from MSE
+  inner_join(var_df, by = "variable") %>%
+  mutate(RMSE = sqrt(error_value)) %>%
+  mutate(NRMSE = RMSE / variance)
 
 # 6) Put data set into workable form for imputation and phylogeny steps --------
 
