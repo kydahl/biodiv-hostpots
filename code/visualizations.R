@@ -10,6 +10,7 @@ library(retry)
 library(cols4all)
 library(gridExtra)
 library(ggh4x)
+library(scales)
 
 # Load in simulations
 source("code/functions.R")
@@ -230,6 +231,8 @@ Indig_plots <- trait_impute %>%
   theme_cowplot(16)
 
 plot_trait_impute <- grid.arrange(logged_plots, remaining_plots, Indig_plots, nrow = 3)
+ggsave("figures/trait_distributions.png", plot_trait_impute, width = 10.5, height = 6, units = "in")
+
 
 # Compare distributions of traits before and after imputation (only functional traits)
 
@@ -386,7 +389,7 @@ histogram_plot <- biodiv_plot_df2 %>%
   #                fill = "white"
   # ) +
   # add a spline approximating the probability density function
-  geom_density(aes(x = value),
+  geom_density(stat = 'count',
                alpha = .2,
                fill = "#FF6666"
   ) +
