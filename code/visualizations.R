@@ -684,6 +684,8 @@ phylo_compare_plot
 hotspot_nums <- readRDS('full_comparisons.rds') %>% 
   filter(type == "list_length") %>% 
   filter(baseline == "NumUnique") %>% 
+  rowwise() %>%  
+  mutate(stdev = sd(var)) %>% 
   select(-c(baseline, type))
 
 hotspot_nums$metric_label <-  case_match(hotspot_nums$comparison,
@@ -867,11 +869,12 @@ ggplot() +
     axis.text.y = element_blank(),
   )
 
+ggsave("figures/dendrogram.png", width = 7, height = 3, units = "in")
 
-ggdendrogram(ddata, rotate = FALSE) +
-  coord_flip() +
-  theme(axis.text.y = element_text(size = 12, color = dendrogram_colors,
-                                   face = "bold", hjust = 1))
+# ggdendrogram(ddata, rotate = FALSE) +
+#   coord_flip() +
+#   theme(axis.text.y = element_text(size = 12, color = dendrogram_colors,
+#                                    face = "bold", hjust = 1))
 
 # Precision clustered heatmap
 
@@ -879,7 +882,7 @@ plot_colours <- full_comp_df %>%
   select(baseline_color, baseline_label) %>% 
   unique() %>% 
   # left_join(tibble(baseline_label = colnames(m)[pair_prec_cluster$order]))
-  slice(match(colnames(m)[pair_prec_cluster$order], baseline_label)) %>% 
+  slice(match(colnames(m_prec)[pair_prec_cluster$order], baseline_label)) %>% 
   select(baseline_color)
 
 
@@ -892,8 +895,8 @@ precision_heatmap <- full_comp_df %>%
   geom_text(aes(label = round(mean, 2)), color = "black", size = 2.5) +
   # geom_blank() +
   scale_fill_gradient("Mean value", low = "white", high = "blue") +
-  scale_y_discrete("Comparison index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
-  scale_x_discrete("Baseline index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
+  scale_y_discrete("Comparison index", limits = rev(colnames(m_prec)[pair_prec_cluster$order])) +
+  scale_x_discrete("Baseline index", limits = rev(colnames(m_prec)[pair_prec_cluster$order])) +
   # scale_color_manual("test", values = c(
   #   "Basic" = "black", "TEK" = "blue", "Phylogenetic" = "orange", "Functional" = "red")) +
   # guides("test", colour = guide_legend(override.aes = 
@@ -911,6 +914,13 @@ precision_heatmap <- full_comp_df %>%
                                barwidth = 0.5,
                                title.hjust = 0.5))
 
+plot_colours <- full_comp_df %>% 
+  select(baseline_color, baseline_label) %>% 
+  unique() %>% 
+  # left_join(tibble(baseline_label = colnames(m)[pair_prec_cluster$order]))
+  slice(match(colnames(m_recall)[rev(pair_recall_cluster$order)], baseline_label)) %>% 
+  select(baseline_color)
+
 recall_heatmap <- full_comp_df %>% 
   arrange(desc(baseline), desc(comparison)) %>% 
   filter(type == "recall") %>% 
@@ -920,8 +930,8 @@ recall_heatmap <- full_comp_df %>%
   geom_text(aes(label = round(mean, 2)), color = "black", size = 2.5) +
   # geom_blank() +
   scale_fill_gradient("Mean value", low = "white", high = "blue") +
-  scale_y_discrete("Comparison index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
-  scale_x_discrete("Baseline index", limits = rev(colnames(m)[pair_prec_cluster$order])) +
+  scale_y_discrete("Comparison index", limits = (colnames(m_recall)[pair_recall_cluster$order])) +
+  scale_x_discrete("Baseline index", limits = (colnames(m_recall)[pair_recall_cluster$order])) +
   # scale_color_manual("test", values = c(
   #   "Basic" = "black", "TEK" = "blue", "Phylogenetic" = "orange", "Functional" = "red")) +
   # guides("test", colour = guide_legend(override.aes = 
