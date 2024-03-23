@@ -11,6 +11,7 @@ library(cols4all)
 library(gridExtra)
 library(ggh4x)
 library(scales)
+library(ggpubr)
 
 # Load in simulations
 source("code/functions.R")
@@ -389,7 +390,7 @@ histogram_plot <- biodiv_plot_df2 %>%
   #                fill = "white"
   # ) +
   # add a spline approximating the probability density function
-  geom_density(stat = 'count',
+  geom_density(aes(x = value, ..scaled..),
                alpha = .2,
                fill = "#FF6666"
   ) +
@@ -411,7 +412,8 @@ histogram_plot <- biodiv_plot_df2 %>%
   theme_cowplot(8)
 
 histogram_plot
-ggsave("figures/biodiv_distribution.png", histogram_plot, width = 6.5, height = 6, units = "in")
+
+ggsave("figures/biodiv_distribution.pdf", histogram_plot, width = 6.5, height = 6, units = "in")
 
 
 # Figure 2: Scatterplots of selected biodiversity metrics -----------------
@@ -914,12 +916,12 @@ precision_heatmap <- full_comp_df %>%
                                barwidth = 0.5,
                                title.hjust = 0.5))
 
-plot_colours <- full_comp_df %>% 
-  select(baseline_color, baseline_label) %>% 
-  unique() %>% 
-  # left_join(tibble(baseline_label = colnames(m)[pair_prec_cluster$order]))
-  slice(match(colnames(m_recall)[rev(pair_recall_cluster$order)], baseline_label)) %>% 
-  select(baseline_color)
+# plot_colours <- full_comp_df %>% 
+#   select(baseline_color, baseline_label) %>% 
+#   unique() %>% 
+#   # left_join(tibble(baseline_label = colnames(m)[pair_prec_cluster$order]))
+#   slice(match(colnames(m_recall)[rev(pair_recall_cluster$order)], baseline_label)) %>% 
+#   select(baseline_color)
 
 recall_heatmap <- full_comp_df %>% 
   arrange(desc(baseline), desc(comparison)) %>% 
@@ -930,8 +932,8 @@ recall_heatmap <- full_comp_df %>%
   geom_text(aes(label = round(mean, 2)), color = "black", size = 2.5) +
   # geom_blank() +
   scale_fill_gradient("Mean value", low = "white", high = "blue") +
-  scale_y_discrete("Comparison index", limits = (colnames(m_recall)[pair_recall_cluster$order])) +
-  scale_x_discrete("Baseline index", limits = (colnames(m_recall)[pair_recall_cluster$order])) +
+  scale_y_discrete("Comparison index", limits = rev(colnames(m_prec)[pair_prec_cluster$order])) +
+  scale_x_discrete("Baseline index", limits = rev(colnames(m_prec)[pair_prec_cluster$order])) +
   # scale_color_manual("test", values = c(
   #   "Basic" = "black", "TEK" = "blue", "Phylogenetic" = "orange", "Functional" = "red")) +
   # guides("test", colour = guide_legend(override.aes = 
@@ -947,7 +949,7 @@ recall_heatmap <- full_comp_df %>%
   guides(fill = guide_colorbar(barheight = 25,
                                barwidth = 0.5,
                                title.hjust = 0.5))
-library(ggpubr)
+
 heatmaps <- ggarrange(NULL, precision_heatmap, NULL, recall_heatmap, nrow = 4, 
                       heights = c(0.1, 1, 0.05, 1),
                       labels = c(NA, "A) Precision", NA, "B) Sensitivity"), 
