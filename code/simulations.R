@@ -16,23 +16,14 @@ source("code/functions.R")
 final_data <- read_csv("data/clean/final_dataset.csv") # %>%
 # rename(Species = Species_full)
 
+
 # Load in phylogenetic tree data
+tree <- readRDS("data/clean/full_tree.rds")
 # tree <- read.tree(file = "data/clean/phylogenetic_tree.csv")
 # Elisa: I commented this out, because we have been playing around with species names and hence, the tree might be different now
 
 set.seed(9523)
 
-## Helper functions ------------------------------------------------------------
-# Uniformly sample from interval [1, MaxNumEntities]
-get.NumEntities <- function(MaxNumEntities, Level) {
-  if (!(Level %in% MaxNumEntities$Level)) {
-    warning("Incorrect level choice")
-    break
-  }
-  
-  MaxNum <- filter(MaxNumEntities, Level == Level)$count
-  round(runif(1, 1, MaxNum))
-}
 
 ## Parameters ------------------------------------------------------------------
 ## Set random seed (for debugging)
@@ -48,52 +39,6 @@ numIterations <- 100
 #################################
 # Elisa: I used full_df to make phylo_div and funct_div work. what is the difference between full_df and test_df?
 #################################
-
-get.full_df <- function(NumPatches) {
-  SpeciesOccs <- read_rds("data/clean/species_occurrences.rds") %>% 
-    mutate(Level = stringr::word(Level, 1, 2, sep = fixed(".")))
-  
-  ### Assign levels to patches ###
-  
-  # Equal numbers across each level (for now)
-  Levels <- sample(SpeciesOccs$Level, NumPatches, replace = TRUE)
-  
-  Init_df <- tibble(Patch = 1:NumPatches, Level = Levels)
-  
-  ### Assign number of species to each patch ###
-  
-  # Maximum needs to be set to the total number of species at that level
-  MaxNumEntities <- SpeciesOccs %>%
-    group_by(Level) %>%
-    summarise(count = n())
-  
-  ### Assign species to patches ###
-  
-  Patch_df <- tibble(Patch = as.integer(), Level = as.double(), Synonym = as.character())
-  
-  # For each patch, get its level
-  for (index_patch in Init_df$Patch) {
-    # Get the level of the patch
-    level <- filter(Init_df, Patch == index_patch)$Level
-    
-    # Get species list from the right level
-    species_list <- filter(SpeciesOccs, Level == level)$Synonym
-    
-    # Get number of entities in patch
-    entity_count <- min(get.NumEntities(MaxNumEntities, level), length(species_list))
-    
-    # Sample entities without replacement from species list
-    entities <- sample(species_list, entity_count, replace = FALSE)
-    
-    temp_df <- tibble(Patch = index_patch, Level = level, Synonym = entities)
-    
-    Patch_df <- rbind(Patch_df, temp_df)
-  }
-  
-  ### Add species traits to the dataframe ###
-  full_df <- right_join(Patch_df, final_data, by = "Synonym", relationship = "many-to-many") %>%
-    filter(!is.na(Patch), !is.na(Level))
-}
 
 # Compare hotspots identified by different metrics
 full_df <- get.full_df(NumPatches = 1000)
@@ -211,9 +156,10 @@ pair_plot <- explore_df %>%
 
 # Pairwise precision comparisons -------------------------------------
 # I added trait_names to the input of get.biodiv_df
-trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)")
-# I set it up to just calculate the tree once
-tree <- get.phylo_tree(final_data)
+trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", 
+                 "Leaf area (mm2)", "Diaspore mass (mg)")
+# Calculate the full phylogenetic tree once
+# tree <- get.phylo_tree(final_data)
 
 # List of all metric names
 metric_names <- c("NumUnique", "NumEndemic", "NumIndigName", "NumUse",
@@ -231,9 +177,13 @@ full_compare_df <- tibble(
   mean = as.double(),
   var = as.double()
 )
+metric_index = 0
 
 for (metric_name in metric_names) {
-  
+  gc()
+  metric_index = metric_index + 1
+  print(paste0("Calculating ", metric_name,
+               " (#", metric_index, " / ", length(metric_names), "):"))
   baseline_metric <- metric_name
   
   # Initialize comparison data frame
@@ -252,71 +202,93 @@ for (metric_name in metric_names) {
     # Remove the focal metric
     select(-one_of(baseline_metric))
   
-  # Start new cluster for doParallel
-  cluster_size <- parallel::detectCores() - 4
-  my.cluster <- parallel::makeCluster(cluster_size, type = "PSOCK")
-  # Register cluster for doParallel
-  doSNOW::registerDoSNOW(cl = my.cluster)
-  
-  # Set up progress bar
-  pb <- progress_bar$new(
-    format = ":spin progress = :percent [:bar] elapsed: :elapsed | eta: :eta",
-    total = numIterations,
-    width = 100
-  )
-  progress <- function(n) {
-    pb$tick()
+  for (slice_index in 1:5) {
+    slice_range = (slice_index - 1)*20 + 1:20
+    
+    # Start new cluster for doParallel
+    cluster_size <- 12 #parallel::detectCores() - 4
+    # my.cluster <- parallel::makePSOCKcluster(cluster_size)
+    my.cluster <- snow::makeCluster(cluster_size, type = "SOCK")
+    # Register cluster for doParallel
+    # doParallel::registerDoParallel (cl = my.cluster, cores = 6)
+    doSNOW::registerDoSNOW(cl = my.cluster)
+    
+    # Set up progress bar
+    pb <- progress_bar$new(
+      format = ":spin progress = :percent [:bar] elapsed: :elapsed | eta: :eta",
+      total = length(slice_range),
+      width = 100
+    )
+    progress <- function(n) {
+      pb$tick()
+    }
+    opts <- list(progress = progress)
+    
+    # Calculate comparisons among diversity metrics
+    temp_compare_df <- foreach(
+      j = slice_range,
+      .inorder = FALSE,
+      # int = icount(),
+      .combine = "rbind",
+      .packages = c("tidyverse", "reshape2", "picante", "fundiversity", "adiv", 
+                    "retry", "foreach"),
+      .verbose = TRUE,
+      .options.snow = opts
+    ) %dopar%
+      {
+        biodiv.compare_df <- retry(
+          biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
+          until = function(val, cnd) {
+            !is.null(val)
+          },
+          silent = TRUE,
+          interval = 0
+        ) %>% 
+          mutate(iteration = j)
+        gc() # Necessary to avoid memory blowup
+        
+        precision_df <- biodiv.compare_df %>%
+          select(-c(list_length, recall)) %>% 
+          pivot_wider(names_from = variable) %>%
+          unique() 
+        
+        list_length_df <- biodiv.compare_df %>%
+          select(-c(value, recall)) %>% 
+          pivot_wider(names_from = variable, values_from = list_length) %>%
+          unique() 
+        
+        recall_df <- biodiv.compare_df %>%
+          select(-c(value, list_length)) %>% 
+          pivot_wider(names_from = variable, values_from = recall) %>%
+          unique() 
+        
+        out_df <- rbind(
+          mutate(biodiv.compare_df %>%
+                   select(-c(list_length, recall)) %>% 
+                   pivot_wider(names_from = variable) %>%
+                   unique(),
+                 type = "precision"),
+          mutate(biodiv.compare_df %>%
+                   select(-c(value, recall)) %>% 
+                   pivot_wider(names_from = variable, values_from = list_length) %>%
+                   unique(),
+                 type = "list_length"),
+          mutate(biodiv.compare_df %>%
+                   select(-c(value, list_length)) %>% 
+                   pivot_wider(names_from = variable, values_from = recall) %>%
+                   unique(),
+                 type = "recall")
+        )
+        rm(biodiv.compare_df)
+        gc()
+        out_df
+      } %>% unique()
+    
+    stopCluster(my.cluster)
+    
+    compare_df <- rbind(compare_df, temp_compare_df)
+    pb$terminate()
   }
-  opts <- list(progress = progress)
-  
-  # Calculate comparisons among diversity metrics
-  compare_df <- foreach(
-    j = 1:numIterations,
-    # int = icount(),
-    .combine = "rbind",
-    .packages = c("tidyverse", "reshape2", "picante", "fundiversity", "adiv", "retry"),
-    .options.snow = opts
-  ) %dopar%
-    {
-      gc()
-      biodiv.compare_df <- retry(
-        biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
-        until = function(val, cnd) {
-          !is.null(val)
-        }
-      ) %>% 
-        mutate(iteration = j)
-      
-      precision_df <- biodiv.compare_df %>%
-        select(-c(list_length, recall)) %>% 
-        pivot_wider(names_from = variable) %>%
-        unique() 
-      
-      list_length_df <- biodiv.compare_df %>%
-        select(-c(value, recall)) %>% 
-        pivot_wider(names_from = variable, values_from = list_length) %>%
-        unique() 
-      
-      recall_df <- biodiv.compare_df %>%
-        select(-c(value, list_length)) %>% 
-        pivot_wider(names_from = variable, values_from = recall) %>%
-        unique() 
-      
-      out_df <- rbind(
-        mutate(precision_df, type = "precision"),
-        mutate(list_length_df, type = "list_length"),
-        mutate(recall_df, type = "recall")
-      )
-      
-      # # Add to the list
-      # compare_df <- add_row(
-      #   compare_df,
-      #   biodiv.compare_df
-      # )
-    } %>% unique()
-  
-  stopCluster(my.cluster)
-  
   
   out_df <- compare_df %>% 
     # filter(type == "precision") %>% 
@@ -325,12 +297,13 @@ for (metric_name in metric_names) {
     pivot_longer(cols = all_of(metric_names), names_to = "comparison") %>% 
     group_by(comparison, type) %>% 
     summarise(mean = mean(value), 
-              var = var(value)) %>% 
+              var = var(value),
+              .groups = "keep") %>% 
     mutate(baseline = baseline_metric)
   
   full_compare_df <- add_row(full_compare_df, out_df)
+  rm(out_df)
+  rm(compare_df)
 }
 
 saveRDS(full_compare_df, file = "full_comparisons.rds")
-
-# TODO: save data on # of hotspots identified to calculate mean and stdev

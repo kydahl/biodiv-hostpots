@@ -119,8 +119,15 @@ get.full_df <- function(NumPatches) {
   Patch_df <- tibble(Patch = as.integer(), Level = as.double(), Synonym = as.character())
   
   # For each patch, get its level # !!! KD: this could use optimization
-  for (index_patch in Init_df$Patch) {
-    # Get the level of the patch
+  
+  Patch_df <- foreach(
+    j = 1:length(Init_df$Patch),
+    # int = icount(),
+    .combine = "rbind"
+    # .options.snow = opts
+  ) %do% {
+    
+    index_patch = Init_df$Patch[j]
     level <- filter(Init_df, Patch == index_patch)$Level
     
     # Get species list from the right level
@@ -132,9 +139,7 @@ get.full_df <- function(NumPatches) {
     # Sample entities without replacement from species list
     entities <- sample(species_list, entity_count, replace = FALSE)
     
-    temp_df <- tibble(Patch = index_patch, Level = level, Synonym = entities)
-    
-    Patch_df <- rbind(Patch_df, temp_df)
+    out_df <- tibble(Patch = index_patch, Level = level, Synonym = entities)
   }
   
   ### Add species traits to the dataframe ###
@@ -264,9 +269,9 @@ trait.fdiv.metrics <- function(in_df, trait_names){
   #   mutate(Patch = as.double(rownames(PatchXSp)))
   
   # Using a faster package
-  fdiv_df <- fd_fric(SpXTraits, PatchXSp) %>% # functional richness
+  fdiv_df <- fd_fric(SpXTraits, as.matrix(PatchXSp), stand = TRUE) %>% # functional richness
     # functional divergence
-    right_join(fd_fdiv(SpXTraits, PatchXSp), by = "site") %>%
+    right_join(fd_fdiv(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
     # functional dispersion
     right_join(fd_fdis(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
     # functional evenness
@@ -341,8 +346,8 @@ phylodiv.metrics <- function(in_df, tree) {
   # pdiv_length_ses <- ses.pd(comm, tree_pruned, include.root=TRUE, null.model="phylogeny.pool", runs=99) 
   
   # 2) phylogenetic species variability, richness and evenness (Helmus et al., 2007)
-  pdiv_psv <- psv(comm, tree_pruned)
-  pdiv_psr <- psr(comm, tree_pruned)
+  pdiv_psv <- psv(comm, tree_pruned, compute.var = FALSE)
+  pdiv_psr <- psr(comm, tree_pruned, compute.var = FALSE)
   # pdiv_pse <- pse(comm, tree_pruned) 
   # pdiv_pse only makes sense when working with relative species abundances, which is not the case here.
   # I set the abundance of each species to 1

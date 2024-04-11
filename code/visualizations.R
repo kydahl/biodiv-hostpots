@@ -16,9 +16,14 @@ library(ggpubr)
 # Load in simulations
 source("code/functions.R")
 
+# [] remove abundance-based metrics: 
+#     [] Simpson (equivalent to Faith)
+#     [] Gini and Simpson (equivalent to 1 - 1/Faith)
+#     [] McIntosh (equal to 1)
+
 # Figures -----------------------------------------------------------------
 
-# Figure 0: Distribution of TEK traits (across all species) ----
+# Figure 0: Distribution of traits (across all species) ----
 
 # Plot histograms in a single column
 trait_no_impute <- read_csv("data/clean/dataset_no_imputation.csv") %>%
@@ -135,7 +140,8 @@ trait_impute <- read_csv("data/clean/final_dataset.csv") %>%
   mutate(Leaf_area_log = log(`Leaf area (mm2)`), .keep = "unused") %>% 
   mutate(Plant_height_log = log(`Plant height (m)`), .keep = "unused") %>% 
   mutate(LDMC_log = log(`LDMC (g/g)`), .keep = "unused") %>% 
-  pivot_longer(cols = c("N_Names":"LDMC_log")) %>% 
+  mutate(DiasporeMass_log = log(`Diaspore mass (mg)`), .keep = "unused") %>% 
+  pivot_longer(cols = c("N_Names":"DiasporeMass_log")) %>% 
   select(name, value)
 
 trait_impute$label <-  case_match(
@@ -146,7 +152,8 @@ trait_impute$label <-  case_match(
   "Woodiness" ~ "Woodiness",
   "Leaf_area_log" ~ "log(Leaf area (mm2))",
   "Plant_height_log" ~ "log(Plant height (m))",
-  "LDMC_log" ~ "log(Leaf dry matter content(g/g))"
+  "LDMC_log" ~ "log(Leaf dry matter content(g/g))",
+  "DiasporeMass_log" ~ "log(Diaspore mass (mg))"
 )
 
 logged_plots <- trait_impute %>% 
@@ -168,7 +175,8 @@ logged_plots <- trait_impute %>%
   scale_y_continuous(name = "Density") +
   # one histogram for each biodiversity metric
   facet_wrap(~label, scales = "free") +
-  theme_cowplot(16)
+  theme_cowplot(12) +
+  theme(axis.title.x = element_blank())
 
 LNPDM_plot <- trait_impute %>% 
   filter(label %in% c("Leaf nitrogen content per dry mass (mg/g)")) %>% 
@@ -187,7 +195,9 @@ LNPDM_plot <- trait_impute %>%
   scale_y_continuous(name = "Density") +
   # one histogram for each biodiversity metric
   facet_wrap(~label, scales = "free") +
-  theme_cowplot(16)
+  theme_cowplot(12) +
+  theme(axis.title.y = element_blank()) +
+  theme(axis.title.x = element_blank())
 
 Woodiness_plot <- trait_impute %>% 
   filter(label %in% c("Woodiness")) %>% 
@@ -206,9 +216,31 @@ Woodiness_plot <- trait_impute %>%
   scale_y_continuous(name = "Density") +
   # one histogram for each biodiversity metric
   facet_wrap(~label, scales = "free") +
-  theme_cowplot(16)
+  theme_cowplot(12) +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank())
 
-remaining_plots <- grid.arrange(LNPDM_plot, Woodiness_plot, nrow = 1)
+DiasporeMass_plot <- trait_impute %>% 
+  filter(label %in% c("log(Diaspore mass (mg))")) %>% 
+  ggplot(aes(x = value)) +
+  # plot histogram using density instead of count
+  geom_histogram(aes(x = value, y = ..density..),
+                 colour = "black",
+                 fill = "white"
+  ) +
+  # add a spline approximating the probability density function
+  geom_density(aes(x = value),
+               alpha = .2,
+               fill = "#FF6666"
+  ) +
+  scale_x_continuous(name = "Value", limits = c(-1,2)) +
+  scale_y_continuous(name = "Density") +
+  # one histogram for each biodiversity metric
+  facet_wrap(~label, scales = "free") +
+  theme_cowplot(12) +
+  theme(axis.title.x = element_blank())
+
+remaining_plots <- grid.arrange(DiasporeMass_plot, LNPDM_plot, Woodiness_plot, nrow = 1)
 
 Indig_plots <- trait_impute %>% 
   filter(label %in% c(
@@ -229,7 +261,8 @@ Indig_plots <- trait_impute %>%
   scale_y_continuous(name = "Density") +
   # one histogram for each biodiversity metric
   facet_wrap(~label, scales = "free") +
-  theme_cowplot(16)
+  theme_cowplot(12) +
+  theme(axis.title.x = element_blank())
 
 plot_trait_impute <- grid.arrange(logged_plots, remaining_plots, Indig_plots, nrow = 3)
 ggsave("figures/trait_distributions.png", plot_trait_impute, width = 10.5, height = 6, units = "in")
@@ -261,10 +294,12 @@ plot_compare_dists
 
 # Figure 1: Compare the distribution of biodiversity metric values --------
 # Define the relevant trait names
-trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)")
+trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", 
+                 "Leaf area (mm2)", "Diaspore mass (mg)")
 
 # Initialize the full phylogenetic tree
-tree <- get.phylo_tree(read_csv("data/clean/final_dataset.csv"))
+# tree <- get.phylo_tree(read_csv("data/clean/final_dataset.csv"))
+tree <- readRDS("data/clean/full_tree.rds")
 
 # Get a single simulation
 numPatches <- 1000
@@ -782,6 +817,7 @@ full_comp_df$comparison_type <- case_match(full_comp_df$comparison,
 
 # Remove number of "endemic" from analysis
 full_comp_df <- filter(full_comp_df, baseline != "NumEndemic", comparison != "NumEndemic")
+                       # baseline != "McIntosh", comparison != "McIntosh")
 
 x_label_color_function <- function(string) {
   out <- #paste("<span style = 'color: ",
@@ -826,7 +862,7 @@ pair_recall_cluster <- hclust(dist(t(m_recall)), method = "ward.D2")
 # Cluster dendrogram ----
 require(ggdendro)
 
-dhc <- as.dendrogram(pair_prec_cluster)
+# dhc <- as.dendrogram(pair_prec_cluster)
 
 ddata <- dendro_data(pair_prec_cluster, type="rectangle")
 
@@ -851,16 +887,18 @@ ddata_labels <- arrange(ddata_labels, label)
 
 ggplot() +
   geom_segment(data = segment(ddata),
-               aes_string(x = "x", y = "y", xend = "xend", yend = "yend")) +
+               aes_string(x = "x", y = "y", xend = "xend", yend = "yend"),
+               linewidth = 0.1) +
   geom_text(data = ddata_labels, 
             aes(x = x, y = y, label = label, color = label),
-            fontface = "bold",hjust = 0, angle = 0) + 
+            fontface = "bold", hjust = 0, angle = 0,
+            size = 0.75) + 
   scale_color_manual(values = as.character(ddata_labels$color)) +
-  scale_y_continuous(expand=c(0.2, 0),
+  scale_y_continuous(expand=c(0.5, 0),
                      trans = "reverse") + 
   coord_flip() +
   guides(color = "none") +
-  theme_cowplot(12) +
+  theme_cowplot(4) +
   theme(
     panel.background = element_blank(),
     axis.title = element_blank(),
@@ -871,9 +909,10 @@ ggplot() +
     axis.text.y = element_blank(),
   )
 
-ggsave("figures/dendrogram.png", width = 7, height = 3, units = "in")
+ggsave("figures/dendrogram.pdf", width = 4, height = 1, units = "in",
+       dpi = 600)
 
-# ggdendrogram(ddata, rotate = FALSE) +
+# ggdendrogram(ddata, rotate = TRUE) +
 #   coord_flip() +
 #   theme(axis.text.y = element_text(size = 12, color = dendrogram_colors,
 #                                    face = "bold", hjust = 1))
