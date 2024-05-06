@@ -15,10 +15,10 @@ source("code/functions.R")
 # Load in trait data
 final_data <- read_csv("data/clean/final_dataset.csv") # %>%
 # rename(Species = Species_full)
-
+tree <- readRDS("data/clean/full_tree.rds")
 
 # Load in phylogenetic tree data
-tree <- readRDS("data/clean/full_tree.rds")
+
 # tree <- read.tree(file = "data/clean/phylogenetic_tree.csv")
 # Elisa: I commented this out, because we have been playing around with species names and hence, the tree might be different now
 
@@ -169,6 +169,16 @@ metric_names <- c("NumUnique", "NumEndemic", "NumIndigName", "NumUse",
 # Set comparison parameters
 numIterations <- 100
 NumPatches <- 1000
+sliceLength <- parallel::detectCores() # how many calculations to do for each parallel chunk
+slice_indices = ceiling(numIterations / sliceLength)
+
+# Start new cluster for doParallel
+cluster_size <- parallel::detectCores() # 12
+# my.cluster <- parallel::makePSOCKcluster(cluster_size)
+my.cluster <- snow::makeCluster(cluster_size, type = "SOCK")
+# Register cluster for doParallel
+# doParallel::registerDoParallel (cl = my.cluster, cores = 6)
+doSNOW::registerDoSNOW(cl = my.cluster)
 
 full_compare_df <- tibble(
   baseline = as.character(), # baseline biodiversity metric
@@ -179,11 +189,12 @@ full_compare_df <- tibble(
 )
 metric_index = 0
 
+
 for (metric_name in metric_names) {
   gc()
   metric_index = metric_index + 1
   print(paste0("Calculating ", metric_name,
-               " (#", metric_index, " / ", length(metric_names), "):"))
+               " ( # ", metric_index, " of ", length(metric_names), " ):"))
   baseline_metric <- metric_name
   
   # Initialize comparison data frame
@@ -202,21 +213,16 @@ for (metric_name in metric_names) {
     # Remove the focal metric
     select(-one_of(baseline_metric))
   
-  for (slice_index in 1:5) {
-    slice_range = (slice_index - 1)*20 + 1:20
-    
-    # Start new cluster for doParallel
-    cluster_size <- 12 #parallel::detectCores() - 4
-    # my.cluster <- parallel::makePSOCKcluster(cluster_size)
-    my.cluster <- snow::makeCluster(cluster_size, type = "SOCK")
-    # Register cluster for doParallel
-    # doParallel::registerDoParallel (cl = my.cluster, cores = 6)
-    doSNOW::registerDoSNOW(cl = my.cluster)
+  
+  for (slice_index in 1:slice_indices) {
+    # Set up chunk of simulations to run and progress bar
+    slice_range = (slice_index - 1)*sliceLength + 1:sliceLength
+    slice_range = slice_range[slice_range <= 100]
     
     # Set up progress bar
     pb <- progress_bar$new(
       format = ":spin progress = :percent [:bar] elapsed: :elapsed | eta: :eta",
-      total = length(slice_range),
+      total = sliceLength,
       width = 100
     )
     progress <- function(n) {
@@ -232,7 +238,7 @@ for (metric_name in metric_names) {
       .combine = "rbind",
       .packages = c("tidyverse", "reshape2", "picante", "fundiversity", "adiv", 
                     "retry", "foreach"),
-      .verbose = TRUE,
+      # .verbose = TRUE,
       .options.snow = opts
     ) %dopar%
       {
@@ -246,21 +252,6 @@ for (metric_name in metric_names) {
         ) %>% 
           mutate(iteration = j)
         gc() # Necessary to avoid memory blowup
-        
-        precision_df <- biodiv.compare_df %>%
-          select(-c(list_length, recall)) %>% 
-          pivot_wider(names_from = variable) %>%
-          unique() 
-        
-        list_length_df <- biodiv.compare_df %>%
-          select(-c(value, recall)) %>% 
-          pivot_wider(names_from = variable, values_from = list_length) %>%
-          unique() 
-        
-        recall_df <- biodiv.compare_df %>%
-          select(-c(value, list_length)) %>% 
-          pivot_wider(names_from = variable, values_from = recall) %>%
-          unique() 
         
         out_df <- rbind(
           mutate(biodiv.compare_df %>%
@@ -284,15 +275,11 @@ for (metric_name in metric_names) {
         out_df
       } %>% unique()
     
-    stopCluster(my.cluster)
-    
     compare_df <- rbind(compare_df, temp_compare_df)
     pb$terminate()
   }
   
   out_df <- compare_df %>% 
-    # filter(type == "precision") %>% 
-    # select(-iteration, -type) %>%
     select(-iteration) %>%
     pivot_longer(cols = all_of(metric_names), names_to = "comparison") %>% 
     group_by(comparison, type) %>% 
@@ -305,5 +292,7 @@ for (metric_name in metric_names) {
   rm(out_df)
   rm(compare_df)
 }
+
+stopCluster(my.cluster)
 
 saveRDS(full_compare_df, file = "full_comparisons.rds")

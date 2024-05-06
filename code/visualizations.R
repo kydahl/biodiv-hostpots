@@ -722,7 +722,7 @@ hotspot_nums <- readRDS('full_comparisons.rds') %>%
   filter(type == "list_length") %>% 
   filter(baseline == "NumUnique") %>% 
   rowwise() %>%  
-  mutate(stdev = sd(var)) %>% 
+  mutate(stdev = sqrt(var/100)) %>% 
   select(-c(baseline, type))
 
 hotspot_nums$metric_label <-  case_match(hotspot_nums$comparison,

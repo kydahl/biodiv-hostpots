@@ -1,0 +1,113 @@
+---
+title: "Multiple blood-feeding modeling study"
+author:  |
+    | Kyle J.-M. Dahlin, Michael Robert, Lauren Childs
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  pdf_document:
+    keep_tex: yes
+    extra_dependencies: ["float"]
+    includes:
+      in_header: header.tex
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "doc") })
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, cache = FALSE, warning = FALSE, fig.pos = "H",
+  out.extra = ""
+)
+# Load Libraries----------------------------------------------------------------
+library(matrixdist)
+library(tidyverse)
+library(matlib) # for a bunch of matrix operations
+library(cowplot)
+library(PhaseTypeR) # to create and simulate phase type distributions
+library(PhaseType) # to fit structured phase type distributions
+library(mapfit) # alternative way to fit phase type distributions
+library(reshape2)
+library(Matrix)
+library(corrplot)
+library(GGally)
+library(lhs) # easy Latin Hypercube sampling
+library(PhaseTypeR) # to create and simulate phase type distributions
+
+# Plot settings ----
+
+# Set theme
+theme_set(theme_minimal(10))
+
+# Load required functions ----
+
+here::i_am("study.RMD")
+
+source(here("/code/utilities.R"))
+
+
+```
+
+## Simulated data set
+
+
+
+```{r simulate-data}
+
+# Define phase type distribution
+# Landing
+pL = 0.7
+lL = 0.1 # 10 minutes
+
+# Probing
+pP = 0.8
+lP = 0.2 # 5 minutes
+
+# Ingesting
+pG = 0.9 #0.75
+lG = 1 # 1 minutes
+
+# Fleeing
+f = 0.66
+
+# subintensity matrix
+set_A = matrix(c(
+  (-1 + (1 - f) * (1- pL)) * lL, pL * lL, 0,
+  (1 - f) * (1 - pP) * lP, -lP, pP * lP,
+  (1 - f) * (1 - pG) * lG, 0, -lG), ncol = 3, byrow = TRUE) 
+set_alpha = c(1, 0, 0) # initial probability vector
+ph = PH(set_A, set_alpha)
+
+# Get 100 random samples from the distribution
+direct_samps = rphtype(1000, set_alpha, set_A)
+
+write_csv(data.frame(direct_samps), "data/direct_samples.csv")
+
+# Simulated data set
+simulated_data = read_csv("data/direct_samples.csv") 
+# simulated_data = read_csv("data/noQ_data_continuous.csv")
+# total_sample_size = length(simulated_data$Out_time)
+sample_size = 100
+
+test_data = simulated_data$direct_samps[1:sample_size]
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
