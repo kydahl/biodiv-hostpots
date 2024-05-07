@@ -8,6 +8,9 @@ require(cowplot)
 require(picante)
 library(progress)
 library(retry)
+library(doFuture)
+library(future.callr)
+library(progressr)
 
 # Load in analysis functions
 source("code/functions.R")
@@ -162,23 +165,19 @@ trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)",
 # tree <- get.phylo_tree(final_data)
 
 # List of all metric names
-metric_names <- c("NumUnique", "NumEndemic", "NumIndigName", "NumUse",
+metric_names <- c("NumUnique", "NumIndigName", "NumUse",
                   "FRic", "FDiv", "FDis", "FEve", "Q", "richness", "GiniSimpson",
                   "Simpson", "Shannon", "Margalef", "Menhinick", "McIntosh",
                   "PSVs", "PSR")
 # Set comparison parameters
 numIterations <- 100
 NumPatches <- 1000
-sliceLength <- parallel::detectCores() # how many calculations to do for each parallel chunk
-slice_indices = ceiling(numIterations / sliceLength)
 
-# Start new cluster for doParallel
-cluster_size <- parallel::detectCores() # 12
-# my.cluster <- parallel::makePSOCKcluster(cluster_size)
-my.cluster <- snow::makeCluster(cluster_size, type = "SOCK")
-# Register cluster for doParallel
-# doParallel::registerDoParallel (cl = my.cluster, cores = 6)
-doSNOW::registerDoSNOW(cl = my.cluster)
+# plan(multisession, workers = 12, gc = TRUE)
+# plan(callr)
+# Set up progress bar
+handlers(global = TRUE)
+handlers("cli") #handlers("progress")
 
 full_compare_df <- tibble(
   baseline = as.character(), # baseline biodiversity metric
@@ -188,7 +187,6 @@ full_compare_df <- tibble(
   var = as.double()
 )
 metric_index = 0
-
 
 for (metric_name in metric_names) {
   gc()
@@ -200,7 +198,7 @@ for (metric_name in metric_names) {
   # Initialize comparison data frame
   compare_df <- tibble(
     NumUnique = as.double(),
-    NumEndemic = as.double(), NumIndigName = as.double(), NumUse = as.double(),
+    NumIndigName = as.double(), NumUse = as.double(),
     # NumIndigLang = as.double()
     richness = as.double(), GiniSimpson = as.double(),
     Simpson = as.double(), Shannon = as.double(),
@@ -214,73 +212,69 @@ for (metric_name in metric_names) {
     select(-one_of(baseline_metric))
   
   
-  for (slice_index in 1:slice_indices) {
-    # Set up chunk of simulations to run and progress bar
-    slice_range = (slice_index - 1)*sliceLength + 1:sliceLength
-    slice_range = slice_range[slice_range <= 100]
-    
-    # Set up progress bar
-    pb <- progress_bar$new(
-      format = ":spin progress = :percent [:bar] elapsed: :elapsed | eta: :eta",
-      total = sliceLength,
-      width = 100
-    )
-    progress <- function(n) {
-      pb$tick()
-    }
-    opts <- list(progress = progress)
-    
-    # Calculate comparisons among diversity metrics
-    temp_compare_df <- foreach(
+  # for (slice_index in 1:slice_indices) {
+  #   # Set up chunk of simulations to run and progress bar
+  #   slice_range = (slice_index - 1)*sliceLength + 1:sliceLength
+  
+  
+  # Calculate comparisons among diversity metrics
+  get.temp_compare_df = function(slice_range) {
+    p = progressor(along = slice_range)
+    temp_compare_df = foreach(
       j = slice_range,
       .inorder = FALSE,
-      # int = icount(),
       .combine = "rbind",
-      .packages = c("tidyverse", "reshape2", "picante", "fundiversity", "adiv", 
-                    "retry", "foreach"),
-      # .verbose = TRUE,
-      .options.snow = opts
-    ) %dopar%
-      {
-        biodiv.compare_df <- retry(
-          biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
-          until = function(val, cnd) {
-            !is.null(val)
-          },
-          silent = TRUE,
-          interval = 0
-        ) %>% 
-          mutate(iteration = j)
-        gc() # Necessary to avoid memory blowup
-        
-        out_df <- rbind(
-          mutate(biodiv.compare_df %>%
-                   select(-c(list_length, recall)) %>% 
-                   pivot_wider(names_from = variable) %>%
-                   unique(),
-                 type = "precision"),
-          mutate(biodiv.compare_df %>%
-                   select(-c(value, recall)) %>% 
-                   pivot_wider(names_from = variable, values_from = list_length) %>%
-                   unique(),
-                 type = "list_length"),
-          mutate(biodiv.compare_df %>%
-                   select(-c(value, list_length)) %>% 
-                   pivot_wider(names_from = variable, values_from = recall) %>%
-                   unique(),
-                 type = "recall")
-        )
-        rm(biodiv.compare_df)
-        gc()
-        out_df
-      } %>% unique()
-    
-    compare_df <- rbind(compare_df, temp_compare_df)
-    pb$terminate()
+      .options.future = list(seed = TRUE) # ensures true RNG among parallel processes
+    ) %dofuture% {
+      # Iterate progress bar
+      p(sprintf("j=%g", j))
+      
+      biodiv.compare_df = retry(
+        biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
+        until = function(val, cnd) {
+          !is.null(val)
+        },
+        silent = FALSE,
+        interval = 0
+      )
+      
+      out_df = rbind(
+        mutate(biodiv.compare_df %>%
+                 select(-c(list_length, recall)) %>% 
+                 pivot_wider(names_from = variable) %>%
+                 unique(),
+               type = "precision"),
+        mutate(biodiv.compare_df %>%
+                 select(-c(value, recall)) %>% 
+                 pivot_wider(names_from = variable, values_from = list_length) %>%
+                 unique(),
+               type = "list_length"),
+        mutate(biodiv.compare_df %>%
+                 select(-c(value, list_length)) %>% 
+                 pivot_wider(names_from = variable, values_from = recall) %>%
+                 unique(),
+               type = "recall")
+      )
+    }
   }
   
+  sliceSize = 25
+  sliceRange = 1:sliceSize
+  for (i in 1:(numIterations/sliceSize)) {
+    print(paste0("Collect simulation chunk ", metric_name,
+                 " ( # ", i, " of ", (numIterations/sliceSize), " ):"))
+    plan(multisession, workers = 12, gc = TRUE)
+    compare_df = rbind(compare_df, get.temp_compare_df(sliceRange))
+    plan(sequential)
+  }
+  # slice_range = 1:(numIterations/2) #slice_range[slice_range <= numIterations]
+  # 
+  # temp_compare_df1 = get.temp_compare_df(slice_range)
+  # temp_compare_df2 = get.temp_compare_df(slice_range)
+  # 
+  # compare_df <- rbind(temp_compare_df1, temp_compare_df2)
+  
   out_df <- compare_df %>% 
-    select(-iteration) %>%
     pivot_longer(cols = all_of(metric_names), names_to = "comparison") %>% 
     group_by(comparison, type) %>% 
     summarise(mean = mean(value), 
@@ -292,7 +286,5 @@ for (metric_name in metric_names) {
   rm(out_df)
   rm(compare_df)
 }
-
-stopCluster(my.cluster)
 
 saveRDS(full_compare_df, file = "full_comparisons.rds")

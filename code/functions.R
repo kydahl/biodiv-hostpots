@@ -105,23 +105,23 @@ get.full_df <- function(NumPatches) {
   ### Assign levels to patches ###
   
   # Equal numbers across each level (for now)
-  Levels <- sample(SpeciesOccs$Level, NumPatches, replace = TRUE)
+  Levels = sample(SpeciesOccs$Level, NumPatches, replace = TRUE)
   
-  Init_df <- tibble(Patch = 1:NumPatches, Level = Levels)
+  Init_df = tibble(Patch = 1:NumPatches, Level = Levels)
   
   ### Assign number of species to each patch ###
   
   # Maximum needs to be set to the total number of species at that level
-  MaxNumEntities <- SpeciesOccs %>% 
+  MaxNumEntities = SpeciesOccs %>% 
     group_by(Level) %>% 
     summarise(count = n())
   
   ### Assign species to patches ###
   
-  Patch_df <- data.table(Patch = as.integer(), Level = as.character(), Synonym = as.character())
+  Patch_df = data.table(Patch = as.integer(), Level = as.character(), Synonym = as.character())
   
   # For each patch, get its level # !!! KD: this could use optimization
-  Patch_df <- foreach(
+  Patch_df = foreach(
     j = 1:length(Init_df$Patch),
     # int = icount(),
     .combine = "rbind"
@@ -142,7 +142,7 @@ get.full_df <- function(NumPatches) {
   }
   
   ### Add species traits to the dataframe ###
-  full_df <- right_join(Patch_df, final_data, by = "Synonym", relationship = "many-to-many") %>% 
+  right_join(Patch_df, final_data, by = "Synonym", relationship = "many-to-many") %>% 
     filter(!is.na(Patch), !is.na(Level))
 }
 
@@ -400,7 +400,7 @@ get.biodiv_df <- function(in_df, trait_names, tree) {
   # hotspots.baseline <- find.hotspots(num.unique_df)
   
   # Metric 2: Number of endemic entities
-  num.endemic_df = num.endemic.metric(in_df)
+  # num.endemic_df = num.endemic.metric(in_df)
   # hotspots.endemic <- find.hotspots(num.endemic_df)
   
   # Metric 3: Number of Indigenous names
@@ -429,7 +429,7 @@ get.biodiv_df <- function(in_df, trait_names, tree) {
   # Put together one big dataframe of biodiversity metrics of each Patch
   biodiv_df = rename(num.unique_df, NumUnique = biodiv) %>% # Number of unique entities
     # Number of endemic entities
-    right_join(rename(num.endemic_df, NumEndemic = biodiv), by = "Patch") %>%
+    # right_join(rename(num.endemic_df, NumEndemic = biodiv), by = "Patch") %>%
     # Number of Indigenous names
     right_join(rename(num.indig.name_df, NumIndigName = biodiv), by = "Patch") %>%
     # Number of Indigenous languages
