@@ -261,8 +261,7 @@ for (metric_name in metric_names) {
   sliceSize = 25
   sliceRange = 1:sliceSize
   for (i in 1:(numIterations/sliceSize)) {
-    print(paste0("Collect simulation chunk ", metric_name,
-                 " ( # ", i, " of ", (numIterations/sliceSize), " ):"))
+    print(paste0("Collect simulation chunk # ", i, " of ", (numIterations/sliceSize), ":"))
     plan(multisession, workers = 12, gc = TRUE)
     compare_df = rbind(compare_df, get.temp_compare_df(sliceRange))
     plan(sequential)

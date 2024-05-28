@@ -723,7 +723,9 @@ hotspot_nums <- readRDS('full_comparisons.rds') %>%
   filter(baseline == "NumUnique") %>% 
   rowwise() %>%  
   mutate(stdev = sqrt(var/100)) %>% 
-  select(-c(baseline, type))
+  select(-c(baseline, type)) %>%   
+  mutate(low_95 = mean - 1.96 * stdev,
+         high_95 = min(50, mean + 1.96 * stdev))
 
 hotspot_nums$metric_label <-  case_match(hotspot_nums$comparison,
                                          "NumUnique" ~ "Species richness",
@@ -746,7 +748,54 @@ hotspot_nums$metric_label <-  case_match(hotspot_nums$comparison,
                                          "PSR" ~ "Phylogenetic sp. richness"
 )
 
+hotspot_nums$type <- case_match(hotspot_nums$comparison,
+                                c("NumUnique", "NumEndemic") ~ "Taxonomic",
+                                c("NumIndigName", "NumUse") ~ "TEK",
+                                c("richness", "GiniSimpson", "Simpson",
+                                  "Shannon", "Margalef", "Menhinick",
+                                  "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
+                                c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
+)
 
+x_label_color_function <- function(string) {
+  out <- #paste("<span style = 'color: ",
+    case_match(string,
+               "Taxonomic" ~ "black",
+               "TEK" ~ c4a("brewer.set1", 3)[1],
+               "Phylogenetic" ~ c4a("brewer.set1", 3)[2],
+               "Functional" ~ c4a("brewer.set1", 3)[3],)#,
+  # ";'>",
+  # string,
+  # "</span>", sep = "")
+  out <- as.character(out)
+}
+
+hotspot_nums$color <- x_label_color_function(hotspot_nums$type)
+
+hotspot_nums$type <- factor(hotspot_nums$type, levels = c("Taxonomic", "TEK", "Phylogenetic", "Functional"))
+
+
+
+# Plot bar graph showing mean and standard error of the numbers of hotspots
+hotspot_bars = hotspot_nums %>% 
+  arrange(metric_label) %>% 
+  ggplot(aes(x = metric_label, color = type, fill = type)) +
+  geom_col(aes(y = mean)) +
+  geom_errorbar(aes(ymin = high_95, ymax = low_95), color = "purple", lwd = 0.5) +
+  scale_color_manual(breaks = c("Taxonomic", "TEK", "Phylogenetic", "Functional"),
+                     values = c("black", c4a("brewer.set1", 3))) +
+  scale_fill_manual(breaks = c("Taxonomic", "TEK", "Phylogenetic", "Functional"),
+                    values = c("black", c4a("brewer.set1", 3))) +
+  scale_y_continuous("Mean number of identified hotspots", breaks = 40:50) +
+  facet_grid(. ~ type, scales = "free_x", space = "free_x") +
+  coord_cartesian(ylim = c(44.9, 50.1)) +
+  theme_minimal(8) +
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust=1),
+    legend.position = "none"
+  )
+ggsave("figures/hotspot_numbers.png", hotspot_bars, width = 6.5, height = 3, units = "in")
 
 
 # Figure S1: Pairwise precision and recall heatmaps -----------------------
@@ -817,7 +866,7 @@ full_comp_df$comparison_type <- case_match(full_comp_df$comparison,
 
 # Remove number of "endemic" from analysis
 full_comp_df <- filter(full_comp_df, baseline != "NumEndemic", comparison != "NumEndemic")
-                       # baseline != "McIntosh", comparison != "McIntosh")
+# baseline != "McIntosh", comparison != "McIntosh")
 
 x_label_color_function <- function(string) {
   out <- #paste("<span style = 'color: ",
@@ -892,7 +941,7 @@ ggplot() +
   geom_text(data = ddata_labels, 
             aes(x = x, y = y, label = label, color = label),
             fontface = "bold", hjust = 0, angle = 0,
-            size = 0.75) + 
+            size = .75) + 
   scale_color_manual(values = as.character(ddata_labels$color)) +
   scale_y_continuous(expand=c(0.5, 0),
                      trans = "reverse") + 

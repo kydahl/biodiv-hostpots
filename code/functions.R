@@ -11,7 +11,7 @@ library(fundiversity)
 # For phylogenetic diversity metrics
 library(adiv)
 library(stringr)
-library(V.PhyloMaker2)
+# library(V.PhyloMaker2)
 library(picante)
 library(maditr)
 
