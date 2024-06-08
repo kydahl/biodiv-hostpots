@@ -47,7 +47,6 @@ tree <- readRDS("data/clean/full_tree.rds")
 # Set the random seed used to generate figures in the manuscript 
 set.seed(9523)
 
-
 ## Simulation parameters ----
 
 ## Number of iterations to compute biodiversity over
@@ -70,8 +69,6 @@ explore_df <- get.full_df(40) %>%
 pair_plot <- explore_df %>% 
   select(-c(Patch)) %>% 
   ggpairs()
-
-
 
 # 2) Calculate pairwise comparisons of biodiversity hotspot identi --------
 

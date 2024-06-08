@@ -500,10 +500,15 @@ final_data <- rbind(
   # Add back in species which lack trait data along with TEK data
   full_data %>% mutate(origin = "this_study")
 ) %>%
-  arrange(Synonym, origin) %>%
+  arrange(Synonym, origin) %>%select(c(
+    "Synonym", "Family", "origin",
+    "LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness",
+    "Diaspore mass (mg)", #"SSD",
+    "N_Names":"N_Uses"
+  )) %>%
   # if there are data for a trait from both the Diaz and TRY data sets, just use the value from Diaz
   pivot_longer(
-    cols = c(-"Synonym", -"origin"),
+    cols = c("Family", "LDMC (g/g)":"N_Uses"),
     names_to = "trait", values_to = "value",
     values_transform = list(value = as.character)
   ) %>%
@@ -619,28 +624,37 @@ imp_df = PNW_imp$ximp
 trait_names = c("LDMC_log", "Nmass (mg/g)", "LeafArea_log", "PlantHeight_log", "DiasporeMass_log")
 
 # add actual taxonomic columns back in and remove dummy variables
-imputed_traits <- cbind(traits_df[, 1:5], PNW_imp$ximp[, 1:6]) 
+imputed_traits <- cbind(traits_df[, 1:5], PNW_imp$ximp[, 1:6]) %>% 
+  mutate("LDMC (g/g)" = exp(LDMC_log), .keep = "unused") %>%
+  mutate("Diaspore mass (mg)" = exp(DiasporeMass_log), .keep = "unused") %>%
+  mutate("Plant height (m)" = exp(PlantHeight_log), .keep = "unused") %>%
+  mutate("Leaf area (mm2)" = exp(LeafArea_log), .keep = "unused") 
 
-imputed_data <- right_join(
+imputed_data <- left_join(
   select(final_data, -c("LDMC (g/g)":"Diaspore mass (mg)")),
   select(imputed_traits, -c(Genus:Ssp_var))
 )
 
 full_df <- traits_df %>%
-  # keep track of which traits were original values and not imputed values
-  mutate(type = "original") %>%
-  rbind(imputed_traits %>% mutate(type = "imputed")) %>%
   mutate("LDMC (g/g)" = exp(LDMC_log), .keep = "unused") %>%
   mutate("Diaspore mass (mg)" = exp(DiasporeMass_log), .keep = "unused") %>%
   mutate("Plant height (m)" = exp(PlantHeight_log), .keep = "unused") %>%
   mutate("Leaf area (mm2)" = exp(LeafArea_log), .keep = "unused") %>%
+  # keep track of which traits were original values and not imputed values
+  mutate(type = "original") %>%
+  rbind(imputed_traits %>% mutate(type = "imputed")) %>% 
   select(-c("Genus", "Species", "Ssp_var", "Family")) %>%
   melt(id = c("Synonym", "type")) %>%
   mutate(value = as.numeric(value))
 
 # Calculate variance in each continuous variable
 var_df <- imputed_traits %>%
-  select(c("Nmass (mg/g)":"LDMC_log", -"Woodiness")) %>%
+  mutate(LeafArea_log = log(`Leaf area (mm2)`)) %>%
+  mutate(PlantHeight_log = log(`Plant height (m)`)) %>%
+  mutate(DiasporeMass_log = log(`Diaspore mass (mg)`)) %>%
+  mutate(LDMC_log = log(`LDMC (g/g)`)) %>%
+  
+  select(c("Nmass (mg/g)", "LeafArea_log", "PlantHeight_log", "DiasporeMass_log", "LDMC_log", -"Woodiness")) %>%
   summarise(across("Nmass (mg/g)":"LDMC_log", var)) %>% 
   cbind("Woodiness" = NA) %>% 
   pivot_longer(cols = everything(), names_to = "variable", values_to = "variance")
@@ -659,4 +673,7 @@ error_df <- as.list(PNW_imp$OOBerror[1:6]) %>%
 
 # 6) Put data set into workable form for imputation and phylogeny steps --------
 
-write_csv(imputed_data, "data/clean/final_dataset.csv")
+final_dataset = imputed_data %>% 
+  select(c("Synonym", "Family", "N_Names", "N_Langs", "N_Uses", "Species", "Ssp_var", "Nmass (mg/g)", "Woodiness", "LDMC (g/g)", "Diaspore mass (mg)", "Plant height (m)", "Leaf area (mm2)"))
+
+write_csv(final_dataset, "data/clean/final_dataset.csv")
