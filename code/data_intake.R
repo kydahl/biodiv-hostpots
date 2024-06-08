@@ -2,9 +2,9 @@
 # Processing data from databases
 ################################################################################
 
-## Project: Identifying Climate change vulnerable biodiversity hotspots
+## Project: Comparing biodiversity hotspot identification
 ##
-## Purpose: Process data to be used to inform simulations
+## Purpose: Process data to be used in simulations
 ##
 ## Contents: 0) Set-up, load in necessary packages, functions, and data-sets
 ##           1) Load in main species list
@@ -14,21 +14,14 @@
 ##           5) Put dataset into workable form for imputation and phylogeny
 ##              steps
 ##
-##
-## Inputs:  data - found in the data/raw folder
-##          Trait_data_TRY_Diaz_2022\Dataset\Species_mean_traits.xlsx
-##          - trait data from Diaz 2022 (originally from the TRY database)
-##          TRY_data_Feb2023 folder
-##          - trait data from a call to the TRY database
-##
-##
-## Outputs: data/clean/main_dataset.csv
+## Inputs:  .csv and .xlsx files found in the data/raw folder
+##          
+## Outputs: .csv and .rds files found in the data/clean folder
 ##
 ## Written and by: Karen Castillioni, Elisa Van Cleemput, Kyle Dahlin
 ## Maintained by: Kyle Dahlin, kydahlin@gmail.com
 ## Initialized February 2023
 ## _____________________________________________________________________________
-
 
 # 0) Set-up, load in necessary packages and data sets ---------------------
 # Packages
@@ -72,15 +65,6 @@ synonym_func <- function(in_df) {
   } else {
     out_df <- in_df
   }
-
-  # Select sources for species name resolution
-  # src <- c(
-  #   "The Leipzig Catalogue of Vascular Plants"
-  #   # "EOL", "The International Plant Names Index", # these are examples, so choose the database of interest
-  #   # "Index Fungorum", "ITIS", "Catalogue of Life",
-  #   # "Tropicos - Missouri Botanical Garden",
-  #   # "The International Plant Names Index",
-  # )
   # Initialize the synonym list data frame
   synonyms_list <- tibble(
     name_in = as.character(),
@@ -91,15 +75,15 @@ synonym_func <- function(in_df) {
   species_list <- unique(out_df$Species_full)
   species_num <- length(species_list)
   num_seq <- 1 + 0:(species_num %/% 1000) * 1000
-
+  
   # Collect synonyms
   for (ii in num_seq) {
     temp_seq <- ii + 0:999
     temp_species_list <- species_list[temp_seq]
     temp_species_out <- gnr_resolve(temp_species_list,
-      data_source_ids = 198, # The Leipzig Catalogue of Vascular Plants
-      with_canonical_ranks = T,
-      best_match_only = TRUE
+                                    data_source_ids = 198, # The Leipzig Catalogue of Vascular Plants
+                                    with_canonical_ranks = T,
+                                    best_match_only = TRUE
     ) %>%
       select(name_in = user_supplied_name, name_out = matched_name2)
     synonyms_list <- rbind(synonyms_list, temp_species_out)
@@ -107,7 +91,7 @@ synonym_func <- function(in_df) {
   
   num_name_changes <- dim(filter(synonyms_list, name_in != name_out))[1]
   print(paste0("There are ", num_name_changes, " necessary name changes."))
-
+  
   # Add back in species that didn't have a synonym in the database
   synonyms_list <- rbind(synonyms_list,
                          tibble(name_in = species_list[!(species_list %in% synonyms_list$name_in)],
@@ -132,11 +116,11 @@ synonym_func <- function(in_df) {
                                     name_in = original_name)) %>% 
     mutate(name_out = ifelse(is.na(name_out), Synonym, name_out)) %>% 
     select(-Synonym)
-
+  
   final_df <- out_df %>%
     # add column of synonym names
     left_join(rename(synonyms_list, Species_full = name_in, Synonym = name_out),
-      by = "Species_full"
+              by = "Species_full"
     ) %>%
     # If synonym isn't a binomial, revert to original name
     mutate(Synonym = ifelse(is.na(stringr::word(Synonym, 2, 2)),
@@ -155,7 +139,7 @@ synonym_func <- function(in_df) {
 # 1) Load in main species list --------------------------------------------
 clade_labels <- c(
   "Gymnosperms", "Ferns and fern-allies", "Flowering plants (angiosperms)",
-  "Species extracted from", # !!! just being lazy with these two. could remove these rows by hand instead
+  "Species extracted from",
   "There are also algae, lichens, fungi and bryophytes listed in the document. We could decide to omit these"
 )
 
@@ -196,7 +180,7 @@ full_species_synonyms_list <- rbind(full_species_synonyms_list,
                                       original_name = TEK_data$original_name,
                                       Synonym = TEK_data$Synonym
                                     )
-                                    ) %>%
+) %>%
   unique()
 
 # species in base_data but not in TEK_data: L Hierochloe, Ledum groenlandicum, and Ledum glandulosum
@@ -208,9 +192,6 @@ full_data <- full_join(select(base_data,
                        by = "Synonym") %>%
   # remove species for which we lack TEK data
   filter(!is.na(N_Names))
-
-
-
 
 # # Uncomment and run the code below to take a closer look at which species were renamed
 # # Check for synonymous species with multiple entries
@@ -233,23 +214,18 @@ full_data <- full_join(select(base_data,
 # Load in trait data compiled by Diáz et al. 2020 (based on TRY)
 # https://www.nature.com/articles/s41597-022-01774-9
 Diaz_data <- read_excel("data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx",
-  sheet = 1
+                        sheet = 1
 )
-#
-# full_species_synonyms_list <- rbind(
-#   data.frame(original_name = Diaz_data$`Species name standardized against TPL`),
-#   full_species_synonyms_list) %>%
-#   unique()
 
 Diaz_data_renamed <- Diaz_data %>%
   rename(Species_full = `Species name standardized against TPL`)
 
 # Assign GNR synonyms to species in Diaz data
-run_GNR_diaz <- FALSE # !!! Change this to re-run name resolver
+run_GNR_diaz <- FALSE # Change this to TRUE to re-run the synonym resolver (which takes a very long time!)
 if (run_GNR_diaz) {
   # rename species with synonyms
   Diaz_synonyms <- Diaz_data_renamed %>% 
-    synonym_func() %>%  # using gnr_resolve (KD: this will take a long time to run!) %>%
+    synonym_func() %>%
     select(original_name, Synonym)
   
   # Save the synonyms so we don't have to poll the name resolver every time
@@ -273,7 +249,7 @@ Diaz_data_joined <- Diaz_data_renamed %>%
 full_species_synonyms_list <- rbind(
   full_species_synonyms_list,
   filter(Diaz_synonyms, Synonym %in% full_data$Synonym)
-  ) %>%
+) %>%
   unique()
 
 # # Uncomment the code below to see which of our species are missing from the Diaz data set
@@ -301,74 +277,69 @@ Diaz_data_sel <- Diaz_data_joined %>%
   ) %>%
   rename(original_name_Diaz = original_name) %>%
   mutate(origin = "Diaz") %>% 
-  # There is one case of a species having multiple entries for a trait. Use the average
+  # There is one case of a species having multiple entries for a trait. In this case, we use the average among the entries
   group_by(Synonym) %>% 
   mutate(`Plant height (m)` = ifelse(Synonym %in% c("Potamogeton natans", "Ericameria nauseosa"),
                                      mean(`Plant height (m)`), 
                                      `Plant height (m)`)) %>% 
   mutate(`Diaspore mass (mg)` = ifelse(Synonym == "Ericameria nauseosa",
-                                     mean(`Diaspore mass (mg)`), 
-                                     `Diaspore mass (mg)`)) %>% 
+                                       mean(`Diaspore mass (mg)`), 
+                                       `Diaspore mass (mg)`)) %>% 
   # Remove the extra entries for these two species
   filter(!is.na(`Leaf area (mm2)`) | sum(!is.na(`Leaf area (mm2)`)) == 0)
 
 # 3) Load in and process TRY data sets ------------------------------------
 
 # We include these to obtain trait data for the 23 (or 39) missing from Diaz
-# load TRY data
-# TRY data is separated by trait (these data is in our Google Drive folder in databases)
-# Note that csv files starting with "TRY" followed by a trait name are a subset of the data provided for all TRY species present in their database. Only species present in "Trait_data_TRY_Diaz_2022_PNW.csv" were kept, in addition to possible synonmys found in funct_div.R
-# the full TRY data with all species is called TRY.zip
-
+# TRY data is separated by trait
 TRY_plant_height <- read_csv("data/raw/TRY_data_Feb2023/TRY_plant_height_growth.csv",
-  show_col_types = FALSE
+                             show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 plant_height_trait_names <- unique(TRY_plant_height$TraitName)
 
 TRY_leafN <- read_csv("data/raw/TRY_data_Feb2023/TRY_leafN.csv",
-  show_col_types = FALSE
+                      show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 leafN_trait_names <- unique(TRY_leafN$TraitName)
 
 TRY_LDMC <- read_csv("data/raw/TRY_data_Feb2023/TRY_LDMC.csv",
-  show_col_types = FALSE
+                     show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 LDMC_trait_names <- unique(TRY_LDMC$TraitName)
 
-# wait to handle this data because we need to know what Diaz used for leaf area measurements
 TRY_leafarea <- read_csv("data/raw/TRY_data_Feb2023/TRY_leafarea.csv",
-  show_col_types = FALSE
+                         show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 leafarea_trait_names <- unique(TRY_leafarea$TraitName)
 
 # this trait was recommended for inclusion in the recommended traits paper
 TRY_rooting_depth <- read_csv("data/raw/TRY_data_Feb2023/TRY_rooting_depth.csv",
-  show_col_types = FALSE
+                              show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 rooting_depth_trait_names <- unique(TRY_rooting_depth$TraitName)
 
 # this trait was recommended for inclusion in the recommended traits paper
 TRY_stem_density <- read_csv("data/raw/TRY_data_Feb2023/TRY_stem_density.csv",
-  show_col_types = FALSE
+                             show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 stem_density_trait_names <- unique(TRY_stem_density$TraitName)
 
 # this trait was recommended for inclusion in the recommended traits paper
 TRY_plant_woodiness <- read_csv("data/raw/TRY_data_Feb2023/TRY_plant_woodiness.csv",
-  show_col_types = FALSE
+                                show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 plant_woodiness_trait_names <- unique(TRY_plant_woodiness$TraitName)
 
 # this trait was recommended for inclusion in the recommended traits paper
 TRY_plant_veg_reproduction <- read_csv("data/raw/TRY_data_Feb2023/TRY_vegetative_reproduction.csv",
-  show_col_types = FALSE
+                                       show_col_types = FALSE
 ) %>%
   dplyr::select(-...1)
 plant_veg_reproduction_trait_names <- unique(TRY_plant_veg_reproduction$TraitName)
@@ -424,7 +395,7 @@ TRY_data_processed <- TRY_data %>%
   ) %>%
   dplyr::select(DatasetID, Synonym, TraitName:ValueKindName, Comment:Family) %>%
   group_by(DatasetID, Synonym, TraitName, ValueKindName) %>%
-  # Additional processing needed for the "Plant woodiness" categorical trait (KD: not sure we need such fine grain detail for this trait)
+  # Additional processing needed for the "Plant woodiness" categorical trait
   mutate(OrigValueStr = case_when(
     TraitName == "Plant woodiness" ~ case_when(
       OrigValueStr %in% c("non-woody", "h", "H", "N", "0") ~ 0, # "non-woody",
@@ -450,7 +421,7 @@ TRY_data_processed <- TRY_data %>%
   arrange(Synonym, TraitName)
 
 TRY_data_processed_wide <- TRY_data_processed %>%
-  # Rename and combine "synonymous" traits (KD: I've combined these for now, until we decide on which to keep)
+  # Rename and combine "synonymous" traits
   # These trait names are chosen to be similar to those used in Diaz
   mutate(TraitName = case_when(
     TraitName %in% c("Plant woodiness") ~ "Woodiness",
@@ -464,7 +435,6 @@ TRY_data_processed_wide <- TRY_data_processed %>%
       "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded"
     ) ~ "SLA",
     TraitName %in% c("Leaf nitrogen (N) content per leaf dry mass") ~ "Nmass (mg/g)",
-    # TraitName %in% c() ~ "LMA (g/m2)",
     TraitName %in% c("Plant height vegetative") ~ "Plant height (m)",
     TraitName %in% c() ~ "Diaspore mass (mg)",
     TraitName %in% c("Leaf dry mass per leaf fresh mass (leaf dry matter content, LDMC)") ~ "LDMC (g/g)",
@@ -499,12 +469,10 @@ synonym_doubles <- full_species_synonyms_list %>%
   # Check if there are multiple synonyms assigned to one original name
   group_by(original_name) %>%
   # filter(n() > 1) %>% # 16 left, these all seem to differ in how subspecies or variant is spelled
-  # mutate(original_species = stringr::word(original_name, 1, 2, sep = " ")) %>%
   mutate(original_sspvar = stringr::word(original_name, 3, 3, sep = " ")) %>%
-  # mutate(synonym_species = stringr::word(Synonym, 1, 2, sep = " ")) %>%
   mutate(synonym_sspvar = stringr::word(Synonym, 3, 3, sep = " "))
 
-write_csv(synonym_doubles, "synonym_doubles.csv")
+write_csv(synonym_doubles, "data/clean/synonym_doubles.csv")
 
 # Save a list of all the species synonyms we encountered in the datasets
 custom_synonyms_list <- read_csv("data/clean/synonym_list.csv", show_col_types = FALSE)
@@ -516,22 +484,26 @@ full_species_synonyms_list %>%
 
 # Join Diaz and TRY data sets, preferring data entries from Diaz
 
+# Get coverage of traits
+coverage_df <-  rbind(
+  Diaz_data_sel %>% rename(original_name = original_name_Diaz),
+  TRY_data_processed_wide,
+  # Add back in species which lack trait data along with TEK data
+  full_data %>% mutate(origin = "this_study")
+) %>% 
+  ungroup() %>%
+  summarise(across(everything(), ~ sum(!is.na(.)) / dim(TRY_data_processed_wide)[1]))
+
 final_data <- rbind(
   Diaz_data_sel %>% rename(original_name = original_name_Diaz),
   TRY_data_processed_wide,
   # Add back in species which lack trait data along with TEK data
   full_data %>% mutate(origin = "this_study")
-  ) %>%
+) %>%
   arrange(Synonym, origin) %>%
-  select(c(
-    "Synonym", "Family", "origin",
-    "LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness",
-    "Diaspore mass (mg)", #"SSD",
-    "N_Names":"N_Uses"
-  )) %>%
-  # if there is data for a trait from both the Diaz and TRY data sets, just use the value from Diaz
+  # if there are data for a trait from both the Diaz and TRY data sets, just use the value from Diaz
   pivot_longer(
-    cols = c("Family", "LDMC (g/g)":"N_Uses"),
+    cols = c(-"Synonym", -"origin"),
     names_to = "trait", values_to = "value",
     values_transform = list(value = as.character)
   ) %>%
@@ -543,7 +515,6 @@ final_data <- rbind(
   # if value is not NA for origin = "TRY" and origin = "Diaz",
   # set value to value from "Diaz"
   group_by(Synonym, trait) %>%
-  # select(c("Synonym", "Family", "trait", "Diaz", "TRY")) %>%
   mutate(
     value = case_when(
       !is.na(Diaz) & !is.na(TRY) ~ Diaz,
@@ -555,7 +526,6 @@ final_data <- rbind(
     # delete origin column
     .keep = "unused"
   ) %>%
-  # !!! Assign Family names with this priority: Diaz > TRY > original
   pivot_wider(names_from = "trait") %>%
   # Change numeric variables back to type double
   mutate_at(vars(`LDMC (g/g)`:`Leaf area (mm2)`, "Diaspore mass (mg)":"N_Uses"), as.double) %>%
@@ -567,10 +537,6 @@ final_data <- rbind(
 subspecies_list <- final_data %>%
   group_by(Species) %>%
   filter(n() > 1)
-
-# Write the final data
-# write_csv(final_data, "data/clean/final_dataset.csv")
-# final_data <- read_csv("data/clean/final_dataset.csv")
 
 # List of species for which we have zero numeric trait data besides TEK
 test_data <- final_data %>%
@@ -588,6 +554,7 @@ write_csv(coverage_df, "data/clean/coverage_pcts.csv")
 
 # 5) Impute missing trait data --------------------------------------------
 
+# Write the final data from before imputation
 write_csv(final_data, "data/clean/dataset_no_imputation.csv")
 
 # Put trait data in workable form for imputation
@@ -612,24 +579,20 @@ traits_df <- data_in %>%
 
 # Run missForest algorithm to impute missing traits
 # get taxonomic columns
-taxa <- select(traits_df, c(Genus, Family)) # , Species, Ssp_var) # Get order and family level data
+taxa <- select(traits_df, c(Genus, Family)) # Get order and family level data
 test <- rep(1, nrow(taxa))
 taxa <- cbind(taxa, test)
 
 # turn taxonomic groupings into dummy binary variables
 dummies <- dummyVars(test ~ ., data = taxa)
 taxa <- predict(dummies, newdata = taxa) #%>% 
-  # as.data.frame() %>% 
-  # mutate_at(vars(`GenusAbies`:`GenusZostera`), as.character)
 
 # select traits to be imputed
 traits_to_impute <- as.data.frame(traits_df) %>%
   select(-c("Genus":"Family")) %>%
-  # mutate(Family = as.factor(Family)) %>%
-  # select(-Family) %>%
   mutate(Woodiness = as.factor(Woodiness))
 
-# # Genera for which there are species with no trait data
+# # Uncomment this to examine if there are any Genera for which there are species with no trait data
 # emptyGenera_data <- traits_to_impute  %>%
 #   rowwise() %>%
 #   mutate(n_notNA = sum(!is.na(c_across(where(is.double))))) %>% 
@@ -645,17 +608,15 @@ true_df = traits_to_impute %>% filter_at(vars(`LDMC_log`:`DiasporeMass_log`), al
 
 # run missForest imputation
 PNW_imp <- missForest(traits_to_impute,
-  maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
-  ntree = 10000, # number of trees to grow in each forest
-  verbose = TRUE, # if 'TRUE', gives additional output between iterations
-  variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
-  # classwt = as.list(c(NA, NA, NA, NA, NA, NA, rep(100, 191-6)))
+                      maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
+                      ntree = 10000, # number of trees to grow in each forest
+                      verbose = TRUE, # if 'TRUE', gives additional output between iterations
+                      variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
 )
 
 imp_df = PNW_imp$ximp
 # traits_to_impute
 trait_names = c("LDMC_log", "Nmass (mg/g)", "LeafArea_log", "PlantHeight_log", "DiasporeMass_log")
-
 
 # add actual taxonomic columns back in and remove dummy variables
 imputed_traits <- cbind(traits_df[, 1:5], PNW_imp$ximp[, 1:6]) 
@@ -664,9 +625,9 @@ imputed_data <- right_join(
   select(final_data, -c("LDMC (g/g)":"Diaspore mass (mg)")),
   select(imputed_traits, -c(Genus:Ssp_var))
 )
-# 
+
 full_df <- traits_df %>%
-  # keep track of which traits were original values
+  # keep track of which traits were original values and not imputed values
   mutate(type = "original") %>%
   rbind(imputed_traits %>% mutate(type = "imputed")) %>%
   mutate("LDMC (g/g)" = exp(LDMC_log), .keep = "unused") %>%
@@ -699,45 +660,3 @@ error_df <- as.list(PNW_imp$OOBerror[1:6]) %>%
 # 6) Put data set into workable form for imputation and phylogeny steps --------
 
 write_csv(imputed_data, "data/clean/final_dataset.csv")
-
-
-
-# # Reduce dataset to only include data used in simulations
-# data_in <- final_data %>%
-#   select("Species_full", "Family", "LDMC (g/g)", "Plant height (m)", "Nmass (mg/g)", "Leaf area (mm2)", "Woodiness") %>%
-#   melt(
-#     id = c("Species_full"), # , "Status"),
-#     variable.name = "Trait"
-#   ) %>%
-#   # entityID gives a unique number for each SPECIES
-#   mutate(entityID = as.numeric(factor(Species_full))) %>%
-#   # Add genus and species labels for phylogenetic analysis
-#   mutate(Species = stringr::word(Species_full, 1, 2, sep = " ")) %>% # get rid of spp. and var.
-#   mutate(Genus = stringr::word(Species_full, 1, 1, sep = " "))
-
-
-
-
-# * Diagnostics and visualization -----------------------------------------
-# 
-# # Compare trait data from Diaz and directly from TRY
-# comp_DiazTRY <- final_data %>%
-#   select(Species, "SSD combined (mg/mm3)":"Leaf area (mm2)", "TRY_Nmass (mg/g)":"TRY_RRD") %>%
-#   pivot_longer(cols = "TRY_Nmass (mg/g)":"TRY_RRD", names_to = "TRY_name", values_to = "value_TRY", names_prefix = "TRY_") %>%
-#   mutate(value_TRY = as.double(value_TRY)) %>%
-#   # Rename Diaz traits that don't match up exactly with TRY data...
-#   rename(SSD = "SSD combined (mg/mm3)") %>%
-#   pivot_longer(cols = "SSD":"Leaf area (mm2)", names_to = "Diaz_name", values_to = "value_Diaz") %>%
-#   filter(TRY_name == Diaz_name) %>%
-#   # rename() %>%
-#   select(Species, TraitName = TRY_name, value_TRY, value_Diaz) %>%
-#   filter(!is.na(value_TRY), !is.na(value_Diaz)) %>%
-#   mutate(diff = value_TRY - value_Diaz)
-# 
-# # Distribution of differences across each trait
-# comp_plot <- comp_DiazTRY %>%
-#   ggplot(aes(x = diff)) +
-#   geom_histogram(bins = 10) +
-#   facet_wrap(~TraitName, scales = "free") +
-#   ggtitle("Distributions of differences between TRY and Diaz trait values")
-# comp_plot

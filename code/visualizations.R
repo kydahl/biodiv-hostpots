@@ -1,6 +1,33 @@
-#### Create visualizations from simulations ####################################
+################################################################################
+# Visualization of simulation results
+################################################################################
 
-## Load libraries --------------------------------------------------------------
+## Project: Comparing biodiversity hotspot identification
+##
+## Purpose: Produce figures illustrating features of simulation results
+##
+## Contents: Set-up, load in necessary packages, functions, and data-sets
+##           Figure 0: Distribution of traits (across all species)
+##           Figure 1: Compare the distribution of biodiversity metric values
+##           Table 1: Numbers of hot spots identified
+##           Figure ?: Biodiversity metric dendrogram clustered by precision
+##           Figure S3: Pairwise comparison heatmaps
+##           Figure S?: Joint density of TEK data
+##            
+## Inputs:  - Source: code/functions.R
+##          - data/clean/final_dataset.csv
+##          - data/clean/full_tree.rds
+##          
+## Outputs: - results/full_comparisons.rds
+##
+## Written and by: Kyle Dahlin and Elisa Van Cleemput
+## Maintained by: Kyle Dahlin, kydahlin@gmail.com
+## Initialized April 2023
+## _____________________________________________________________________________
+
+
+# Set-up, load in necessary packages, functions, and data-sets ------------
+#### Load libraries ----
 require(tidyverse)
 library(doParallel)
 library(MetBrewer)
@@ -12,19 +39,13 @@ library(gridExtra)
 library(ggh4x)
 library(scales)
 library(ggpubr)
+library(ggdendro) # to plot dendrograms
 
 # Load in simulations
 source("code/functions.R")
 
-# [] remove abundance-based metrics: 
-#     [] Simpson (equivalent to Faith)
-#     [] Gini and Simpson (equivalent to 1 - 1/Faith)
-#     [] McIntosh (equal to 1)
 
-# Figures -----------------------------------------------------------------
-
-# Figure 0: Distribution of traits (across all species) ----
-
+# Figure 0: Distribution of traits (across all species) -------------------
 # Plot histograms in a single column
 trait_no_impute <- read_csv("data/clean/dataset_no_imputation.csv") %>%
   relocate("Synonym", "Family", "Species", "Ssp_var",
@@ -130,7 +151,6 @@ Indig_plots <- trait_no_impute %>%
   theme_cowplot(12)
 
 plot_trait_no_impute <- grid.arrange(logged_plots, remaining_plots, Indig_plots, nrow = 3)
-
 
 # Plot histograms in a single column
 trait_impute <- read_csv("data/clean/final_dataset.csv") %>%
@@ -268,37 +288,12 @@ plot_trait_impute <- grid.arrange(logged_plots, remaining_plots, Indig_plots, nr
 ggsave("figures/trait_distributions.png", plot_trait_impute, width = 10.5, height = 6, units = "in")
 
 
-# Compare distributions of traits before and after imputation (only functional traits)
-
-compare_dists <- read_csv("data/clean/final_dataset.csv") %>%
-  mutate(origin = "imputed") %>% 
-  rbind(read_csv("data/clean/dataset_no_imputation.csv") %>% 
-          mutate(origin = "original")) %>% 
-  select(-c(Synonym:Ssp_var)) %>% 
-  relocate(origin) %>% 
-  mutate(Woodiness = Woodiness == "woody") %>% 
-  pivot_longer(cols = c("Nmass (mg/g)":"LDMC (g/g)")) 
-
-plot_compare_dists <- compare_dists %>% 
-  ggplot(aes(x = value, fill = origin)) +
-  # plot histogram using density instead of count
-  geom_histogram(aes(x = value, after_stat(density))) +
-  # # add a spline approximating the probability density function
-  # geom_density(alpha = .2) +
-  # one histogram for each biodiversity metric
-  facet_wrap( ~ name, scales = "free") +
-  theme_cowplot(12)
-
-plot_compare_dists
-
-
 # Figure 1: Compare the distribution of biodiversity metric values --------
 # Define the relevant trait names
 trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", 
                  "Leaf area (mm2)", "Diaspore mass (mg)")
 
 # Initialize the full phylogenetic tree
-# tree <- get.phylo_tree(read_csv("data/clean/final_dataset.csv"))
 tree <- readRDS("data/clean/full_tree.rds")
 
 # Get a single simulation
@@ -315,7 +310,7 @@ biodiv_plot_df <- biodiv_df %>%
   add_row(Patch = 1, name = "dummy")
 
 biodiv_plot_df$group <- case_match(biodiv_plot_df$name,
-                                   c("NumUnique", "NumEndemic") ~ "Basic",
+                                   c("NumUnique", "NumEndemic") ~ "Taxonomic",
                                    c("NumIndigName", "NumUse") ~ "TEK",
                                    c("richness", "GiniSimpson", "Simpson",
                                      "Shannon", "Margalef", "Menhinick",
@@ -323,17 +318,13 @@ biodiv_plot_df$group <- case_match(biodiv_plot_df$name,
                                    c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
 )
 
-# Remove number of "endemic" from analysis
+# Assign colors to biodiversity metrics according to type
 x_label_color_function <- function(string) {
-  out <- #paste("<span style = 'color: ",
-    case_match(string,
-               "Basic" ~ "black",
-               "TEK" ~ c4a("brewer.set1", 3)[1],
-               "Phylogenetic" ~ c4a("brewer.set1", 3)[2],
-               "Functional" ~ c4a("brewer.set1", 3)[3],)#,
-  # ";'>",
-  # string,
-  # "</span>", sep = "")
+  out <- case_match(string,
+                    "Taxonomic" ~ "black",
+                    "TEK" ~ c4a("brewer.set1", 3)[1],
+                    "Phylogenetic" ~ c4a("brewer.set1", 3)[2],
+                    "Functional" ~ c4a("brewer.set1", 3)[3],)
   out <- as.character(out)
 }
 
@@ -372,17 +363,9 @@ biodiv_plot_df$label <-  factor(biodiv_plot_df$label, levels = c(
 )
 )
 
-# biodiv_plot_df <- biodiv_plot_df %>%
-#   select(Patch, value, label) %>%
-#   pivot_wider(names_from = label, values_from = value)
-
 # Get mean and standard deviation values for each index
 meanSD_df <- biodiv_plot_df %>% 
   filter(label != "Number of 'endemic' species") %>%
-  # select(-`Number of 'endemic' species`) %>% 
-  # pivot_longer(cols = `Species richness`:`Phylogenetic species richness`,
-  #              names_to = "variable") %>% 
-  # filter(!is.na(value)) %>% 
   group_by(label) %>% 
   summarise(mean = mean(value, na.rm = TRUE),
             stdev = sd(value, na.rm = TRUE),
@@ -390,23 +373,7 @@ meanSD_df <- biodiv_plot_df %>%
             hotspot_cutoff = quantile(value, c(0.95), na.rm = TRUE)
   )
 
-# hotspot_stats <- biodiv_plot_df %>% 
-#   group_by(label) %>% 
-#   filter(value > hotspot_cutoff) %>% 
-#   summarise(mean = mean(value, na.rm = TRUE),
-#             stdev = sd(value, na.rm = TRUE),
-#             lower = mean - 1.96 * stdev
-#   )
-# 
-# nonhotspot_stats <- biodiv_plot_df %>% 
-#   group_by(label) %>% 
-#   filter(value <= hotspot_cutoff) %>% 
-#   summarise(mean = mean(value, na.rm = TRUE),
-#             stdev = sd(value, na.rm = TRUE),
-#             upper = mean + 1.96 * stdev
-#   )
-
-# Plot histograms in a single column
+# Plot histograms in three columns
 histogram_colors = c("black", rep("#E41A1C",2), rep("#4DAF4A", 5), rep("#377EB8", 9), NA)
 
 strip_theme = strip_themed(background_x = elem_list_rect(fill = histogram_colors),
@@ -417,13 +384,7 @@ biodiv_plot_df2 <- right_join(biodiv_plot_df, meanSD_df, by = c("label")) %>%
 
 histogram_plot <- biodiv_plot_df2 %>%
   filter(label != "Number of 'endemic' species") %>%
-  # filter(name == "PSR") %>%
   ggplot(aes(x = value)) +
-  # # plot histogram using density instead of count
-  # geom_histogram(aes(x = value, y = ..density..),
-  #                colour = "black",
-  #                fill = "white"
-  # ) +
   # add a spline approximating the probability density function
   geom_density(aes(x = value, ..scaled..),
                alpha = .2,
@@ -435,10 +396,6 @@ histogram_plot <- biodiv_plot_df2 %>%
                geom = "vline", orientation = "y",
                color = "blue", lwd = 1) +
   geom_vline(aes(xintercept = mean), linetype = 2) +
-  # geom_vline(data = nonhotspot_stats, aes(xintercept = upper), 
-  #            color = "green", linetype = 2) +
-  # geom_vline(data = hotspot_stats, aes(xintercept = lower), 
-  #            color = "blue", linetype = 2) +
   ylab('Density') +
   xlab('Value') +
   # one histogram for each biodiversity metric
@@ -450,275 +407,8 @@ histogram_plot
 
 ggsave("figures/biodiv_distribution.pdf", histogram_plot, width = 6.5, height = 6, units = "in")
 
-
-# Figure 2: Scatterplots of selected biodiversity metrics -----------------
-biodiv_scatter <- biodiv_df %>% 
-  select(-c(Patch, NumEndemic, 
-            FDiv, FDis, FEve, Q,
-            richness, GiniSimpson, Margalef, Menhinick, McIntosh)) %>% 
-  ggpairs(aes()) +
-  theme_cowplot(11)
-
-biodiv_scatter
-
-
-
-# Figure 3: Comparing biodiversity hotspots -------------------------------
-
-# Number of patches to simulate
-NumPatches <- 1000
-
-# Number of sets of simulated patches to create
-numIterations <- 100
-
-# Names of traits to use for functional diversity
-trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)")
-
-# Tree to use for phylogenetic diversity
-tree <- get.phylo_tree(final_data)
-
-# Biodiversity metric to make comparisons with
-baseline_metric <- "FDiv" # The full list is right below, the column names for compare_df
-
-# Initialize comparison data frame
-compare_df <- tibble(
-  NumUnique = as.double(),
-  NumEndemic = as.double(), NumIndigName = as.double(), NumUse = as.double(),
-  # NumIndigLang = as.double()
-  richness = as.double(), GiniSimpson = as.double(),
-  Simpson = as.double(), Shannon = as.double(),
-  Margalef = as.double(), Menhinick = as.double(),
-  McIntosh = as.double(), PSVs = as.double(),
-  PSR = as.double(), FRic = as.integer(),  FDiv = as.integer(),  
-  FDis = as.integer(),  FEve = as.integer(),  Q = as.integer(),
-  iteration = as.integer()
-) %>%
-  # Remove the focal metric
-  select(-one_of(baseline_metric))
-
-# Start new cluster for doParallel
-cluster_size <- parallel::detectCores() - 2
-my.cluster <- parallel::makeCluster(cluster_size, type = "PSOCK")
-# Register cluster for doParallel
-doSNOW::registerDoSNOW(cl = my.cluster)
-
-# Set up progress bar
-pb <- progress_bar$new(
-  format = ":spin progress = :percent [:bar] elapsed: :elapsed | eta: :eta",
-  total = numIterations,
-  width = 100
-)
-progress <- function(n) {
-  pb$tick()
-}
-opts <- list(progress = progress)
-
-# Calculate comparisons among diversity metrics
-compare_df <- foreach(
-  j = 1:numIterations,
-  # int = icount(),
-  .combine = "rbind",
-  .packages = c("tidyverse", "reshape2", "picante", "fundiversity", "adiv", "retry"),
-  .options.snow = opts
-) %dopar%
-  {
-    gc()
-    biodiv.compare_df <- retry(
-      biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
-      until = function(val, cnd) {
-        !is.null(val)
-      }
-    ) %>% 
-      mutate(iteration = j)
-    
-    precision_df <- biodiv.compare_df %>%
-      select(-list_length) %>% 
-      pivot_wider(names_from = variable) %>%
-      unique() 
-    
-    list_length_df <- biodiv.compare_df %>%
-      select(-"value") %>% 
-      pivot_wider(names_from = variable, values_from = list_length) %>%
-      unique() 
-    
-    gc()
-    out_df <- rbind(
-      mutate(precision_df, type = "precision"),
-      mutate(list_length_df, type = "list_length")
-    )
-    
-    # # Add to the list
-    # compare_df <- add_row(
-    #   compare_df,
-    #   biodiv.compare_df
-    # )
-    
-  } %>% unique()
-
-stopCluster(my.cluster)
-
-write_rds(compare_df, "results/compare_biodiv.rds")
-
-compare_df <- read_rds("results/compare_biodiv.rds")
-
-# Create figure comparing precision
-compare_plot <- compare_df %>%
-  filter(type == "precision") %>% 
-  select(-iteration) %>%
-  melt() %>%
-  group_by(variable) %>% 
-  mutate(mean = mean(value)) %>% 
-  ggplot(aes(x = value)) +
-  # plot histogram using density instead of count
-  geom_histogram(aes(x = value, after_stat(density)),
-                 bins = 30
-  ) +
-  # add a vertical line showing the mean
-  geom_vline(aes(xintercept = mean, group = variable), 
-             colour = "red") +  
-  
-  # add a spline approximating the probability density function
-  geom_density(aes(x = value),
-               alpha = .2,
-               fill = "#FF6666"
-  ) +
-  
-  facet_wrap( ~ variable, scales = "free") +
-  # x axis
-  scale_x_continuous(name = "Relative precision", 
-                     breaks = seq(0, 1, by = 0.1),
-                     limits = c(0,1)) +
-  # title
-  ggtitle("How similar is each biodiversity metric to functional divergence?") +
-  theme_cowplot(font_size = 11)
-
-compare_plot
-
-# Create figure comparing list lengths
-list_length_plot <- compare_df %>%
-  filter(type == "list_length") %>% 
-  select(-iteration) %>%
-  melt() %>%
-  group_by(variable) %>% 
-  mutate(mean = mean(value)) %>% 
-  ggplot(aes(x = value)) +
-  # plot histogram using density instead of count
-  geom_histogram(aes(x = value, after_stat(density)),
-                 bins = 30
-  ) +
-  # add a vertical line showing the mean
-  geom_vline(aes(xintercept = mean, group = variable), 
-             colour = "red") +  
-  facet_wrap( ~ variable, scales = "free") +
-  # x axis
-  scale_x_continuous(name = "Number of hotspots identified", 
-                     limits = c(0,NA)) +
-  # title
-  ggtitle("How similar are the numbers of hotspots identified?") +
-  theme_cowplot(font_size = 11)
-list_length_plot
-
-# Figure 4: Comparisons between functional/phylogenetic measures ----------
-
-# Initialize the full phylogenetic tree
-tree <- get.phylo_tree(read_csv("data/clean/final_dataset.csv"))
-# Names of traits to use for functional diversity
-trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)")
-
-# Get a single simulation
-numPatches <- 1000
-full_df_sample <- get.full_df(numPatches)
-
-# Calculate biodiversity metrics
-biodiv_df <- get.biodiv_df(full_df_sample, trait_names, tree)
-
-# Functional diversity measures
-func_scatter <- biodiv_df %>% 
-  select(FDiv, FRic, FDis, FEve, Q) %>% 
-  ggpairs(aes()) +
-  ggtitle('Comparison of functional trait biodiversity measures') +
-  theme_cowplot(11)
-
-# Phylogenetic diversity measures
-phylo_scatter <- biodiv_df %>% 
-  select(richness, GiniSimpson, Simpson, Shannon, Margalef, Menhinick, McIntosh, PSVs, PSR) %>% 
-  ggpairs(aes()) +
-  ggtitle('Comparison of phylogenetic trait biodiversity measures') +
-  theme_cowplot(11)
-
-# compare_df <- read_rds("results/compare_biodiv.rds")
-
-# Functional diversity measures
-func_compare_plot <- compare_df %>%
-  filter(type == "precision") %>% 
-  select(-iteration) %>%
-  select(FDiv, FRic, FDis, FEve, Q) %>% 
-  melt() %>%
-  group_by(variable) %>% 
-  mutate(mean = mean(value)) %>% 
-  ggplot(aes(x = value)) +
-  # plot histogram using density instead of count
-  geom_histogram(aes(x = value, after_stat(density)),
-                 bins = 30
-  ) +
-  # add a vertical line showing the mean
-  geom_vline(aes(xintercept = mean, group = variable), 
-             colour = "red") +  
-  
-  # add a spline approximating the probability density function
-  geom_density(aes(x = value),
-               alpha = .2,
-               fill = "#FF6666"
-  ) +
-  
-  facet_wrap( ~ variable, scales = "free") +
-  # x axis
-  scale_x_continuous(name = "Relative precision", 
-                     breaks = seq(0, 1, by = 0.1),
-                     limits = c(0,1)) +
-  # title
-  ggtitle("How similar are the functional diversity measures?") +
-  theme_cowplot(font_size = 11)
-
-func_compare_plot
-
-# Phylogenetic diversity measures
-phylo_compare_plot <- compare_df %>%
-  filter(type == "precision") %>% 
-  select(-iteration) %>%
-  select(richness, GiniSimpson, Simpson, Shannon, Margalef, Menhinick, McIntosh, PSVs, PSR) %>% 
-  melt() %>%
-  group_by(variable) %>% 
-  mutate(mean = mean(value)) %>% 
-  ggplot(aes(x = value)) +
-  # plot histogram using density instead of count
-  geom_histogram(aes(x = value, after_stat(density)),
-                 bins = 30
-  ) +
-  # add a vertical line showing the mean
-  geom_vline(aes(xintercept = mean, group = variable), 
-             colour = "red") +  
-  
-  # add a spline approximating the probability density function
-  geom_density(aes(x = value),
-               alpha = .2,
-               fill = "#FF6666"
-  ) +
-  
-  facet_wrap( ~ variable, scales = "free") +
-  # x axis
-  scale_x_continuous(name = "Relative precision", 
-                     breaks = seq(0, 1, by = 0.1),
-                     limits = c(0,1)) +
-  # title
-  ggtitle("How similar are the phylogenetic diversity measures?") +
-  theme_cowplot(font_size = 11)
-
-phylo_compare_plot
-
-# Table 1: Numbers of hot spots identified ---------------------------------
-
-hotspot_nums <- readRDS('full_comparisons.rds') %>% 
+# Table 1: Numbers of hot spots identified --------------------------------
+hotspot_nums <- readRDS('results/full_comparisons.rds') %>% 
   filter(type == "list_length") %>% 
   filter(baseline == "NumUnique") %>% 
   rowwise() %>%  
@@ -757,24 +447,9 @@ hotspot_nums$type <- case_match(hotspot_nums$comparison,
                                 c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
 )
 
-x_label_color_function <- function(string) {
-  out <- #paste("<span style = 'color: ",
-    case_match(string,
-               "Taxonomic" ~ "black",
-               "TEK" ~ c4a("brewer.set1", 3)[1],
-               "Phylogenetic" ~ c4a("brewer.set1", 3)[2],
-               "Functional" ~ c4a("brewer.set1", 3)[3],)#,
-  # ";'>",
-  # string,
-  # "</span>", sep = "")
-  out <- as.character(out)
-}
-
 hotspot_nums$color <- x_label_color_function(hotspot_nums$type)
 
 hotspot_nums$type <- factor(hotspot_nums$type, levels = c("Taxonomic", "TEK", "Phylogenetic", "Functional"))
-
-
 
 # Plot bar graph showing mean and standard error of the numbers of hotspots
 hotspot_bars = hotspot_nums %>% 
@@ -798,10 +473,10 @@ hotspot_bars = hotspot_nums %>%
 ggsave("figures/hotspot_numbers.png", hotspot_bars, width = 6.5, height = 3, units = "in")
 
 
-# Figure S1: Pairwise precision and recall heatmaps -----------------------
+# Figure ?: Biodiversity metric dendrogram clustered by precision ---------
 
 # Make more descriptive labels for biodiversity metrics
-full_comp_df <- readRDS('full_comparisons.rds') 
+full_comp_df <- readRDS('results/full_comparisons.rds') 
 
 full_comp_df$baseline_label <-  case_match(full_comp_df$baseline,
                                            "NumUnique" ~ "Species richness",
@@ -847,7 +522,7 @@ full_comp_df$comparison_label <-  case_match(full_comp_df$comparison,
 
 
 full_comp_df$baseline_type <- case_match(full_comp_df$baseline,
-                                         c("NumUnique", "NumEndemic") ~ "Basic",
+                                         c("NumUnique", "NumEndemic") ~ "Taxonomic",
                                          c("NumIndigName", "NumUse") ~ "TEK",
                                          c("richness", "GiniSimpson", "Simpson",
                                            "Shannon", "Margalef", "Menhinick",
@@ -856,7 +531,7 @@ full_comp_df$baseline_type <- case_match(full_comp_df$baseline,
 )
 
 full_comp_df$comparison_type <- case_match(full_comp_df$comparison,
-                                           c("NumUnique", "NumEndemic") ~ "Basic",
+                                           c("NumUnique", "NumEndemic") ~ "Taxonomic",
                                            c("NumIndigName", "NumUse") ~ "TEK",
                                            c("richness", "GiniSimpson", "Simpson",
                                              "Shannon", "Margalef", "Menhinick",
@@ -864,28 +539,12 @@ full_comp_df$comparison_type <- case_match(full_comp_df$comparison,
                                            c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
 )
 
-# Remove number of "endemic" from analysis
-full_comp_df <- filter(full_comp_df, baseline != "NumEndemic", comparison != "NumEndemic")
-# baseline != "McIntosh", comparison != "McIntosh")
-
-x_label_color_function <- function(string) {
-  out <- #paste("<span style = 'color: ",
-    case_match(string,
-               "Basic" ~ "black",
-               "TEK" ~ c4a("brewer.set1", 3)[1],
-               "Phylogenetic" ~ c4a("brewer.set1", 3)[2],
-               "Functional" ~ c4a("brewer.set1", 3)[3],)#,
-  # ";'>",
-  # string,
-  # "</span>", sep = "")
-  out <- as.character(out)
-}
-
 full_comp_df$baseline_color <- x_label_color_function(full_comp_df$baseline_type)
 full_comp_df$comparison_color <- x_label_color_function(full_comp_df$comparison_type)
 
-# Cluster based on Euclidean distance
+# Cluster metrics based on the Euclidean distance of comparison values
 
+# Precision
 pair_prec_mat <- full_comp_df %>%
   filter(type == "precision") %>% 
   select(-c(var, type, baseline, comparison, baseline_type, comparison_type,
@@ -897,6 +556,7 @@ pair_prec_mat <- full_comp_df %>%
 m_prec <- as.matrix((pair_prec_mat[, -1]), ncol = 18)
 pair_prec_cluster <- hclust(dist(t(m_prec)), method = "ward.D2")
 
+# Recall
 pair_recall_mat <- full_comp_df %>%
   filter(type == "recall") %>% 
   select(-c(var, type, baseline, comparison, baseline_type, comparison_type,
@@ -908,11 +568,6 @@ pair_recall_mat <- full_comp_df %>%
 m_recall <- as.matrix((pair_recall_mat[, -1]), ncol = 18)
 pair_recall_cluster <- hclust(dist(t(m_recall)), method = "ward.D2")
 
-# Cluster dendrogram ----
-require(ggdendro)
-
-# dhc <- as.dendrogram(pair_prec_cluster)
-
 ddata <- dendro_data(pair_prec_cluster, type="rectangle")
 
 ddata_labels = label(ddata)
@@ -922,7 +577,7 @@ ddata_labels$color <- rev(c("#E41A1C", "#E41A1C", "#377EB8", "black", "#377EB8",
 
 ddata_labels$group <- case_match(
   ddata_labels$label,
-  "Species richness" ~ "Basic",
+  "Species richness" ~ "Taxonomic",
   c("Indigenous names", "Recorded Indigenous uses") ~ "TEK",
   c("Faith", "Gini and Simpson", "Simpson",
     "Shannon", "Margalef", "Menhinick",
@@ -961,21 +616,17 @@ ggplot() +
 ggsave("figures/dendrogram.pdf", width = 4, height = 1, units = "in",
        dpi = 600)
 
-# ggdendrogram(ddata, rotate = TRUE) +
-#   coord_flip() +
-#   theme(axis.text.y = element_text(size = 12, color = dendrogram_colors,
-#                                    face = "bold", hjust = 1))
 
-# Precision clustered heatmap
+# Figure S3: Pairwise comparison heatmaps ---------------------------------
 
+# Get colors assigned to biodiversity metrics to use for text labels
 plot_colours <- full_comp_df %>% 
   select(baseline_color, baseline_label) %>% 
   unique() %>% 
-  # left_join(tibble(baseline_label = colnames(m)[pair_prec_cluster$order]))
   slice(match(colnames(m_prec)[pair_prec_cluster$order], baseline_label)) %>% 
   select(baseline_color)
 
-
+# Precision clustered heatmap
 precision_heatmap <- full_comp_df %>% 
   arrange(desc(baseline), desc(comparison)) %>% 
   filter(type == "precision") %>% 
@@ -983,15 +634,9 @@ precision_heatmap <- full_comp_df %>%
   ggplot(aes(baseline_label, comparison_label, fill = mean, colour = baseline_type)) +
   geom_tile(color = "black") +
   geom_text(aes(label = round(mean, 2)), color = "black", size = 2.5) +
-  # geom_blank() +
   scale_fill_gradient("Mean value", low = "white", high = "blue") +
   scale_y_discrete("Comparison index", limits = rev(colnames(m_prec)[pair_prec_cluster$order])) +
   scale_x_discrete("Baseline index", limits = rev(colnames(m_prec)[pair_prec_cluster$order])) +
-  # scale_color_manual("test", values = c(
-  #   "Basic" = "black", "TEK" = "blue", "Phylogenetic" = "orange", "Functional" = "red")) +
-  # guides("test", colour = guide_legend(override.aes = 
-  #                                        list(fill = "white"))) +
-  # ggtitle("Precision of comparison biodiversity metrics") +
   theme_cowplot(10) +
   theme(
     
@@ -1004,13 +649,7 @@ precision_heatmap <- full_comp_df %>%
                                barwidth = 0.5,
                                title.hjust = 0.5))
 
-# plot_colours <- full_comp_df %>% 
-#   select(baseline_color, baseline_label) %>% 
-#   unique() %>% 
-#   # left_join(tibble(baseline_label = colnames(m)[pair_prec_cluster$order]))
-#   slice(match(colnames(m_recall)[rev(pair_recall_cluster$order)], baseline_label)) %>% 
-#   select(baseline_color)
-
+# Recall clustered heatmap
 recall_heatmap <- full_comp_df %>% 
   arrange(desc(baseline), desc(comparison)) %>% 
   filter(type == "recall") %>% 
@@ -1018,15 +657,9 @@ recall_heatmap <- full_comp_df %>%
   ggplot(aes(baseline_label, comparison_label, fill = mean, colour = baseline_type)) +
   geom_tile(color = "black") +
   geom_text(aes(label = round(mean, 2)), color = "black", size = 2.5) +
-  # geom_blank() +
   scale_fill_gradient("Mean value", low = "white", high = "blue") +
   scale_y_discrete("Comparison index", limits = rev(colnames(m_prec)[pair_prec_cluster$order])) +
-  scale_x_discrete("Baseline index", limits = rev(colnames(m_prec)[pair_prec_cluster$order])) +
-  # scale_color_manual("test", values = c(
-  #   "Basic" = "black", "TEK" = "blue", "Phylogenetic" = "orange", "Functional" = "red")) +
-  # guides("test", colour = guide_legend(override.aes = 
-  #                                        list(fill = "white"))) +
-  # ggtitle("Precision of comparison biodiversity metrics") +
+  scale_x_discrete("Baseline index", limits = rev(colnames(m_prec)[pair_prec_cluster$order])) + 
   theme_cowplot(10) +
   theme(
     axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1, 
@@ -1038,6 +671,7 @@ recall_heatmap <- full_comp_df %>%
                                barwidth = 0.5,
                                title.hjust = 0.5))
 
+# Combine heatmaps into a single plot
 heatmaps <- ggarrange(NULL, precision_heatmap, NULL, recall_heatmap, nrow = 4, 
                       heights = c(0.1, 1, 0.05, 1),
                       labels = c(NA, "A) Precision", NA, "B) Sensitivity"), 
@@ -1046,8 +680,8 @@ heatmaps <- ggarrange(NULL, precision_heatmap, NULL, recall_heatmap, nrow = 4,
 
 ggsave("figures/heatmaps.png", heatmaps, width = 6.5, height = 7, units = "in")
 
-# Figure S???: Joint density of TEK data ----------------------------------
 
+# Figure S?: Joint density of TEK data ------------------------------------
 
 TEK_data <- read_csv("data/clean/final_dataset.csv") %>%
   select(Synonym, N_Names, N_Uses)
@@ -1057,10 +691,9 @@ joint_TEK_plot <- ggplot(TEK_data, aes(x = N_Names, y = N_Uses))  +
   xlab("Number of Indigenous names") +
   ylab("Number of Indigenous uses") +
   scale_fill_viridis_d("Density") +
-  guides(fill = guide_colorsteps(barheight = 20, title.hjust = 0.5)) +
-  theme_cowplot(16)
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  guides(fill = guide_colorsteps(barheight = 10, title.hjust = 0.5)) +
+  theme_minimal()
 
-# Correlation calculation and significance test
-cor(TEK_data$N_Names, TEK_data$N_Uses, method = c("pearson", "kendall", "spearman"))
-cor.test(TEK_data$N_Names, TEK_data$N_Uses, method=c("pearson", "kendall", "spearman"))
-
+ggsave("figures/TEK_corrs.png", joint_TEK_plot, width = 6.5, height = 3, units = "in")

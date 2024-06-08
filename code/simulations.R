@@ -1,6 +1,30 @@
-#### Create simulations of patches and calculate biodiversity ##################
+################################################################################
+# Patch simulations and biodiversity hotspot calculations
+################################################################################
 
-## Load libraries---------------------------------------------------------------
+## Project: Comparing biodiversity hotspot identification
+##
+## Purpose: Create simulations of patches, calculate biodiversity metrics, identify hotspots
+##
+## Contents: 0) Set-up, load in necessary packages, functions, and data-sets
+##           1) Exploratory simulations
+##           2) Calculate pairwise comparisons of biodiversity hotspot identifications
+##
+## Inputs:  - Source: code/functions.R
+##          - data/clean/final_dataset.csv
+##          - data/clean/full_tree.rds
+##          
+## Outputs: - results/full_comparisons.rds
+##
+## Written and by: Kyle Dahlin and Elisa Van Cleemput
+## Maintained by: Kyle Dahlin, kydahlin@gmail.com
+## Initialized April 2023
+## _____________________________________________________________________________
+
+
+# 0) Set-up, load in necessary packages, functions, and data-sets ---------
+
+## Load libraries ----
 library(tidyverse)
 library(doParallel)
 library(MetBrewer)
@@ -11,173 +35,66 @@ library(retry)
 library(doFuture)
 library(future.callr)
 library(progressr)
+library(GGally) # To nicely plot correlations among variables
 
 # Load in analysis functions
 source("code/functions.R")
 
-# Load in trait data
-final_data <- read_csv("data/clean/final_dataset.csv") # %>%
-# rename(Species = Species_full)
+# Load in dataset and phylogenetic tree
+final_data <- read_csv("data/clean/final_dataset.csv")
 tree <- readRDS("data/clean/full_tree.rds")
 
-# Load in phylogenetic tree data
-
-# tree <- read.tree(file = "data/clean/phylogenetic_tree.csv")
-# Elisa: I commented this out, because we have been playing around with species names and hence, the tree might be different now
-
+# Set the random seed used to generate figures in the manuscript 
 set.seed(9523)
 
 
-## Parameters ------------------------------------------------------------------
-## Set random seed (for debugging)
-# set.seed(8797)
+## Simulation parameters ----
 
 ## Number of iterations to compute biodiversity over
 numIterations <- 100
 
-# Elisa: I added this to remove the patch with NA as a number, but it turns out there are more incomplete cases.
-# I didn't check the reason for this, but shouldn't this dataset be complete (because it has imputed trait data)
-# Kyle: I think na.omit removes rows where any of the columns are NA. So this is removing all the species with an NA in the subspecies or variant column. There may be species with NA in the Patch or Level column. These are the ones that weren't assigned to any of the patches. I made it so these get removed.
-
-#################################
-# Elisa: I used full_df to make phylo_div and funct_div work. what is the difference between full_df and test_df?
-#################################
+# 1) Exploratory simulations ----------------------------------------------
 
 # Compare hotspots identified by different metrics
 full_df <- get.full_df(NumPatches = 1000)
 
 # I added trait_names to the input of get.biodiv_df
-trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", "Leaf area (mm2)")
-# I set it up to just calculate the tree once
-tree <- get.phylo_tree(final_data)
+trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", 
+                 "Leaf area (mm2)", "Diaspore mass (mg)")
 
-# KD: takes approximately 2 minutes, mostly because of phylogenetic diversity functions taking a long time
-
-
-# Explore an example simulation -------------------------------------------
+#### Explore an example simulation with 40 patches ----
 explore_df <- get.full_df(40) %>% 
   get.biodiv_df(., trait_names, tree)
 
-
 # Plot correlations among biodiversity metrics
-library(GGally)
 pair_plot <- explore_df %>% 
-  select(-c(Patch, NumEndemic, richness, GiniSimpson, Margalef, Menhinick, McIntosh)) %>% 
+  select(-c(Patch)) %>% 
   ggpairs()
 
 
-# Set up iterated simulations ---------------------------------------------
 
-# # Set comparison parameters
-# numIterations <- 100
-# NumPatches <- 1000
-# 
-# baseline_metric <- "NumUnique"
-# 
-# # Initialize comparison data frame
-# compare_df <- tibble(
-#   NumUnique = as.double(),
-#   NumEndemic = as.double(), NumIndigName = as.double(), NumUse = as.double(),
-#   # NumIndigLang = as.double()
-#   richness = as.double(), GiniSimpson = as.double(),
-#   Simpson = as.double(), Shannon = as.double(),
-#   Margalef = as.double(), Menhinick = as.double(),
-#   McIntosh = as.double(), PSVs = as.double(),
-#   PSR = as.double(), FRic = as.integer(),  FDiv = as.integer(),  
-#   FDis = as.integer(),  FEve = as.integer(),  Q = as.integer(),
-#   iteration = as.integer()
-# ) %>%
-#   # Remove the focal metric
-#   select(-one_of(baseline_metric))
-# 
-# # Start new cluster for doParallel
-# cluster_size <- parallel::detectCores() - 2
-# my.cluster <- parallel::makeCluster(cluster_size, type = "PSOCK")
-# # Register cluster for doParallel
-# doSNOW::registerDoSNOW(cl = my.cluster)
-# 
-# # Set up progress bar
-# pb <- progress_bar$new(
-#   format = ":spin progress = :percent [:bar] elapsed: :elapsed | eta: :eta",
-#   total = numIterations,
-#   width = 100
-# )
-# progress <- function(n) {
-#   pb$tick()
-# }
-# opts <- list(progress = progress)
-# 
-# # Calculate comparisons among diversity metrics
-# compare_df <- foreach(
-#   j = 1:numIterations,
-#   # int = icount(),
-#   .combine = "rbind",
-#   .packages = c("tidyverse", "reshape2", "picante", "fundiversity", "adiv", "retry"),
-#   .options.snow = opts
-# ) %dopar%
-#   {
-#     j=j+1
-#     gc()
-#     biodiv.compare_df <- retry(
-#       biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
-#       until = function(val, cnd) {
-#         !is.null(val)
-#       }
-#     ) %>% 
-#       mutate(iteration = j)
-#     
-#     precision_df <- biodiv.compare_df %>%
-#       select(-c(list_length, recall)) %>% 
-#       pivot_wider(names_from = variable) %>%
-#       unique() 
-#     
-#     list_length_df <- biodiv.compare_df %>%
-#       select(-c(value, recall)) %>% 
-#       pivot_wider(names_from = variable, values_from = list_length) %>%
-#       unique() 
-#     
-#     recall_df <- biodiv.compare_df %>%
-#       select(-c(value, list_length)) %>% 
-#       pivot_wider(names_from = variable, values_from = recall) %>%
-#       unique() 
-#     
-#     out_df <- rbind(
-#       mutate(precision_df, type = "precision"),
-#       mutate(list_length_df, type = "list_length"),
-#       mutate(recall_df, type = "recall")
-#     )
-#     
-#     # # Add to the list
-#     # compare_df <- add_row(
-#     #   compare_df,
-#     #   biodiv.compare_df
-#     # )
-#   } %>% unique()
-# 
-# stopCluster(my.cluster)
+# 2) Calculate pairwise comparisons of biodiversity hotspot identi --------
 
-
-# Pairwise precision comparisons -------------------------------------
-# I added trait_names to the input of get.biodiv_df
+# List of trait names used in final analysis
 trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", 
                  "Leaf area (mm2)", "Diaspore mass (mg)")
-# Calculate the full phylogenetic tree once
-# tree <- get.phylo_tree(final_data)
 
 # List of all metric names
 metric_names <- c("NumUnique", "NumIndigName", "NumUse",
                   "FRic", "FDiv", "FDis", "FEve", "Q", "richness", "GiniSimpson",
                   "Simpson", "Shannon", "Margalef", "Menhinick", "McIntosh",
                   "PSVs", "PSR")
+
 # Set comparison parameters
 numIterations <- 100
 NumPatches <- 1000
 
-# plan(multisession, workers = 12, gc = TRUE)
-# plan(callr)
+# Set up parallel processing
+plan(multisession, workers = 12, gc = TRUE)
+
 # Set up progress bar
 handlers(global = TRUE)
-handlers("cli") #handlers("progress")
+handlers("cli")
 
 full_compare_df <- tibble(
   baseline = as.character(), # baseline biodiversity metric
@@ -192,14 +109,13 @@ for (metric_name in metric_names) {
   gc()
   metric_index = metric_index + 1
   print(paste0("Calculating ", metric_name,
-               " ( # ", metric_index, " of ", length(metric_names), " ):"))
+               " ( Metric # ", metric_index, " of ", length(metric_names), " ):"))
   baseline_metric <- metric_name
   
   # Initialize comparison data frame
   compare_df <- tibble(
     NumUnique = as.double(),
     NumIndigName = as.double(), NumUse = as.double(),
-    # NumIndigLang = as.double()
     richness = as.double(), GiniSimpson = as.double(),
     Simpson = as.double(), Shannon = as.double(),
     Margalef = as.double(), Menhinick = as.double(),
@@ -210,12 +126,6 @@ for (metric_name in metric_names) {
   ) %>%
     # Remove the focal metric
     select(-one_of(baseline_metric))
-  
-  
-  # for (slice_index in 1:slice_indices) {
-  #   # Set up chunk of simulations to run and progress bar
-  #   slice_range = (slice_index - 1)*sliceLength + 1:sliceLength
-  
   
   # Calculate comparisons among diversity metrics
   get.temp_compare_df = function(slice_range) {
@@ -266,12 +176,6 @@ for (metric_name in metric_names) {
     compare_df = rbind(compare_df, get.temp_compare_df(sliceRange))
     plan(sequential)
   }
-  # slice_range = 1:(numIterations/2) #slice_range[slice_range <= numIterations]
-  # 
-  # temp_compare_df1 = get.temp_compare_df(slice_range)
-  # temp_compare_df2 = get.temp_compare_df(slice_range)
-  # 
-  # compare_df <- rbind(temp_compare_df1, temp_compare_df2)
   
   out_df <- compare_df %>% 
     pivot_longer(cols = all_of(metric_names), names_to = "comparison") %>% 
@@ -286,4 +190,4 @@ for (metric_name in metric_names) {
   rm(compare_df)
 }
 
-saveRDS(full_compare_df, file = "full_comparisons.rds")
+saveRDS(full_compare_df, file = "results/full_comparisons.rds")

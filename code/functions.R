@@ -2,28 +2,48 @@
 # Functions used in the simulation study
 ################################################################################
 
-# Kyle Dahlin, September 2022
-##* Load libraries---------------------------------------------------------------
+## Project: Comparing biodiversity hotspot identification
+##
+## Purpose: Define functions to be used in simulations
+##
+## Contents: 0) Set-up, load in necessary packages, functions, and data-sets
+##           1) Helper functions
+##           2) Functions to create patches and communities
+##           3) Biodiversity metric functions
+##           4) Hotspot functions
+##           5) Put dataset into workable form for imputation and phylogeny
+##              steps
+##
+## Inputs:  "data/clean/final_dataset.csv" and "data/clean/species_occurrences.rds"
+##          
+## Outputs: none
+##
+## Written and by: Kyle Dahlin and Elisa Van Cleemput
+## Maintained by: Kyle Dahlin, kydahlin@gmail.com
+## Initialized September 2022
+## _____________________________________________________________________________
+
+
+# 0) Set-up, load in necessary packages, functions, and data-sets ---------
+
+##* Load libraries ----
 library(tidyverse)
 library(progress) # for progress bars for long-running tasks
-# For functional diversity metrics
-library(fundiversity)
-# For phylogenetic diversity metrics
-library(adiv)
+library(fundiversity) # For functional diversity metrics
+library(adiv) # For phylogenetic diversity metrics
 library(stringr)
-# library(V.PhyloMaker2)
+library(V.PhyloMaker2)
 library(picante)
 library(maditr)
 
-##* Load necessary data---------------------------------------------------------
+##* Load necessary data ----
 final_data <- read_csv("data/clean/final_dataset.csv", show_col_types = FALSE)
 
 SpeciesOccs <- read_rds("data/clean/species_occurrences.rds")
 
 
-##* Helper functions-------------------------------------------------------------
+# 1) Helper functions -----------------------------------------------------
 # Sample from a discrete uniform distribution
-# Source: https://stats.stackexchange.com/questions/3930/are-there-default-functions-for-discrete-uniform-distributions-in-r
 dunif_sampleone <- function(n) sample(1:n, 1, replace = T)
 
 # Assign entries from df to groups of size 1 to n (chosen uniformly randomly)
@@ -33,7 +53,7 @@ group_assign <- function(in_df,
   Num.Entities <- min(
     max(
       floor(rnorm(1, mean = mean.NumEntities, sd.NumEntities)),
-      2 # !!! to prevent single species communities
+      2 # to prevent the creation of single species communities
     ),
     length(in_df)
   )
@@ -41,7 +61,8 @@ group_assign <- function(in_df,
   sample(in_df, size = Num.Entities, replace = FALSE)
 }
 
-##* Functions for creating data frames-------------------------------------------
+
+# 2) Functions to create patches and communities --------------------------
 
 # Get the number of entities for a patch
 get.NumEntities <- function(MaxNumEntities, Level) {
@@ -49,54 +70,8 @@ get.NumEntities <- function(MaxNumEntities, Level) {
     warning("Incorrect level choice")
     break
   }
-  
   MaxNum <- filter(MaxNumEntities, Level == Level)$count
   round(runif(1, 1, MaxNum))
-}
-
-## Assign entities to patches
-get.patches <- function(entity_df,
-                        numPatches,
-                        mean.NumEntities,
-                        sd.NumEntities) {
-  # initialize data.frame
-  regional_df <- tibble(
-    Species = NA,
-    patch = NA
-  )
-  
-  # sample from entities list to fill patches
-  for (i in 1:numPatches) {
-    regional_df <- add_row(regional_df,
-                           patch = i,
-                           Species = group_assign(
-                             unique(entity_df$Species),
-                             mean.NumEntities,
-                             sd.NumEntities
-                           )
-    )
-  }
-  
-  # assign uniqueIDs to entities in patches (and remove NAs we added in initialization)
-  regional_df <- regional_df %>%
-    mutate(uniqueID = paste("E", Species, "_P", patch, sep = "")) %>%
-    filter(!is.na(Species))
-}
-
-## Assign states to each of the entities in each patch
-assign.states <- function(regional_df) {
-  regional_df <- regional_df %>%
-    # Assign states (except for "Extinct")
-    # these are numbers with higher = better
-    mutate(state = case_when(
-      Status == "Increasing (Least Concern)" ~ 7,
-      Status == "Stable (Least Concern)" ~ 6,
-      Status == "Unknown (Least Concern)" ~ 5,
-      Status == "Decreasing (Least Concern)" ~ 4,
-      Status == "Decreasing (Near threatened)" ~ 3,
-      Status == "Decreasing (Endangered)" ~ 2,
-      Status == "/" ~ 5 # !!! placeholder. The status being available is kind of like it being unknown?
-    ))
 }
 
 ## Create full data.frame of entities and their traits in patches with assigned states
@@ -120,12 +95,10 @@ get.full_df <- function(NumPatches) {
   
   Patch_df = data.table(Patch = as.integer(), Level = as.character(), Synonym = as.character())
   
-  # For each patch, get its level # !!! KD: this could use optimization
+  # For each patch, get its level
   Patch_df = foreach(
     j = 1:length(Init_df$Patch),
-    # int = icount(),
     .combine = "rbind"
-    # .options.snow = opts
   ) %do% {
     level = Init_df[j,]$Level
     
@@ -146,19 +119,17 @@ get.full_df <- function(NumPatches) {
     filter(!is.na(Patch), !is.na(Level))
 }
 
-
-##* Biodiversity metric functions------------------------------------------------
+# 3) Biodiversity metric functions ----------------------------------------
 # for a patch, look at entities and their states & traits and output
 # biodiversity measure of the patch
 
 # If we add abundance, we can compute: Shannon diversity, Evenness, Simpson's 
 # index, rare species indices, ... 
 
-# Calculate taxonomic diversity metrics --------------------------------
+#### Calculate taxonomic diversity metrics ----
 # number of unique entityIDs in a patch
 num.unique.metric <- function(in_df) {
   out_df <- in_df %>%
-    # filter(state > 1) %>% # remove extinct entities
     # remove duplicates due to rows from trait.num
     select(Patch, Species) %>%
     distinct() %>%
@@ -169,7 +140,6 @@ num.unique.metric <- function(in_df) {
 # Number of endemic entities
 num.endemic.metric <- function(in_df) {
   out_df <- in_df %>%
-    # filter(state > 1) %>% # remove extinct entities
     select(Patch, Species) %>%
     # only keep rows where Species is unique ( == endemics)
     group_by(Species) %>%
@@ -182,13 +152,9 @@ num.endemic.metric <- function(in_df) {
       "biodiv" = sum(endemic_flag, na.rm = TRUE),
       .groups = "keep"
     )
-  # filter(n() == 1) %>%
-  # ungroup() %>%
-  # # count number of endemics in each Patch
-  # count(Patch, name = "biodiv")
 }
 
-# Calculate TEK diversity metrics --------------------------------
+#### Calculate TEK diversity metrics ----
 # General trait counting metric function
 trait.count.metric <- function(in_df, trait_name) {
   out_df <- in_df %>%
@@ -198,7 +164,7 @@ trait.count.metric <- function(in_df, trait_name) {
     summarise(biodiv = sum(!!as.name(trait_name)))
 }
 
-# Calculate functional diversity metrics --------------------------------
+#### Calculate functional diversity metrics ----
 
 # Trait coefficient of variation function (only works for numerical traits)
 trait.coeffvariance.metric <- function(in_df, trait_names) {
@@ -213,7 +179,6 @@ trait.coeffvariance.metric <- function(in_df, trait_names) {
 }
 
 # Functional diversity metrics (work for numerical and categorical traits)
-library(FD)
 trait.fdiv.metrics <- function(in_df, trait_names){
   # Create dataframe of species x traits
   SpXTraits <- in_df %>%
@@ -238,8 +203,7 @@ trait.fdiv.metrics <- function(in_df, trait_names){
     arrange(Species) %>% 
     # keys become column names and values are the entries
     pivot_wider(names_from = Species, values_from = Presence, values_fn = unique) %>% 
-    # tidyr::spread(key = Species, value = Presence) %>% # Kyle: this command isn't working for me
-    replace(is.na(.), 0) %>% # this is not necessary, because it will automatically be done
+    replace(is.na(.), 0) %>%
     column_to_rownames(var = "Patch")
   
   # # The number of species (columns) in PatchXSp must match the number of species (rows) in SpXTraits. 
@@ -257,22 +221,6 @@ trait.fdiv.metrics <- function(in_df, trait_names){
   # }
   
   # Calculate functional diversity
-  # FRic = functional richness = convex hull volume (Villéger et al. 2008)
-  #        For communities with <3 functionally singular species, FRic cannot be calculated
-  # Fdiv = functional divergence (Villéger et al. 2008)
-  #        For communities with <3 functionally singular species, Fdiv cannot be calculated
-  # FDis = functional dispersion: weighted average distance to centroid (Laliberté and Legendre 2010). 
-  #        For communities composed of only one species, dbFD returns a FDis value of 0.
-  # fdiv <- dbFD(SpXTraits, PatchXSp, w.abun=F, stand.x=T, 
-  #              calc.FRic=T, m="max", 
-  #              # calc.FGR=T,  clust.type="ward.D2", # this will ask for a manual decision on how to cut the tree
-  #              calc.FDiv=T,
-  #              calc.CWM= F)
-  # 
-  # fdiv_df <- data.frame(fdiv) %>%
-  #   mutate(Patch = as.double(rownames(PatchXSp)))
-  
-  # Using a faster package
   fdiv_df <- fd_fric(SpXTraits, as.matrix(PatchXSp), stand = TRUE) %>% # functional richness
     # functional divergence
     right_join(fd_fdiv(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
@@ -289,20 +237,18 @@ trait.fdiv.metrics <- function(in_df, trait_names){
   # - Feve, Fric and FDiv cannot be calculated for communities with <3 functionally singular species. 
 }
 
-# Calculate phylogenetic diversity metrics --------------------------------
+#### Calculate phylogenetic diversity metrics ----
 
 get.phylo_tree <- function(in_df) {
   print("Create and prune phylogenetic tree")
   # Create list of all species in the data set
   list_species_unique <- in_df %>%
     mutate(Genus = stringr::word(Synonym, 1, 1, sep = " ")) %>%
-    # dplyr::select(Species, Genus, Family) %>%
     dplyr::select(Synonym, Genus, Family) %>%
     mutate(Synonym = str_replace_all(Synonym, "ssp.", "subsp.")) %>%
     unique() %>%
     as.data.frame()
   # Generate a phylogeny for the species list
-  # KD: Any way we can re-use a pre-computed tree and just trim off species missing from our list?
   tree <- V.PhyloMaker2::phylo.maker(sp.list = list_species_unique, 
                                      tree = GBOTB.extended.LCVP, # botanical nomenclature of the Leipzig catalogue of vascular plants
                                      nodes = nodes.info.1.LCVP, 
@@ -328,49 +274,22 @@ phylodiv.metrics <- function(in_df, tree) {
   # Pruned phylogenetic tree
   tree_pruned = prune.sample(comm,tree$tree.scenario.3)
   
-  
   # output:
   # - tree_pruned
   # - comm
   
-  # print("Calculate phylogenetic diversity")
+  # Calculate phylogenetic diversity
   # 1) sum of the total phylogenetic branch length (Faith, 1992)
-  # print("Calculating pdiv_length")
   pdiv_length = as.data.table(evodiv(tree_pruned, comm))
-  
-  
-  # pdiv_length <- pd(comm, tree_pruned, include.root=TRUE) 
-  # pdiv_length2 <- pd(comm, tree_pruned, include.root=FALSE)
-  # plot(pdiv_length$PD, pdiv_length2$PD) # they are exactly the same
-  # warning: pdiv_length2 cannot be calculated for communities with 1 species only
-  # Note: PD is not statistically independent of species richness
-  
-  # The function ses.pd compares observed PD to the values expected under various 
-  # randomizations and allows a way to standardize for unequal richness across samples.
-  # This take a loooooong time! Consider choosing one null model algorithm: e.g.
-  # - "phylogeny.pool" in https://www.sciencedirect.com/science/article/pii/S2530064422000281 and https://onlinelibrary.wiley.com/doi/full/10.1111/ddi.13513
-  # print("Calculating pdiv_length_ses")
-  # pdiv_length_ses <- ses.pd(comm, tree_pruned, include.root=TRUE, null.model="phylogeny.pool", runs=99) 
   
   # 2) phylogenetic species variability, richness and evenness (Helmus et al., 2007)
   pdiv_psv = picante::psv(comm, tree_pruned, compute.var = FALSE) # 2.6 seconds
   pdiv_psr = picante::psr(comm, tree_pruned, compute.var = FALSE) # 2.4 seconds
-  # pdiv_pse <- pse(comm, tree_pruned) 
-  # pdiv_pse only makes sense when working with relative species abundances, which is not the case here.
-  # I set the abundance of each species to 1
   
   # Combine results
   pdiv_all = pdiv_length %>%
     tibble::rownames_to_column("Patch") %>%
     mutate(Patch = as.double(Patch)) %>% 
-    # full_join(pdiv_length2 %>% dplyr::select(PD) %>%
-    #             rename(PD_unrooted = PD) %>%
-    #             tibble::rownames_to_column("Patch"),
-    # by = c("Patch")) %>%
-    # full_join(pdiv_length_ses %>% dplyr::select(pd.obs.z)  %>%
-    #             tibble::rownames_to_column("Patch")%>%
-    #             mutate(Patch = as.double(Patch)),
-    #           by = c("Patch")) %>%
     full_join(pdiv_psv %>% dplyr::select(PSVs)  %>%
                 tibble::rownames_to_column("Patch")%>%
                 mutate(Patch = as.double(Patch)),
@@ -378,82 +297,54 @@ phylodiv.metrics <- function(in_df, tree) {
     full_join(pdiv_psr %>% dplyr::select(PSR)  %>%
                 tibble::rownames_to_column("Patch")%>%
                 mutate(Patch = as.double(Patch)),
-              by = c("Patch")) #%>%
-  # full_join(pdiv_pse %>% dplyr::select(PSEs)  %>%
-  #             tibble::rownames_to_column("Patch"),
-  #           by = c("Patch"))
-  
-  
-  # Explorative plots
-  # plot(pdiv_all[,"PD"], pdiv_all[,"SR"])
-  # plot(pdiv_all[,"PSVs"], pdiv_all[,"SR"])
-  # plot(pdiv_all[,"PSR"], pdiv_all[,"SR"])
-  # plot(pdiv_all[,"PSR"], pdiv_all[,"PD"])
+              by = c("Patch"))
 }
 
 
 
-# Build biodiversity data frame -------------------------------------------
+#### Build biodiversity data frame ----
 get.biodiv_df <- function(in_df, trait_names, tree) {
   # Metric 1: Species richness
   num.unique_df = num.unique.metric(in_df)
-  # hotspots.baseline <- find.hotspots(num.unique_df)
   
-  # Metric 2: Number of endemic entities
+  # Metric 2: Number of endemic entities (NB: this was not considered in the final analysis)
   # num.endemic_df = num.endemic.metric(in_df)
-  # hotspots.endemic <- find.hotspots(num.endemic_df)
   
   # Metric 3: Number of Indigenous names
   num.indig.name_df = trait.count.metric(in_df, "N_Names")
-  # hotspots.indig.name <- find.hotspots(num.indig.name_df)
   
-  # Metric 4: Number of Indigenous languages
+  # Metric 4: Number of Indigenous languages (NB: this was not considered in the final analysis)
   # num.indig.lang_df <- trait.count.metric(in_df, "N_Langs")
-  # hotspots.indig.lang <- find.hotspots(num.indig.lang_df)
   
   # Metric 5: Number of uses
   num.use_df = trait.count.metric(in_df, "N_Uses")
-  # hotspots.use <- find.hotspots(num.use_df)
   
   # Metric 6: Combined variation of quantitative traits
-  # coeffvar_df <- trait.coeffvariance.metric(in_df, trait_names)
-  fdiv_df = trait.fdiv.metrics(in_df, trait_names) # 1.5 seconds
+  fdiv_df = trait.fdiv.metrics(in_df, trait_names)
   
   # Phylogenetic diversity metrics
-  PD_df = phylodiv.metrics(in_df, tree) # 5.5 seconds
-  # PD_df$Patch <- as.integer(PD_df$Patch)
-  
-  # !!! BUG: Getting NA for a couple metrics
-  # PD_df <- select(PD_df, -PSVs, -PSR, -PSEs)
+  PD_df = phylodiv.metrics(in_df, tree)
   
   # Put together one big dataframe of biodiversity metrics of each Patch
   biodiv_df = rename(num.unique_df, NumUnique = biodiv) %>% # Number of unique entities
-    # Number of endemic entities
-    # right_join(rename(num.endemic_df, NumEndemic = biodiv), by = "Patch") %>%
     # Number of Indigenous names
     right_join(rename(num.indig.name_df, NumIndigName = biodiv), by = "Patch") %>%
-    # Number of Indigenous languages
-    # right_join(rename(num.indig.lang_df, NumIndigLang = biodiv), by = "Patch") %>%
     # Number of uses
     right_join(rename(num.use_df, NumUse = biodiv), by = "Patch") %>% 
-    # Coefficient of variation
-    # right_join(rename(coeffvar_df, CoeffVar = biodiv), by = "Patch")
     # Functional diversity
     right_join(mutate(fdiv_df, Patch = as.double(Patch)), by = "Patch") %>%
     # Phylogenetic diversity
     right_join(PD_df, by = "Patch")
-  # 
-  # return(biodiv_df)
 }
 
 
+# 4) Hotspot functions ----------------------------------------------------
 
-# Hotspot identifier function ---------------------------------------------
+#### Hotspot identifier function ----
 # look at the biodiversity of all patches and determine which patches are
 # "hotspots" relative to the other patches
 
-# simple function for now:
-# give all the patches in the 95% quantile
+# Get all the patches in the 95% quantile of a given biodiversity metric
 find.hotspots <- function(in_df) {
   # Select top 5th percentile
   hotspots <- in_df[in_df$biodiv > quantile(in_df$biodiv, 0.95, na.rm = TRUE), ]
@@ -463,12 +354,10 @@ find.hotspots <- function(in_df) {
   return(hotspots)
 }
 
-
-# Hotspot comparison function ---------------------------------------------
+#### Hotspot comparison function ----
 # measure the difference in the hotspot maps produced under different
 # biodiversity metrics for the same dataset
 
-# simple function for now:
 # count the number of overlaps in which patches were considered hotspots
 calc.hotspot_compare <- function(hotspots.baseline, hotspots.compare) {
   hotspots.baseline <- hotspots.baseline$Patch
@@ -479,28 +368,14 @@ calc.hotspot_compare <- function(hotspots.baseline, hotspots.compare) {
   
   # Use precision as our quantifier:
   # of the identified hotspots, what proportion match with the baseline list?
-  
-  # comparison.quantifier <- if_else(type == "precision",
-  #   TP_count / length(hotspots.compare),
-  #   TP_count / P_count)
-  
+  # also calculate recall 
   out <- tibble(precision = TP_count / length(hotspots.compare),
                 recall = TP_count / length(hotspots.baseline))
-  
-  # # Use Jaccard similarity coefficient instead:
-  # #  = number of hotspots shared in both lists / total number of hotspots identified
-  # # measures the amount of overlap, without considering one list the "true" list
-  # # This is not substantially different from above - you just also include 
-  # # "false negatives" in the denominator. But may be more familiar to ecology
-  # # and biology folks.
-  # total.hotspots <- length(hotspots.compare)+length(hotspots.baseline)-TP_count
-  # Jaccard.sim.coef <- TP_count / total.hotspots
-  
   return(out)
 }
 
 
-# Build hotspot comparison data frame ------------------------------------------
+#### Build hotspot comparison data frame ----
 get.compare_df <- function(in_df, baseline_metric) {
   # Get biodiversity metrics
   temp_df <- in_df %>%
@@ -566,9 +441,7 @@ biodiv_comp_helper_func <- function(NumPatches, trait_names, tree, baseline_metr
   full_df = get.full_df(NumPatches)
   
   # Get hotspot comparison values
-  out_df = get.biodiv_df(full_df, trait_names, tree) %>% # 7.5 seconds
+  out_df = get.biodiv_df(full_df, trait_names, tree) %>%
     get.compare_df(., baseline_metric) 
   
-  # gc()
-  # return(out_df)
 }
