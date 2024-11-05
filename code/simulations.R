@@ -84,11 +84,17 @@ trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)",
                  "Leaf area (mm2)", "Diaspore mass (mg)")
 
 # List of all metric names
-metric_names <- c("NumUnique", "NumIndigName", "NumUse",
-                  "FD", "PD"
-                  # "FRic", "FDiv", "FDis", "FEve", "Q", "richness", "GiniSimpson",
-                  # "Simpson", "Shannon", "Margalef", "Menhinick", "McIntosh",
-                  # "PSVs", "PSR"
+metric_names <- c(
+  # Taxonomic
+  "NumUnique",
+  # TEK
+  "NumIndigName", "NumUse",
+  # Phylogenetic
+  "richness", "PD", "PSVs", "PSR",
+  # Functional
+  "FD", "FRic", "FDis"
+  #  "FDiv",  "FEve", "Q", "GiniSimpson",
+  # "Simpson", "Shannon", "Margalef", "Menhinick", "McIntosh",
 )
 
 # Set comparison parameters
@@ -96,7 +102,7 @@ numIterations <- 100
 NumPatches <- 1000
 
 # Set up parallel processing
-plan(multisession, workers = 12, gc = TRUE)
+plan(multisession, workers = 5, gc = TRUE)
 
 # Set up progress bar
 handlers(global = TRUE)
@@ -120,15 +126,20 @@ for (metric_name in metric_names) {
   
   # Initialize comparison data frame
   compare_df <- tibble(
+    # Taxonomic
     NumUnique = as.double(),
+    # TEK
     NumIndigName = as.double(), NumUse = as.double(),
-    FD = as.double(), PD = as.double(),
-    # richness = as.double(), GiniSimpson = as.double(),
+    # Phylogenetic
+    PD = as.double(), richness = as.double(), PSVs = as.double(), PSR = as.double(),
+    # Functional
+    FD = as.double(), FRic = as.integer(), FDis = as.integer(),
+    #  GiniSimpson = as.double(),
     # Simpson = as.double(), Shannon = as.double(),
     # Margalef = as.double(), Menhinick = as.double(),
-    # McIntosh = as.double(), PSVs = as.double(),
-    # PSR = as.double(), FRic = as.integer(),  FDiv = as.integer(),  
-    # FDis = as.integer(),  FEve = as.integer(),  Q = as.integer(),
+    # McIntosh = as.double(), 
+    #    FDiv = as.integer(),  
+    #   FEve = as.integer(),  Q = as.integer(),
     iteration = as.integer()
   ) %>%
     # Remove the focal metric
@@ -142,7 +153,7 @@ for (metric_name in metric_names) {
       .inorder = FALSE,
       .combine = "rbind",
       .options.future = list(seed = TRUE) # ensures true RNG among parallel processes
-  # ) %dofuture% {
+      # ) %dofuture% {
     ) %do% {
       # Iterate progress bar
       p(sprintf("j=%g", j))
