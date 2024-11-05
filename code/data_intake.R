@@ -674,6 +674,7 @@ error_df <- as.list(PNW_imp$OOBerror[1:6]) %>%
 # 6) Put data set into workable form for imputation and phylogeny steps --------
 
 final_dataset = imputed_data %>% 
-  select(c("Synonym", "Family", "N_Names", "N_Langs", "N_Uses", "Species", "Ssp_var", "Nmass (mg/g)", "Woodiness", "LDMC (g/g)", "Diaspore mass (mg)", "Plant height (m)", "Leaf area (mm2)"))
+  select(c("Synonym", "Family", "N_Names", "N_Langs", "N_Uses", "Species", "Ssp_var", "Nmass (mg/g)", "Woodiness", "LDMC (g/g)", "Diaspore mass (mg)", "Plant height (m)", "Leaf area (mm2)")) %>% 
+  mutate(species_id = row_number())
 
 write_csv(final_dataset, "data/clean/final_dataset.csv")

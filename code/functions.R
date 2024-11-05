@@ -320,10 +320,14 @@ get.biodiv_df <- function(in_df, trait_names, tree) {
   num.use_df = trait.count.metric(in_df, "N_Uses")
   
   # Metric 6: Combined variation of quantitative traits
-  fdiv_df = trait.fdiv.metrics(in_df, trait_names)
+  FD_df = FD_function(in_df)
+  
+  # fdiv_df = trait.fdiv.metrics(in_df, trait_names)
   
   # Phylogenetic diversity metrics
-  PD_df = phylodiv.metrics(in_df, tree)
+  PD_df = PD_function(in_df)
+  
+  # PD_df = phylodiv.metrics(in_df, tree)
   
   # Put together one big dataframe of biodiversity metrics of each Patch
   biodiv_df = rename(num.unique_df, NumUnique = biodiv) %>% # Number of unique entities
@@ -332,7 +336,8 @@ get.biodiv_df <- function(in_df, trait_names, tree) {
     # Number of uses
     right_join(rename(num.use_df, NumUse = biodiv), by = "Patch") %>% 
     # Functional diversity
-    right_join(mutate(fdiv_df, Patch = as.double(Patch)), by = "Patch") %>%
+    # right_join(mutate(fdiv_df, Patch = as.double(Patch)), by = "Patch") %>%
+    right_join(mutate(FD_df, Patch = as.double(Patch)), by = "Patch") %>%
     # Phylogenetic diversity
     right_join(PD_df, by = "Patch")
 }

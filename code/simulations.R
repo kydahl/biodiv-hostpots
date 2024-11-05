@@ -62,7 +62,14 @@ trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)",
                  "Leaf area (mm2)", "Diaspore mass (mg)")
 
 #### Explore an example simulation with 40 patches ----
-explore_df <- get.full_df(40) %>% 
+
+
+cl <- new_cluster(14)
+cluster_library(cl, .packages())
+cluster_copy(cl, lsf.str())
+cluster_copy(cl, c("PD_dist_mat", "FD_dist_mat"))
+
+explore_df <- get.full_df(1000) %>% 
   get.biodiv_df(., trait_names, tree)
 
 # Plot correlations among biodiversity metrics
@@ -78,9 +85,11 @@ trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)",
 
 # List of all metric names
 metric_names <- c("NumUnique", "NumIndigName", "NumUse",
-                  "FRic", "FDiv", "FDis", "FEve", "Q", "richness", "GiniSimpson",
-                  "Simpson", "Shannon", "Margalef", "Menhinick", "McIntosh",
-                  "PSVs", "PSR")
+                  "FD", "PD"
+                  # "FRic", "FDiv", "FDis", "FEve", "Q", "richness", "GiniSimpson",
+                  # "Simpson", "Shannon", "Margalef", "Menhinick", "McIntosh",
+                  # "PSVs", "PSR"
+)
 
 # Set comparison parameters
 numIterations <- 100
@@ -113,12 +122,13 @@ for (metric_name in metric_names) {
   compare_df <- tibble(
     NumUnique = as.double(),
     NumIndigName = as.double(), NumUse = as.double(),
-    richness = as.double(), GiniSimpson = as.double(),
-    Simpson = as.double(), Shannon = as.double(),
-    Margalef = as.double(), Menhinick = as.double(),
-    McIntosh = as.double(), PSVs = as.double(),
-    PSR = as.double(), FRic = as.integer(),  FDiv = as.integer(),  
-    FDis = as.integer(),  FEve = as.integer(),  Q = as.integer(),
+    FD = as.double(), PD = as.double(),
+    # richness = as.double(), GiniSimpson = as.double(),
+    # Simpson = as.double(), Shannon = as.double(),
+    # Margalef = as.double(), Menhinick = as.double(),
+    # McIntosh = as.double(), PSVs = as.double(),
+    # PSR = as.double(), FRic = as.integer(),  FDiv = as.integer(),  
+    # FDis = as.integer(),  FEve = as.integer(),  Q = as.integer(),
     iteration = as.integer()
   ) %>%
     # Remove the focal metric
@@ -132,7 +142,8 @@ for (metric_name in metric_names) {
       .inorder = FALSE,
       .combine = "rbind",
       .options.future = list(seed = TRUE) # ensures true RNG among parallel processes
-    ) %dofuture% {
+  # ) %dofuture% {
+    ) %do% {
       # Iterate progress bar
       p(sprintf("j=%g", j))
       
@@ -187,4 +198,4 @@ for (metric_name in metric_names) {
   rm(compare_df)
 }
 
-saveRDS(full_compare_df, file = "results/full_comparisons.rds")
+saveRDS(full_compare_df, file = "results/full_comparisons_new.rds")
