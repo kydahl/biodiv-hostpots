@@ -70,9 +70,9 @@ FD_dist_mat = FD_dist_mat / max(FD_dist_mat)
 
 saveRDS(FD_dist_mat, file = "data/clean/FD_dist_mat.rds")
 
-FD_distance_function <- function(species_id_i, species_id_j) {
-  return(FD_dist_mat[species_id_i, species_id_j])
-}
+# FD_distance_function <- function(species_id_i, species_id_j) {
+#   return(FD_dist_mat[species_id_i, species_id_j])
+# }
 
 
 ## Calculate phylogenetic distances ----
@@ -83,9 +83,9 @@ PD_dist_mat = PD_dist_mat/max(PD_dist_mat)
 
 saveRDS(PD_dist_mat, file = "data/clean/PD_dist_mat.rds")
 
-PD_distance_function <- function(species_name_i, species_name_j) {
-  return(PD_dist_mat[species_name_i, species_name_j])
-}
+# PD_distance_function <- function(species_name_i, species_name_j) {
+#   return(PD_dist_mat[species_name_i, species_name_j])
+# }
 
 # Calculate all biodiversity types ----
 
@@ -96,66 +96,44 @@ PD_distance_function <- function(species_name_i, species_name_j) {
 TD_function = function(community_df) {
   return(dim(community_df)[1])
 }
-# PD = sum of PD_dist_function over all pairs in the community 
-PD_dataframe_function = function(species_names) {
-  if (length(species_names) == 1) {
-    out = 0
-  } else {
-    
-    out = species_names %>% 
-      sub(" ", "_", .) %>% 
-      combinations(length(.), 2, .) %>%  
-      as_tibble() %>% 
-      rowwise() %>%
-      mutate(PD_dist = PD_distance_function(V1, V2)) %>% 
-      pull(PD_dist) %>% 
-      sum()
-  }
-  return(out)
+
+# Efficient pairwise PD distance summation using matrix indexing
+PD_dataframe_function <- function(species_names) {
+  if (length(species_names) <= 1) return(0)
+  
+  # Match species to indices
+  species_names <- gsub(" ", "_", species_names)
+  species_indices <- match(species_names, colnames(PD_dist_mat))
+  
+  # Direct summation of pairwise distances from PD_dist_mat
+  dist_values <- PD_dist_mat[species_indices, species_indices, drop = FALSE]
+  sum(dist_values[lower.tri(dist_values)])
+  
 }
 
-
-PD_function = function(in_df) {
-  out_df = in_df %>% 
-    group_by(Patch) %>% 
-    multidplyr::partition(., cl) %>%
-    select(Patch, Synonym) %>% 
-    group_by(Patch) %>% 
-    summarise(PD = PD_dataframe_function(Synonym)) %>% 
-    collect()
-  return(out_df)
-}
-
-# FD = sum of FD_dist_function over all pairs in the community
+# Efficient pairwise FD distance summation using matrix indexing
 FD_dataframe_function <- function(species_ids) {
-  if (length(species_ids) == 1) {
-    out = 0
-  } else {
-    
-    out = species_ids %>% 
-      # Get all combinations (without repeats)
-      combinations(length(.), 2, .) %>%  
-      as_tibble() %>% 
-      rowwise() %>%
-      # Calculate functional distance of each pair
-      mutate(FD_dist = FD_distance_function(V1, V2)) %>% 
-      pull(FD_dist) %>% 
-      # Add up all the distances
-      sum()
-  }
-  return(out)
+  if (length(species_ids) <= 1) return(0)
+  
+  # Match species to indices
+  species_indices <- match(species_ids, colnames(FD_dist_mat))
+  
+  # Direct summation of pairwise distances from FD_dist_mat
+  dist_values <- FD_dist_mat[species_indices, species_indices, drop = FALSE]
+  sum(dist_values[lower.tri(dist_values)])
+  
 }
 
-FD_function = function(in_df) {
-  
-  out_df = in_df %>%
-    select(Patch, species_id) %>% 
-    group_by(Patch) %>% 
-    multidplyr::partition(., cl) %>%
-    summarise(FD = FD_dataframe_function(species_id)) %>% 
-    collect()
-  
-  return(out_df)
+# Refactored FDPD_function with optimized distance calculation
+FDPD_function <- function(in_df) {
+  in_df %>%
+    select(Patch, species_id, Synonym) %>%
+    group_by(Patch) %>%
+    summarise(
+      FD = FD_dataframe_function(species_id),
+      PD = PD_dataframe_function(Synonym),
+      .groups = 'drop'
+    ) 
 }
 
 

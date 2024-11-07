@@ -179,17 +179,10 @@ trait.coeffvariance.metric <- function(in_df, trait_names) {
 }
 
 # Functional diversity metrics (work for numerical and categorical traits)
-trait.fdiv.metrics <- function(in_df, trait_names){
+trait.fdiv.metrics <- function(in_df){
   # Create dataframe of species x traits
   SpXTraits <- in_df %>%
-    select(Species, all_of(trait_names)) %>% 
-    # log transform traits with large outliers
-    mutate(LeafArea_log = log(`Leaf area (mm2)`), .keep = 'unused') %>%
-    mutate(PlantHeight_log = log(`Plant height (m)`), .keep = 'unused') %>%
-    mutate(DiasporeMass_log = log(`Diaspore mass (mg)`), .keep = 'unused') %>%
-    mutate(LDMC_log = log(`LDMC (g/g)`), .keep = 'unused') %>%
-    # Turn categorical traits into quantitative ones
-    mutate(Woodiness = ifelse(Woodiness == "woody", 1, 0)) %>% 
+    select(Species, `Nmass (mg/g)`:LDMC_log) %>% 
     # Scale quantitative traits
     mutate(across(where(is.numeric), function(.x){scale(.x, center = TRUE, scale = TRUE)})) %>% 
     unique() %>%
@@ -230,7 +223,7 @@ trait.fdiv.metrics <- function(in_df, trait_names){
     # right_join(fd_feve(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
     # Rao's entropy (Q)
     # right_join(fd_raoq(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
-    rename(Patch = site)
+    mutate(Patch = as.integer(site), .keep = "unused")
   
   return(fdiv_df)
   # Remarks: 
@@ -303,7 +296,7 @@ phylodiv.metrics <- function(in_df, tree) {
 
 
 #### Build biodiversity data frame ----
-get.biodiv_df <- function(in_df, trait_names, tree) {
+get.biodiv_df <- function(in_df, tree) {
   # Metric 1: Species richness
   num.unique_df = num.unique.metric(in_df)
   
@@ -320,12 +313,12 @@ get.biodiv_df <- function(in_df, trait_names, tree) {
   num.use_df = trait.count.metric(in_df, "N_Uses")
   
   # Metric 6: Combined variation of quantitative traits
-  FD_df = FD_function(in_df)
-  
-  fdiv_df = trait.fdiv.metrics(in_df, trait_names)
+  # FD_df = FD_function(in_df)
+  FDPD_df = FDPD_function(in_df)
+  fdiv_df = trait.fdiv.metrics(in_df)
   
   # Phylogenetic diversity metrics
-  PD_df = PD_function(in_df)
+  # PD_df = PD_function(in_df)
   
   pdiv_df = phylodiv.metrics(in_df, tree)
   
@@ -336,11 +329,11 @@ get.biodiv_df <- function(in_df, trait_names, tree) {
     # Number of uses
     right_join(rename(num.use_df, NumUse = biodiv), by = "Patch") %>% 
     # Functional diversity
-    right_join(mutate(fdiv_df, Patch = as.double(Patch)), by = "Patch") %>%
-    right_join(mutate(FD_df, Patch = as.double(Patch)), by = "Patch") %>%
+    right_join(fdiv_df, by = "Patch") %>%
+    right_join(FDPD_df, by = "Patch") %>%
     # Phylogenetic diversity
-    right_join(PD_df, by = "Patch") %>% 
-    right_join(mutate(pdiv_df, Patch = as.double(Patch)), by = "Patch")
+    # right_join(PD_df, by = "Patch") %>% 
+    right_join(pdiv_df, by = "Patch")
 }
 
 
@@ -442,12 +435,16 @@ get.compare_df <- function(in_df, baseline_metric) {
 }
 
 # Helper function that gets wrapped in the for-loop to collect biodiversity hotspot comparisons
-biodiv_comp_helper_func <- function(NumPatches, trait_names, tree, baseline_metric) {
-  # Run a simulation
-  full_df = get.full_df(NumPatches)
+biodiv_comp_helper_func <- function(NumPatches, tree, baseline_metric) {
   
   # Get hotspot comparison values
-  out_df = get.biodiv_df(full_df, trait_names, tree) %>%
+  # Run a simulation
+  out_df = get.full_df(NumPatches) %>% 
+    # Calculate biodiversity metrics
+    # multidplyr::partition(., cl) %>%
+    get.biodiv_df(., tree) %>%
+    # collect() %>% 
+    # Make comparisons
     get.compare_df(., baseline_metric) 
   
 }

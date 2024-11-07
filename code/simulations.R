@@ -39,11 +39,31 @@ library(GGally) # To nicely plot correlations among variables
 
 # Load in analysis functions
 source("code/functions.R")
+source("code/new_metrics.R")
+
+# Set up parallel processing
+# plan(multisession, workers = 6, gc = TRUE)
+# cl <- new_cluster(12)
+# cluster_library(cl, .packages())
+# cluster_copy(cl, lsf.str())
+# cluster_copy(cl, c("PD_dist_mat", "FD_dist_mat"))
 
 # Load in dataset and phylogenetic tree
-final_data <- read_csv("data/clean/final_dataset.csv")
+final_data <- read_csv("data/clean/final_dataset.csv") %>% 
+  # log transform traits with large outliers
+  mutate(LeafArea_log = log(`Leaf area (mm2)`), .keep = 'unused') %>%
+  mutate(PlantHeight_log = log(`Plant height (m)`), .keep = 'unused') %>%
+  mutate(DiasporeMass_log = log(`Diaspore mass (mg)`), .keep = 'unused') %>%
+  mutate(LDMC_log = log(`LDMC (g/g)`), .keep = 'unused') %>%
+  # Turn categorical traits into quantitative ones
+  mutate(Woodiness = ifelse(Woodiness == "woody", 1, 0)) %>% 
+  # Put traits at the end
+  relocate(c(`Nmass (mg/g)`, Woodiness, LeafArea_log:LDMC_log), .after = last_col())
+
 tree <- readRDS("data/clean/full_tree.rds")
 
+explore_df <- get.full_df(1000) %>% 
+  get.biodiv_df(., tree)
 # Set the random seed used to generate figures in the manuscript 
 set.seed(9523)
 
@@ -54,23 +74,17 @@ numIterations <- 100
 
 # 1) Exploratory simulations ----------------------------------------------
 
-# Compare hotspots identified by different metrics
-full_df <- get.full_df(NumPatches = 1000)
+# # Compare hotspots identified by different metrics
+# full_df <- get.full_df(NumPatches = 1000)
 
-# I added trait_names to the input of get.biodiv_df
-trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", 
-                 "Leaf area (mm2)", "Diaspore mass (mg)")
+# # I added trait_names to the input of get.biodiv_df
+# trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)", 
+#                  "Leaf area (mm2)", "Diaspore mass (mg)")
 
 #### Explore an example simulation with 40 patches ----
 
 
-cl <- new_cluster(14)
-cluster_library(cl, .packages())
-cluster_copy(cl, lsf.str())
-cluster_copy(cl, c("PD_dist_mat", "FD_dist_mat"))
 
-explore_df <- get.full_df(10) %>% 
-  get.biodiv_df(., trait_names, tree)
 
 # Plot correlations among biodiversity metrics
 pair_plot <- explore_df %>% 
@@ -101,9 +115,6 @@ metric_names <- c(
 numIterations <- 100
 NumPatches <- 1000
 
-# Set up parallel processing
-plan(multisession, workers = 5, gc = TRUE)
-
 # Set up progress bar
 handlers(global = TRUE)
 handlers("cli")
@@ -112,8 +123,9 @@ full_compare_df <- tibble(
   baseline = as.character(), # baseline biodiversity metric
   comparison = as.character(), # comparison biodiversity metric
   type = as.character(), # type (precision or list length)
-  mean = as.double(),
-  var = as.double()
+  value = as.double()
+  # mean = as.double(),
+  # var = as.double()
 )
 metric_index = 0
 
@@ -153,14 +165,12 @@ for (metric_name in metric_names) {
       .inorder = FALSE,
       .combine = "rbind",
       .options.future = list(seed = TRUE) # ensures true RNG among parallel processes
-      # ) %dofuture% {
-    ) %do% {
-      # Iterate progress bar
-      p(sprintf("j=%g", j))
+      ) %dofuture% {
+    # ) %do% {
       
+      # Get biodiversity hotspot comparisons
       biodiv.compare_df = retry(
-        # !!! modify function below to return all the metrics we're now using
-        biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
+        biodiv_comp_helper_func(NumPatches, tree, baseline_metric),
         until = function(val, cnd) {
           !is.null(val)
         },
@@ -168,6 +178,7 @@ for (metric_name in metric_names) {
         interval = 0
       )
       
+      # Set up output dataframe
       out_df = rbind(
         mutate(biodiv.compare_df %>%
                  select(-c(list_length, recall)) %>% 
@@ -185,24 +196,34 @@ for (metric_name in metric_names) {
                  unique(),
                type = "recall")
       )
+      
+      # Iterate progress bar
+      p(sprintf("j=%g", j))
+      biodiv.compare_df
     }
   }
   
-  sliceSize = 25
+  sliceSize = 100
   sliceRange = 1:sliceSize
+  plan(multisession, workers = 12, gc = TRUE)
   for (i in 1:(numIterations/sliceSize)) {
     print(paste0("Collect simulation chunk # ", i, " of ", (numIterations/sliceSize), ":"))
-    plan(multisession, workers = 12, gc = TRUE)
     compare_df = rbind(compare_df, get.temp_compare_df(sliceRange))
-    plan(sequential)
+    # plan(sequential)
   }
   
   out_df <- compare_df %>% 
-    pivot_longer(cols = all_of(metric_names), names_to = "comparison") %>% 
-    group_by(comparison, type) %>% 
-    summarise(mean = mean(value), 
-              var = var(value),
-              .groups = "keep") %>% 
+    rename(
+      comparison = variable,
+      precision = value
+      ) %>% 
+    pivot_longer(cols = precision:list_length, names_to = "type") %>% 
+    # group_by(comparison, type) %>%
+    # summarise(
+    #   mean = mean(value),
+    #   var = var(value),
+    #   .groups = "keep"        
+    #   ) %>% 
     mutate(baseline = baseline_metric)
   
   full_compare_df <- add_row(full_compare_df, out_df)
@@ -210,4 +231,21 @@ for (metric_name in metric_names) {
   rm(compare_df)
 }
 
-saveRDS(full_compare_df, file = "results/full_comparisons_new.rds")
+final_compare_df = readRDS(file = "results/final_comparisons.rds")
+final_compare_df = add_row(final_compare_df, full_compare_df)
+saveRDS(final_compare_df, file = "results/final_comparisons.rds")
+
+# !!! Run tally: 1 out of 10
+#     
+
+
+# summary_df = full_compare_df %>% 
+#   group_by(baseline, comparison, type) %>%
+#   summarise(
+#     mean = mean(value),
+#     var = var(value),
+#     .groups = "keep"
+#     )
+# 
+# saveRDS(full_compare_df, file = "results/full_comparisons_new.rds")
+# saveRDS(summary_df, file = "results/summary_comparisons_new.rds")
