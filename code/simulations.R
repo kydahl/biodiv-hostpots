@@ -69,7 +69,7 @@ cluster_library(cl, .packages())
 cluster_copy(cl, lsf.str())
 cluster_copy(cl, c("PD_dist_mat", "FD_dist_mat"))
 
-explore_df <- get.full_df(1000) %>% 
+explore_df <- get.full_df(10) %>% 
   get.biodiv_df(., trait_names, tree)
 
 # Plot correlations among biodiversity metrics
@@ -159,6 +159,7 @@ for (metric_name in metric_names) {
       p(sprintf("j=%g", j))
       
       biodiv.compare_df = retry(
+        # !!! modify function below to return all the metrics we're now using
         biodiv_comp_helper_func(NumPatches, trait_names, tree, baseline_metric),
         until = function(val, cnd) {
           !is.null(val)

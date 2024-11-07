@@ -223,13 +223,13 @@ trait.fdiv.metrics <- function(in_df, trait_names){
   # Calculate functional diversity
   fdiv_df <- fd_fric(SpXTraits, as.matrix(PatchXSp), stand = TRUE) %>% # functional richness
     # functional divergence
-    right_join(fd_fdiv(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
+    # right_join(fd_fdiv(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
     # functional dispersion
     right_join(fd_fdis(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
     # functional evenness
-    right_join(fd_feve(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
+    # right_join(fd_feve(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
     # Rao's entropy (Q)
-    right_join(fd_raoq(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
+    # right_join(fd_raoq(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
     rename(Patch = site)
   
   return(fdiv_df)
@@ -280,7 +280,7 @@ phylodiv.metrics <- function(in_df, tree) {
   
   # Calculate phylogenetic diversity
   # 1) sum of the total phylogenetic branch length (Faith, 1992)
-  pdiv_length = as.data.table(evodiv(tree_pruned, comm))
+  pdiv_length = as.data.table(evodiv(tree_pruned, comm, method = "richness"))
   
   # 2) phylogenetic species variability, richness and evenness (Helmus et al., 2007)
   pdiv_psv = picante::psv(comm, tree_pruned, compute.var = FALSE) # 2.6 seconds
@@ -322,12 +322,12 @@ get.biodiv_df <- function(in_df, trait_names, tree) {
   # Metric 6: Combined variation of quantitative traits
   FD_df = FD_function(in_df)
   
-  # fdiv_df = trait.fdiv.metrics(in_df, trait_names)
+  fdiv_df = trait.fdiv.metrics(in_df, trait_names)
   
   # Phylogenetic diversity metrics
   PD_df = PD_function(in_df)
   
-  # PD_df = phylodiv.metrics(in_df, tree)
+  pdiv_df = phylodiv.metrics(in_df, tree)
   
   # Put together one big dataframe of biodiversity metrics of each Patch
   biodiv_df = rename(num.unique_df, NumUnique = biodiv) %>% # Number of unique entities
@@ -336,10 +336,11 @@ get.biodiv_df <- function(in_df, trait_names, tree) {
     # Number of uses
     right_join(rename(num.use_df, NumUse = biodiv), by = "Patch") %>% 
     # Functional diversity
-    # right_join(mutate(fdiv_df, Patch = as.double(Patch)), by = "Patch") %>%
+    right_join(mutate(fdiv_df, Patch = as.double(Patch)), by = "Patch") %>%
     right_join(mutate(FD_df, Patch = as.double(Patch)), by = "Patch") %>%
     # Phylogenetic diversity
-    right_join(PD_df, by = "Patch")
+    right_join(PD_df, by = "Patch") %>% 
+    right_join(mutate(pdiv_df, Patch = as.double(Patch)), by = "Patch")
 }
 
 
