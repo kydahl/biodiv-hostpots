@@ -36,10 +36,6 @@ library(multidplyr)
 # Calculate the ultrametric phylogenetic distances between species then divide by the maximum.
 # Going with full space here as well
 
-
-# They measured whether or not there were significant differences among the metrics by calculating the standardised effect size:
-# SES = (Div_obs - mean(Div_sim)) / sd_sim
-
 # Where in their case, simulations amounted to permuting the species names in a plot. 
 
 # Step 1: Calculate distance matrices for FD and PD ----
@@ -70,11 +66,6 @@ FD_dist_mat = FD_dist_mat / max(FD_dist_mat)
 
 saveRDS(FD_dist_mat, file = "data/clean/FD_dist_mat.rds")
 
-# FD_distance_function <- function(species_id_i, species_id_j) {
-#   return(FD_dist_mat[species_id_i, species_id_j])
-# }
-
-
 ## Calculate phylogenetic distances ----
 phylo_tree = tree$scenario.3
 
@@ -82,66 +73,6 @@ PD_dist_mat = cophenetic.phylo(phylo_tree)
 PD_dist_mat = PD_dist_mat/max(PD_dist_mat)
 
 saveRDS(PD_dist_mat, file = "data/clean/PD_dist_mat.rds")
-
-# PD_distance_function <- function(species_name_i, species_name_j) {
-#   return(PD_dist_mat[species_name_i, species_name_j])
-# }
-
-# Calculate all biodiversity types ----
-
-
-# Given a community J
-
-# TD = species richness
-TD_function = function(community_df) {
-  return(dim(community_df)[1])
-}
-
-# Efficient pairwise PD distance summation using matrix indexing
-PD_dataframe_function <- function(species_names) {
-  if (length(species_names) <= 1) return(0)
-  
-  # Match species to indices
-  species_names <- gsub(" ", "_", species_names)
-  species_indices <- match(species_names, colnames(PD_dist_mat))
-  
-  # Direct summation of pairwise distances from PD_dist_mat
-  dist_values <- PD_dist_mat[species_indices, species_indices, drop = FALSE]
-  sum(dist_values[lower.tri(dist_values)])
-  
-}
-
-# Efficient pairwise FD distance summation using matrix indexing
-FD_dataframe_function <- function(species_ids) {
-  if (length(species_ids) <= 1) return(0)
-  
-  # Match species to indices
-  species_indices <- match(species_ids, colnames(FD_dist_mat))
-  
-  # Direct summation of pairwise distances from FD_dist_mat
-  dist_values <- FD_dist_mat[species_indices, species_indices, drop = FALSE]
-  sum(dist_values[lower.tri(dist_values)])
-  
-}
-
-# Refactored FDPD_function with optimized distance calculation
-FDPD_function <- function(in_df) {
-  in_df %>%
-    select(Patch, species_id, Synonym) %>%
-    group_by(Patch) %>%
-    summarise(
-      FD = FD_dataframe_function(species_id),
-      PD = PD_dataframe_function(Synonym),
-      .groups = 'drop'
-    ) 
-}
-
-
-
-
-
-
-
 
 
 

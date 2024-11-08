@@ -40,6 +40,8 @@ library(maditr)
 final_data <- read_csv("data/clean/final_dataset.csv", show_col_types = FALSE)
 
 SpeciesOccs <- read_rds("data/clean/species_occurrences.rds")
+PD_dist_mat <- readRDS(file = "data/clean/PD_dist_mat.rds")
+FD_dist_mat <- readRDS(file = "data/clean/FD_dist_mat.rds")
 
 
 # 1) Helper functions -----------------------------------------------------
@@ -293,7 +295,44 @@ phylodiv.metrics <- function(in_df, tree) {
               by = c("Patch"))
 }
 
+# Efficient pairwise PD distance summation using matrix indexing
+PD_dataframe_function <- function(species_names) {
+  if (length(species_names) <= 1) return(0)
+  
+  # Match species to indices
+  species_names <- gsub(" ", "_", species_names)
+  species_indices <- match(species_names, colnames(PD_dist_mat))
+  
+  # Direct summation of pairwise distances from PD_dist_mat
+  dist_values <- PD_dist_mat[species_indices, species_indices, drop = FALSE]
+  sum(dist_values[lower.tri(dist_values)])
+  
+}
 
+# Efficient pairwise FD distance summation using matrix indexing
+FD_dataframe_function <- function(species_ids) {
+  if (length(species_ids) <= 1) return(0)
+  
+  # Match species to indices
+  species_indices <- match(species_ids, colnames(FD_dist_mat))
+  
+  # Direct summation of pairwise distances from FD_dist_mat
+  dist_values <- FD_dist_mat[species_indices, species_indices, drop = FALSE]
+  sum(dist_values[lower.tri(dist_values)])
+  
+}
+
+# Refactored FDPD_function with optimized distance calculation
+FDPD_function <- function(in_df) {
+  in_df %>%
+    select(Patch, species_id, Synonym) %>%
+    group_by(Patch) %>%
+    summarise(
+      FD = FD_dataframe_function(species_id),
+      PD = PD_dataframe_function(Synonym),
+      .groups = 'drop'
+    ) 
+}
 
 #### Build biodiversity data frame ----
 get.biodiv_df <- function(in_df, tree) {

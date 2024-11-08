@@ -41,8 +41,20 @@ library(scales)
 library(ggpubr)
 library(ggdendro) # to plot dendrograms
 
-# Load in simulations
+# Load in functions
 source("code/functions.R")
+
+# Load in dataset and phylogenetic tree
+final_data <- read_csv("data/clean/final_dataset.csv") %>% 
+  # log transform traits with large outliers
+  mutate(LeafArea_log = log(`Leaf area (mm2)`), .keep = 'unused') %>%
+  mutate(PlantHeight_log = log(`Plant height (m)`), .keep = 'unused') %>%
+  mutate(DiasporeMass_log = log(`Diaspore mass (mg)`), .keep = 'unused') %>%
+  mutate(LDMC_log = log(`LDMC (g/g)`), .keep = 'unused') %>%
+  # Turn categorical traits into quantitative ones
+  mutate(Woodiness = ifelse(Woodiness == "woody", 1, 0)) %>% 
+  # Put traits at the end
+  relocate(c(`Nmass (mg/g)`, Woodiness, LeafArea_log:LDMC_log), .after = last_col())
 
 # Figure 1: Compare the distribution of biodiversity metric values --------
 # Define the relevant trait names
@@ -57,7 +69,7 @@ numPatches <- 1000
 full_df_sample <- get.full_df(numPatches)
 
 # Calculate biodiversity metrics
-biodiv_df <- get.biodiv_df(full_df_sample, trait_names, tree)
+biodiv_df <- get.biodiv_df(full_df_sample, tree)
 
 # Set up label colors to indicate what type of index it is
 biodiv_plot_df <- biodiv_df %>% 
@@ -68,11 +80,11 @@ biodiv_plot_df <- biodiv_df %>%
 biodiv_plot_df$group <- case_match(biodiv_plot_df$name,
                                    c("NumUnique", "NumEndemic") ~ "Taxonomic",
                                    c("NumIndigName", "NumUse") ~ "TEK",
-                                   c("FD") ~ "Functional",
-                                   c("PD") ~ "Phylogenetic"
+                                   c("FD", "FRic", "FDis") ~ "Functional",
+                                   c("PD","richness", "PSVs", "PSR") ~ "Phylogenetic"
                                    # c("richness", "GiniSimpson", "Simpson",
-                                     # "Shannon", "Margalef", "Menhinick",
-                                     # "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
+                                   # "Shannon", "Margalef", "Menhinick",
+                                   # "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
                                    # c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
 )
 
@@ -96,32 +108,33 @@ biodiv_plot_df$label <-  case_match(biodiv_plot_df$name,
                                     "NumUse" ~ "Recorded Indigenous uses",
                                     "FD" ~ "Functional diversity",
                                     "PD" ~ "Phylogenetic diversity",
-                                    # "FRic" ~ "Functional sp. richness",
+                                    "FRic" ~ "Functional sp. richness",
                                     # "FDiv" ~ "Functional sp. divergence",
-                                    # "FDis" ~ "Functional sp. dispersion",
+                                    "FDis" ~ "Functional sp. dispersion",
                                     # "FEve" ~ "Functional sp. evenness",
                                     # "Q" ~ "Rao's entropy (Q)",
-                                    # "richness" ~ "Faith",
+                                    "richness" ~ "Faith",
                                     # "GiniSimpson" ~ "Gini and Simpson",
                                     # "Simpson" ~ "Simpson",
                                     # "Shannon" ~ "Shannon",
                                     # "Margalef" ~ "Margalef",
                                     # "Menhinick" ~ "Menhinick",
                                     # "McIntosh" ~ "McIntosh",
-                                    # "PSVs" ~ "Phylogenetic sp. variability",
-                                    # "PSR" ~ "Phylogenetic sp. richness",
+                                    "PSVs" ~ "Phylogenetic sp. variability",
+                                    "PSR" ~ "Phylogenetic sp. richness",
                                     "dummy" ~ ""
 )
 
 biodiv_plot_df$label <-  factor(biodiv_plot_df$label, levels = c(
   "Species richness", "Indigenous names",   "Recorded Indigenous uses",
   "Number of 'endemic' species", 
-  "Functional diversity",
-"Phylogenetic diversity"
-  # "Functional sp. richness", 
-  # "Functional sp. divergence",  "Functional sp. dispersion", 
-  # "Functional sp. evenness", "Rao's entropy (Q)", "Faith", "Gini and Simpson", 
-  # "Margalef", "McIntosh", "Menhinick", "Phylogenetic sp. richness", "Phylogenetic sp. variability", "Shannon", 
+  "Functional diversity", "Functional sp. richness", "Functional sp. dispersion", 
+  "Phylogenetic diversity", "Faith", "Phylogenetic sp. variability", "Phylogenetic sp. richness"
+  
+  # "Functional sp. divergence", 
+  # 
+  # "Functional sp. evenness", "Rao's entropy (Q)", "Gini and Simpson", 
+  # "Margalef", "McIntosh", "Menhinick",  "Shannon", 
   # "Simpson", ""
 )
 )
@@ -138,7 +151,7 @@ meanSD_df <- biodiv_plot_df %>%
 
 # Plot histograms in three columns
 # histogram_colors = c("black", rep("#E41A1C",2), rep("#4DAF4A", 5), rep("#377EB8", 9), NA)
-histogram_colors = c("black", rep("#E41A1C",2), rep("#4DAF4A", 1), rep("#377EB8", 1), NA)
+histogram_colors = c("black", rep("#E41A1C",2), rep("#4DAF4A", 3), rep("#377EB8", 4), NA)
 
 strip_theme = strip_themed(background_x = elem_list_rect(fill = histogram_colors),
                            text_x = element_text(color = "white",face = "bold", size = 8))
@@ -172,8 +185,9 @@ histogram_plot
 ggsave("figures/Figure1_BiodivDistributions.pdf", histogram_plot, width = 6.5, height = 6, units = "in")
 ggsave("figures/Figure1_BiodivDistributions.png", histogram_plot, width = 6.5, height = 6, units = "in")
 
+
 # Figure 2: Numbers of hot spots identified --------------------------------
-hotspot_nums <- readRDS('results/full_comparisons.rds') %>% 
+hotspot_nums <- readRDS('results/final_comparisons.rds') %>% 
   filter(type == "list_length") %>% 
   filter(baseline == "NumUnique") %>% 
   rowwise() %>%  
@@ -189,30 +203,31 @@ hotspot_nums$metric_label <-  case_match(hotspot_nums$comparison,
                                          "NumUse" ~ "Recorded Indigenous uses",
                                          "FD" ~ "Functional diversity",
                                          "PD" ~ "Phylogenetic diversity",
-                                         # "FRic" ~ "Functional sp. richness",
+                                         "FRic" ~ "Functional sp. richness",
                                          # "FDiv" ~ "Functional sp. divergence",
-                                         # "FDis" ~ "Functional sp. dispersion",
+                                         "FDis" ~ "Functional sp. dispersion",
                                          # "FEve" ~ "Functional sp. evenness",
                                          # "Q" ~ "Rao's entropy (Q)",
-                                         # "richness" ~ "Faith",
+                                         "richness" ~ "Faith",
                                          # "GiniSimpson" ~ "Gini and Simpson",
                                          # "Simpson" ~ "Simpson",
                                          # "Shannon" ~ "Shannon",
                                          # "Margalef" ~ "Margalef",
                                          # "Menhinick" ~ "Menhinick",
                                          # "McIntosh" ~ "McIntosh",
-                                         # "PSVs" ~ "Phylogenetic sp. variability",
-                                         # "PSR" ~ "Phylogenetic sp. richness"
+                                         "PSVs" ~ "Phylogenetic sp. variability",
+                                         "PSR" ~ "Phylogenetic sp. richness",
+                                         "dummy" ~ ""
 )
 
 hotspot_nums$type <- case_match(hotspot_nums$comparison,
                                 c("NumUnique", "NumEndemic") ~ "Taxonomic",
                                 c("NumIndigName", "NumUse") ~ "TEK",
-                                "FD" ~ "Functional",
-                                "PD" ~ "Phylogenetic",
+                                c("FD", "FRic", "FDis") ~ "Functional",
+                                c("PD","richness", "PSVs", "PSR") ~ "Phylogenetic"
                                 # c("richness", "GiniSimpson", "Simpson",
-                                  # "Shannon", "Margalef", "Menhinick",
-                                  # "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
+                                # "Shannon", "Margalef", "Menhinick",
+                                # "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
                                 # c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
 )
 
@@ -239,6 +254,9 @@ hotspot_bars = hotspot_nums %>%
     axis.text.x = element_text(angle = 45, hjust=1),
     legend.position = "none"
   )
+
+hotspot_bars
+
 ggsave("figures/Figure2_HotspotCounts.pdf", hotspot_bars, width = 6.5, height = 3, units = "in")
 ggsave("figures/Figure2_HotspotCounts.png", hotspot_bars, width = 6.5, height = 3, units = "in")
 
@@ -246,7 +264,7 @@ ggsave("figures/Figure2_HotspotCounts.png", hotspot_bars, width = 6.5, height = 
 # Figure 3: Biodiversity metric dendrogram clustered by precision ---------
 
 # Make more descriptive labels for biodiversity metrics
-full_comp_df <- readRDS('results/full_comparisons.rds') 
+full_comp_df <- readRDS('results/final_comparisons.rds') 
 
 full_comp_df$baseline_label <-  case_match(full_comp_df$baseline,
                                            "NumUnique" ~ "Species richness",
@@ -255,20 +273,21 @@ full_comp_df$baseline_label <-  case_match(full_comp_df$baseline,
                                            "NumUse" ~ "Recorded Indigenous uses",
                                            "FD" ~ "Functional diversity",
                                            "PD" ~ "Phylogenetic diversity",
-                                           # "FRic" ~ "Functional sp. richness",
+                                           "FRic" ~ "Functional sp. richness",
                                            # "FDiv" ~ "Functional sp. divergence",
-                                           # "FDis" ~ "Functional sp. dispersion",
+                                           "FDis" ~ "Functional sp. dispersion",
                                            # "FEve" ~ "Functional sp. evenness",
                                            # "Q" ~ "Rao's entropy (Q)",
-                                           # "richness" ~ "Faith",
+                                           "richness" ~ "Faith",
                                            # "GiniSimpson" ~ "Gini and Simpson",
                                            # "Simpson" ~ "Simpson",
                                            # "Shannon" ~ "Shannon",
                                            # "Margalef" ~ "Margalef",
                                            # "Menhinick" ~ "Menhinick",
                                            # "McIntosh" ~ "McIntosh",
-                                           # "PSVs" ~ "Phylogenetic sp. variability",
-                                           # "PSR" ~ "Phylogenetic sp. richness"
+                                           "PSVs" ~ "Phylogenetic sp. variability",
+                                           "PSR" ~ "Phylogenetic sp. richness",
+                                           "dummy" ~ ""
 )
 
 full_comp_df$comparison_label <-  case_match(full_comp_df$comparison,
@@ -278,43 +297,44 @@ full_comp_df$comparison_label <-  case_match(full_comp_df$comparison,
                                              "NumUse" ~ "Recorded Indigenous uses",
                                              "FD" ~ "Functional diversity",
                                              "PD" ~ "Phylogenetic diversity",
-                                             # "FRic" ~ "Functional sp. richness",
+                                             "FRic" ~ "Functional sp. richness",
                                              # "FDiv" ~ "Functional sp. divergence",
-                                             # "FDis" ~ "Functional sp. dispersion",
+                                             "FDis" ~ "Functional sp. dispersion",
                                              # "FEve" ~ "Functional sp. evenness",
                                              # "Q" ~ "Rao's entropy (Q)",
-                                             # "richness" ~ "Faith",
+                                             "richness" ~ "Faith",
                                              # "GiniSimpson" ~ "Gini and Simpson",
                                              # "Simpson" ~ "Simpson",
                                              # "Shannon" ~ "Shannon",
                                              # "Margalef" ~ "Margalef",
                                              # "Menhinick" ~ "Menhinick",
                                              # "McIntosh" ~ "McIntosh",
-                                             # "PSVs" ~ "Phylogenetic sp. variability",
-                                             # "PSR" ~ "Phylogenetic sp. richness"
+                                             "PSVs" ~ "Phylogenetic sp. variability",
+                                             "PSR" ~ "Phylogenetic sp. richness",
+                                             "dummy" ~ ""
 )
 
 
 full_comp_df$baseline_type <- case_match(full_comp_df$baseline,
                                          c("NumUnique", "NumEndemic") ~ "Taxonomic",
                                          c("NumIndigName", "NumUse") ~ "TEK",
-                                         "FD" ~ "Functional",
-                                         "PD" ~ "Phylogenetic",
+                                         c("FD", "FRic", "FDis") ~ "Functional",
+                                         c("PD","richness", "PSVs", "PSR") ~ "Phylogenetic"
                                          # c("richness", "GiniSimpson", "Simpson",
-                                         #   "Shannon", "Margalef", "Menhinick",
-                                         #   "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
-                                         # c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
+                                         # "Shannon", "Margalef", "Menhinick",
+                                         # "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
+                                         # c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"            
 )
 
 full_comp_df$comparison_type <- case_match(full_comp_df$comparison,
                                            c("NumUnique", "NumEndemic") ~ "Taxonomic",
                                            c("NumIndigName", "NumUse") ~ "TEK",
-                                           "FD" ~ "Functional",
-                                           "PD" ~ "Phylogenetic",
+                                           c("FD", "FRic", "FDis") ~ "Functional",
+                                           c("PD","richness", "PSVs", "PSR") ~ "Phylogenetic"
                                            # c("richness", "GiniSimpson", "Simpson",
-                                           #   "Shannon", "Margalef", "Menhinick",
-                                           #   "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
-                                           # c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
+                                           # "Shannon", "Margalef", "Menhinick",
+                                           # "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
+                                           # c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"           
 )
 
 full_comp_df$baseline_color <- x_label_color_function(full_comp_df$baseline_type)
@@ -352,15 +372,15 @@ ddata_labels = label(ddata)
 # ddata_labels$color <- rev(c("#E41A1C", "#E41A1C", "#377EB8", "black", "#377EB8", "#377EB8", 
 #                             "#4DAF4A", "#377EB8", "#377EB8", "#377EB8", "#4DAF4A", "#4DAF4A", 
 #                             "#4DAF4A", "#4DAF4A", "#377EB8", "#377EB8", "#377EB8"))
-ddata_labels$color <- rev(c("#E41A1C", "#E41A1C", "black", "#4DAF4A", "#377EB8"))
+ddata_labels$color <- rev(c("#E41A1C", "#E41A1C", "black", rep("#4DAF4A", 3), rep("#377EB8", 4)))
 
 
 ddata_labels$group <- case_match(
   ddata_labels$label,
   "Species richness" ~ "Taxonomic",
   c("Indigenous names", "Recorded Indigenous uses") ~ "TEK",
-  "Functional diversity" ~ "Functional",
-  "Phylogenetic diversity" ~ "Phylogenetic",
+  c("Functional diversity", "Functional sp. richness", "Functional sp. dispersion") ~ "Functional",
+  c("Phylogenetic diversity", "Faith", "Phylogenetic sp. variability", "Phylogenetic sp. richness") ~ "Phylogenetic",
   # c("Faith", "Gini and Simpson", "Simpson",
   #   "Shannon", "Margalef", "Menhinick",
   #   "McIntosh", "Phylogenetic sp. variability", "Phylogenetic sp. richness") ~ "Phylogenetic",
@@ -397,7 +417,6 @@ ggplot() +
 
 ggsave("figures/Figure3_Dendrogram.pdf", width = 4, height = 1, units = "in",
        dpi = 600)
-
 ggsave("figures/Figure3_Dendrogram.png", width = 4, height = 1, units = "in",
        dpi = 600)
 
@@ -641,6 +660,7 @@ Indig_plots <- trait_impute %>%
   theme(axis.title.x = element_blank())
 
 plot_trait_impute <- grid.arrange(logged_plots, remaining_plots, Indig_plots, nrow = 3)
+
 ggsave("figures/FigS1_TraitDistributions.pdf", plot_trait_impute, width = 10.5, height = 6, units = "in")
 ggsave("figures/FigS1_TraitDistributions.png", plot_trait_impute, width = 10.5, height = 6, units = "in")
 

@@ -62,15 +62,13 @@ final_data <- read_csv("data/clean/final_dataset.csv") %>%
 
 tree <- readRDS("data/clean/full_tree.rds")
 
-explore_df <- get.full_df(1000) %>% 
+explore_df <- get.full_df(1000) %>%
   get.biodiv_df(., tree)
+
 # Set the random seed used to generate figures in the manuscript 
 set.seed(9523)
 
 ## Simulation parameters ----
-
-## Number of iterations to compute biodiversity over
-numIterations <- 100
 
 # 1) Exploratory simulations ----------------------------------------------
 
@@ -86,10 +84,10 @@ numIterations <- 100
 
 
 
-# Plot correlations among biodiversity metrics
-pair_plot <- explore_df %>% 
-  select(-c(Patch)) %>% 
-  ggpairs()
+# # Plot correlations among biodiversity metrics
+# pair_plot <- explore_df %>% 
+#   select(-c(Patch)) %>% 
+#   ggpairs()
 
 # 2) Calculate pairwise comparisons of biodiversity hotspot identi --------
 
@@ -123,9 +121,9 @@ full_compare_df <- tibble(
   baseline = as.character(), # baseline biodiversity metric
   comparison = as.character(), # comparison biodiversity metric
   type = as.character(), # type (precision or list length)
-  value = as.double()
-  # mean = as.double(),
-  # var = as.double()
+  # value = as.double()
+  mean = as.double(),
+  var = as.double()
 )
 metric_index = 0
 
@@ -203,13 +201,13 @@ for (metric_name in metric_names) {
     }
   }
   
-  sliceSize = 100
+  sliceSize = 25
   sliceRange = 1:sliceSize
-  plan(multisession, workers = 12, gc = TRUE)
   for (i in 1:(numIterations/sliceSize)) {
     print(paste0("Collect simulation chunk # ", i, " of ", (numIterations/sliceSize), ":"))
+    plan(multisession, workers = 12, gc = TRUE)
     compare_df = rbind(compare_df, get.temp_compare_df(sliceRange))
-    # plan(sequential)
+    plan(sequential)
   }
   
   out_df <- compare_df %>% 
@@ -218,12 +216,12 @@ for (metric_name in metric_names) {
       precision = value
       ) %>% 
     pivot_longer(cols = precision:list_length, names_to = "type") %>% 
-    # group_by(comparison, type) %>%
-    # summarise(
-    #   mean = mean(value),
-    #   var = var(value),
-    #   .groups = "keep"        
-    #   ) %>% 
+    group_by(comparison, type) %>%
+    summarise(
+      mean = mean(value),
+      var = var(value),
+      .groups = "keep"
+      ) %>%
     mutate(baseline = baseline_metric)
   
   full_compare_df <- add_row(full_compare_df, out_df)
@@ -231,21 +229,4 @@ for (metric_name in metric_names) {
   rm(compare_df)
 }
 
-final_compare_df = readRDS(file = "results/final_comparisons.rds")
-final_compare_df = add_row(final_compare_df, full_compare_df)
-saveRDS(final_compare_df, file = "results/final_comparisons.rds")
-
-# !!! Run tally: 1 out of 10
-#     
-
-
-# summary_df = full_compare_df %>% 
-#   group_by(baseline, comparison, type) %>%
-#   summarise(
-#     mean = mean(value),
-#     var = var(value),
-#     .groups = "keep"
-#     )
-# 
-# saveRDS(full_compare_df, file = "results/full_comparisons_new.rds")
-# saveRDS(summary_df, file = "results/summary_comparisons_new.rds")
+saveRDS(full_compare_df, file = "results/final_comparisons.rds")
