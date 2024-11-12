@@ -45,7 +45,7 @@ library(ggdendro) # to plot dendrograms
 source("code/functions.R")
 
 # Load in dataset and phylogenetic tree
-final_data <- read_csv("data/clean/final_dataset.csv") %>% 
+final_data <- read_csv("data/clean/final_dataset.csv") %>% #read_csv("data/clean/final_dataset.csv") %>% 
   # log transform traits with large outliers
   mutate(LeafArea_log = log(`Leaf area (mm2)`), .keep = 'unused') %>%
   mutate(PlantHeight_log = log(`Plant height (m)`), .keep = 'unused') %>%
@@ -63,6 +63,18 @@ trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)",
 
 # Initialize the full phylogenetic tree
 tree <- readRDS("data/clean/full_tree.rds")
+
+
+# Assign colors to biodiversity metrics according to type
+x_label_color_function <- function(string) {
+  out <- case_match(string,
+                    "Taxonomic" ~ "black",
+                    "TEK" ~ c4a("brewer.set1", 3)[1],
+                    "Phylogenetic" ~ c4a("brewer.set1", 3)[2],
+                    "Functional" ~ c4a("brewer.set1", 3)[3],)
+  out <- as.character(out)
+}
+
 
 # Get a single simulation
 numPatches <- 1000
@@ -88,15 +100,6 @@ biodiv_plot_df$group <- case_match(biodiv_plot_df$name,
                                    # c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"         
 )
 
-# Assign colors to biodiversity metrics according to type
-x_label_color_function <- function(string) {
-  out <- case_match(string,
-                    "Taxonomic" ~ "black",
-                    "TEK" ~ c4a("brewer.set1", 3)[1],
-                    "Phylogenetic" ~ c4a("brewer.set1", 3)[2],
-                    "Functional" ~ c4a("brewer.set1", 3)[3],)
-  out <- as.character(out)
-}
 
 biodiv_plot_df$color <- x_label_color_function(biodiv_plot_df$group)
 
@@ -264,7 +267,8 @@ ggsave("figures/Figure2_HotspotCounts.png", hotspot_bars, width = 6.5, height = 
 # Figure 3: Biodiversity metric dendrogram clustered by precision ---------
 
 # Make more descriptive labels for biodiversity metrics
-full_comp_df <- readRDS('results/final_comparisons.rds') 
+full_comp_df <- readRDS('results/final_comparisons.rds') #%>% 
+  # filter(baseline != "FRic", comparison != "FRic")
 
 full_comp_df$baseline_label <-  case_match(full_comp_df$baseline,
                                            "NumUnique" ~ "Species richness",
@@ -319,6 +323,7 @@ full_comp_df$baseline_type <- case_match(full_comp_df$baseline,
                                          c("NumUnique", "NumEndemic") ~ "Taxonomic",
                                          c("NumIndigName", "NumUse") ~ "TEK",
                                          c("FD", "FRic", "FDis") ~ "Functional",
+                                         # c("FD", "FDis") ~ "Functional",
                                          c("PD","richness", "PSVs", "PSR") ~ "Phylogenetic"
                                          # c("richness", "GiniSimpson", "Simpson",
                                          # "Shannon", "Margalef", "Menhinick",
@@ -329,8 +334,10 @@ full_comp_df$baseline_type <- case_match(full_comp_df$baseline,
 full_comp_df$comparison_type <- case_match(full_comp_df$comparison,
                                            c("NumUnique", "NumEndemic") ~ "Taxonomic",
                                            c("NumIndigName", "NumUse") ~ "TEK",
+                                           # c("FD", "FDis") ~ "Functional",
                                            c("FD", "FRic", "FDis") ~ "Functional",
-                                           c("PD","richness", "PSVs", "PSR") ~ "Phylogenetic"
+                                           c("PD","PSVs", "PSR") ~ "Phylogenetic",
+                                           # c("PD","richness", "PSVs", "PSR") ~ "Phylogenetic"
                                            # c("richness", "GiniSimpson", "Simpson",
                                            # "Shannon", "Margalef", "Menhinick",
                                            # "McIntosh", "PSVs", "PSR") ~ "Phylogenetic",
@@ -341,6 +348,18 @@ full_comp_df$baseline_color <- x_label_color_function(full_comp_df$baseline_type
 full_comp_df$comparison_color <- x_label_color_function(full_comp_df$comparison_type)
 
 # Cluster metrics based on the Euclidean distance of comparison values
+
+# Jaccard
+pair_jaccard_mat <- full_comp_df %>%
+  filter(type == "jaccard") %>% 
+  select(-c(var, type, baseline, comparison, baseline_type, comparison_type,
+            baseline_color, comparison_color)) %>% 
+  pivot_wider(values_from = c("mean"),
+              names_sort = F,
+              names_from = "comparison_label")
+
+m_jaccard <- as.matrix((pair_jaccard_mat[, -1]), ncol = 10)
+pair_jaccard_cluster <- hclust(dist(t(m_jaccard)), method = "ward.D2")
 
 # Precision
 pair_prec_mat <- full_comp_df %>%
@@ -366,19 +385,21 @@ pair_recall_mat <- full_comp_df %>%
 m_recall <- as.matrix((pair_recall_mat[, -1]), ncol = 18)
 pair_recall_cluster <- hclust(dist(t(m_recall)), method = "ward.D2")
 
-ddata <- dendro_data(pair_prec_cluster, type="rectangle")
+ddata <- dendro_data(pair_jaccard_cluster, type="rectangle")
 
 ddata_labels = label(ddata)
 # ddata_labels$color <- rev(c("#E41A1C", "#E41A1C", "#377EB8", "black", "#377EB8", "#377EB8", 
 #                             "#4DAF4A", "#377EB8", "#377EB8", "#377EB8", "#4DAF4A", "#4DAF4A", 
 #                             "#4DAF4A", "#4DAF4A", "#377EB8", "#377EB8", "#377EB8"))
 ddata_labels$color <- rev(c("#E41A1C", "#E41A1C", "black", rep("#4DAF4A", 3), rep("#377EB8", 4)))
+# ddata_labels$color <- rev(c("#E41A1C", "#E41A1C", "black", rep("#4DAF4A", 3), rep("#377EB8", 4)))
 
 
 ddata_labels$group <- case_match(
   ddata_labels$label,
   "Species richness" ~ "Taxonomic",
   c("Indigenous names", "Recorded Indigenous uses") ~ "TEK",
+  # c("Functional diversity", "Functional sp. dispersion") ~ "Functional",
   c("Functional diversity", "Functional sp. richness", "Functional sp. dispersion") ~ "Functional",
   c("Phylogenetic diversity", "Faith", "Phylogenetic sp. variability", "Phylogenetic sp. richness") ~ "Phylogenetic",
   # c("Faith", "Gini and Simpson", "Simpson",
@@ -415,9 +436,9 @@ ggplot() +
     axis.text.y = element_blank(),
   )
 
-ggsave("figures/Figure3_Dendrogram.pdf", width = 4, height = 1, units = "in",
+ggsave("figures/Figure3_Dendrogram_Jaccard.pdf", width = 3.5625, height = 1, units = "in",
        dpi = 600)
-ggsave("figures/Figure3_Dendrogram.png", width = 4, height = 1, units = "in",
+ggsave("figures/Figure3_Dendrogram_Jaccard.png", width = 3.5625, height = 1, units = "in",
        dpi = 600)
 
 # Figure S1: Distribution of traits (across all species) -------------------
@@ -671,6 +692,34 @@ ggsave("figures/FigS1_TraitDistributions.png", plot_trait_impute, width = 10.5, 
 plot_colours <- full_comp_df %>% 
   select(baseline_color, baseline_label) %>% 
   unique() %>% 
+  slice(match(colnames(m_jaccard)[pair_jaccard_cluster$order], baseline_label)) %>% 
+  select(baseline_color)
+
+# Jaccard clustered heatmap
+jaccard_heatmap <- full_comp_df %>% 
+  arrange(desc(baseline), desc(comparison)) %>% 
+  filter(type == "jaccard") %>% 
+  mutate(mean = ifelse(baseline_label == comparison_label, NA, mean)) %>% 
+  ggplot(aes(baseline_label, comparison_label, fill = mean, colour = baseline_type)) +
+  geom_tile(color = "black") +
+  geom_text(aes(label = round(mean, 2)), color = "black", size = 2.5) +
+  scale_fill_gradient("Mean value", low = "white", high = "blue") +
+  scale_y_discrete("Comparison index", limits = rev(colnames(m_jaccard)[pair_jaccard_cluster$order])) +
+  scale_x_discrete("Baseline index", limits = rev(colnames(m_jaccard)[pair_jaccard_cluster$order])) +
+  theme_cowplot(10) +
+  theme(
+    axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1, 
+                               color = rev(plot_colours$baseline_color)),
+    axis.text.y = element_text(color = rev(plot_colours$baseline_color))
+  ) +
+  guides(fill = guide_colorbar(barheight = 25,
+                               barwidth = 0.5,
+                               title.hjust = 0.5))
+
+# Get colors assigned to biodiversity metrics to use for text labels
+plot_colours <- full_comp_df %>% 
+  select(baseline_color, baseline_label) %>% 
+  unique() %>% 
   slice(match(colnames(m_prec)[pair_prec_cluster$order], baseline_label)) %>% 
   select(baseline_color)
 
@@ -687,12 +736,10 @@ precision_heatmap <- full_comp_df %>%
   scale_x_discrete("Baseline index", limits = rev(colnames(m_prec)[pair_prec_cluster$order])) +
   theme_cowplot(10) +
   theme(
-    
     axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1, 
                                color = rev(plot_colours$baseline_color)),
     axis.text.y = element_text(color = rev(plot_colours$baseline_color))
-    
-  ) +
+    ) +
   guides(fill = guide_colorbar(barheight = 25,
                                barwidth = 0.5,
                                title.hjust = 0.5))

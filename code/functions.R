@@ -37,8 +37,6 @@ library(picante)
 library(maditr)
 
 ##* Load necessary data ----
-final_data <- read_csv("data/clean/final_dataset.csv", show_col_types = FALSE)
-
 SpeciesOccs <- read_rds("data/clean/species_occurrences.rds")
 PD_dist_mat <- readRDS(file = "data/clean/PD_dist_mat.rds")
 FD_dist_mat <- readRDS(file = "data/clean/FD_dist_mat.rds")
@@ -133,16 +131,17 @@ get.full_df <- function(NumPatches) {
 num.unique.metric <- function(in_df) {
   out_df <- in_df %>%
     # remove duplicates due to rows from trait.num
-    select(Patch, Species) %>%
+    dplyr::select(Patch, Species) %>%
     distinct() %>%
     # count number of distinct entities
-    count(Patch, name = "biodiv")
+    count(Patch, name = "biodiv") %>% 
+    mutate(biodiv = as.double(biodiv))
 }
 
 # Number of endemic entities
 num.endemic.metric <- function(in_df) {
   out_df <- in_df %>%
-    select(Patch, Species) %>%
+    dplyr::select(Patch, Species) %>%
     # only keep rows where Species is unique ( == endemics)
     group_by(Species) %>%
     # remove duplicates due to rows from trait.num
@@ -160,7 +159,7 @@ num.endemic.metric <- function(in_df) {
 # General trait counting metric function
 trait.count.metric <- function(in_df, trait_name) {
   out_df <- in_df %>%
-    select(Patch, one_of(trait_name)) %>% 
+    dplyr::select(Patch, one_of(trait_name)) %>% 
     group_by(Patch) %>% 
     # Biodiversity measured as sum in a given trait
     summarise(biodiv = sum(!!as.name(trait_name)))
@@ -171,7 +170,7 @@ trait.count.metric <- function(in_df, trait_name) {
 # Trait coefficient of variation function (only works for numerical traits)
 trait.coeffvariance.metric <- function(in_df, trait_names) {
   out_df <- in_df %>%
-    select(Patch, all_of(trait_names)) %>% 
+    dplyr::select(Patch, all_of(trait_names)) %>% 
     melt(id = "Patch") %>% 
     group_by(Patch, variable) %>% 
     # Biodiversity measured as sum in a given trait
@@ -184,7 +183,7 @@ trait.coeffvariance.metric <- function(in_df, trait_names) {
 trait.fdiv.metrics <- function(in_df){
   # Create dataframe of species x traits
   SpXTraits <- in_df %>%
-    select(Species, `Nmass (mg/g)`:LDMC_log) %>% 
+    dplyr::select(Species, `Nmass (mg/g)`:LDMC_log) %>% 
     # Scale quantitative traits
     mutate(across(where(is.numeric), function(.x){scale(.x, center = TRUE, scale = TRUE)})) %>% 
     unique() %>%
@@ -194,12 +193,13 @@ trait.fdiv.metrics <- function(in_df){
   # Create dataframe of patch x species with presence/absence
   PatchXSp <- in_df %>% 
     mutate(Presence = 1) %>%
-    select(Patch, Species, Presence) %>%
+    dplyr::select(Patch, Species, Presence) %>%
     arrange(Species) %>% 
     # keys become column names and values are the entries
     pivot_wider(names_from = Species, values_from = Presence, values_fn = unique) %>% 
     replace(is.na(.), 0) %>%
-    column_to_rownames(var = "Patch")
+    column_to_rownames(var = "Patch") %>%
+    as(., "sparseMatrix")
   
   # # The number of species (columns) in PatchXSp must match the number of species (rows) in SpXTraits. 
   # if(nrow(SpXTraits) == ncol(PatchXSp)) {
@@ -216,16 +216,20 @@ trait.fdiv.metrics <- function(in_df){
   # }
   
   # Calculate functional diversity
-  fdiv_df <- fd_fric(SpXTraits, as.matrix(PatchXSp), stand = TRUE) %>% # functional richness
+  fdiv_df <- fd_fric(SpXTraits, PatchXSp, stand = TRUE) %>% # functional richness (calculation will fail for very large patch sizes, > 5000)
     # functional divergence
     # right_join(fd_fdiv(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
     # functional dispersion
-    right_join(fd_fdis(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
+    right_join(fd_fdis(SpXTraits, PatchXSp), by = "site") %>%
     # functional evenness
     # right_join(fd_feve(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
     # Rao's entropy (Q)
     # right_join(fd_raoq(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
     mutate(Patch = as.integer(site), .keep = "unused")
+
+  # # For scaling up to 10000 sites
+  # fdiv_df <- fd_fdis(SpXTraits, PatchXSp) %>%
+  #   mutate(Patch = as.integer(site), .keep = "unused")
   
   return(fdiv_df)
   # Remarks: 
@@ -404,11 +408,13 @@ calc.hotspot_compare <- function(hotspots.baseline, hotspots.compare) {
   # Number of true positives
   TP_count <- sum(hotspots.compare %in% hotspots.baseline)
   
-  # Use precision as our quantifier:
-  # of the identified hotspots, what proportion match with the baseline list?
-  # also calculate recall 
+  # Number of unique hotspots identified across both metrics
+  total_hotspots <- length(unique(c(hotspots.baseline, hotspots.compare)))
+  
+  # Use different quantifiers of similarity:
   out <- tibble(precision = TP_count / length(hotspots.compare),
-                recall = TP_count / length(hotspots.baseline))
+                recall = TP_count / length(hotspots.baseline),
+                jaccard = TP_count / (length(hotspots.compare) + length(hotspots.baseline) - TP_count))
   return(out)
 }
 
@@ -424,13 +430,14 @@ get.compare_df <- function(in_df, baseline_metric) {
     variable = character(),
     value = numeric(), 
     recall = numeric(), 
+    jaccard = numeric(), 
     list_length = numeric()
   )
   
   # Get baseline hotspots
   hotspots.base <- temp_df %>%
     filter(variable == baseline_metric) %>%
-    select(-variable) %>%
+    dplyr::select(-variable) %>%
     rename(biodiv = value) %>%
     find.hotspots()
   
@@ -450,7 +457,7 @@ get.compare_df <- function(in_df, baseline_metric) {
     # Get hotspot list
     hotspot_list <- temp_df %>%
       filter(variable == j) %>%
-      select(-variable) %>%
+      dplyr::select(-variable) %>%
       rename(biodiv = value) %>%
       mutate(biodiv = ifelse(is.na(biodiv), 0, biodiv)) %>% 
       find.hotspots()
@@ -465,6 +472,7 @@ get.compare_df <- function(in_df, baseline_metric) {
                                   variable = j,
                                   value = compare_values$precision,
                                   recall = compare_values$recall,
+                                  jaccard = compare_values$jaccard, 
                                   list_length = num.hotspots.compare
                                   
     )

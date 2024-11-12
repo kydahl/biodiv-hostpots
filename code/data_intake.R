@@ -607,9 +607,15 @@ traits_to_impute <- as.data.frame(traits_df) %>%
 #   filter(value == 1) %>% select(Genus)
 
 # combine dummy vars with traits (comment this line out to not use taxa in imputation)
-traits_to_impute <- cbind(traits_to_impute, taxa) %>% 
+traits_to_impute <- cbind(traits_to_impute, taxa) %>%
   mutate_if(is.character, function(x) {as.double(x) * 100})
 true_df = traits_to_impute %>% filter_at(vars(`LDMC_log`:`DiasporeMass_log`), all_vars(!is.na(.)))
+
+# traits_to_impute_notaxa <- traits_to_impute %>% 
+#   mutate_if(is.character, function(x) {as.double(x) * 100})
+# true_df = traits_to_impute %>% filter_at(vars(`LDMC_log`:`DiasporeMass_log`), all_vars(!is.na(.)))
+
+
 
 # run missForest imputation
 PNW_imp <- missForest(traits_to_impute,
@@ -677,4 +683,4 @@ final_dataset = imputed_data %>%
   select(c("Synonym", "Family", "N_Names", "N_Langs", "N_Uses", "Species", "Ssp_var", "Nmass (mg/g)", "Woodiness", "LDMC (g/g)", "Diaspore mass (mg)", "Plant height (m)", "Leaf area (mm2)")) %>% 
   mutate(species_id = row_number())
 
-write_csv(final_dataset, "data/clean/final_dataset.csv")
+write_csv(final_dataset, "data/clean/final_dataset_notaxa.csv")

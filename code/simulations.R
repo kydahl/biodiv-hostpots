@@ -39,7 +39,6 @@ library(GGally) # To nicely plot correlations among variables
 
 # Load in analysis functions
 source("code/functions.R")
-source("code/new_metrics.R")
 
 # Set up parallel processing
 # plan(multisession, workers = 6, gc = TRUE)
@@ -61,9 +60,8 @@ final_data <- read_csv("data/clean/final_dataset.csv") %>%
   relocate(c(`Nmass (mg/g)`, Woodiness, LeafArea_log:LDMC_log), .after = last_col())
 
 tree <- readRDS("data/clean/full_tree.rds")
-
-explore_df <- get.full_df(1000) %>%
-  get.biodiv_df(., tree)
+# system.time({temp_full_df = get.full_df(10000)})
+# system.time({explore_df = get.biodiv_df(temp_full_df, tree)})
 
 # Set the random seed used to generate figures in the manuscript 
 set.seed(9523)
@@ -80,8 +78,6 @@ set.seed(9523)
 #                  "Leaf area (mm2)", "Diaspore mass (mg)")
 
 #### Explore an example simulation with 40 patches ----
-
-
 
 
 # # Plot correlations among biodiversity metrics
@@ -111,7 +107,7 @@ metric_names <- c(
 
 # Set comparison parameters
 numIterations <- 100
-NumPatches <- 1000
+NumPatches <- 1000 # For scaling up: increase to 10000
 
 # Set up progress bar
 handlers(global = TRUE)
@@ -175,6 +171,8 @@ for (metric_name in metric_names) {
         silent = FALSE,
         interval = 0
       )
+
+      # biodiv.compare_df = biodiv_comp_helper_func(NumPatches, tree, baseline_metric)
       
       # Set up output dataframe
       out_df = rbind(
@@ -201,11 +199,11 @@ for (metric_name in metric_names) {
     }
   }
   
-  sliceSize = 25
+  sliceSize = numIterations/4 # Change this value to match the memory/CPU
   sliceRange = 1:sliceSize
   for (i in 1:(numIterations/sliceSize)) {
     print(paste0("Collect simulation chunk # ", i, " of ", (numIterations/sliceSize), ":"))
-    plan(multisession, workers = 12, gc = TRUE)
+    plan(multisession, workers = 30, gc = TRUE) # !!! change to ncores based on user's machine
     compare_df = rbind(compare_df, get.temp_compare_df(sliceRange))
     plan(sequential)
   }
@@ -230,3 +228,8 @@ for (metric_name in metric_names) {
 }
 
 saveRDS(full_compare_df, file = "results/final_comparisons.rds")
+
+# Calculate whether Jaccard similarity values are statistically significant
+library(jaccard)
+
+jaccard.test()...
