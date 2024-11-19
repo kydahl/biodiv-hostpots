@@ -229,7 +229,7 @@ for (metric_name in metric_names) {
 
 saveRDS(full_compare_df, file = "results/final_comparisons.rds")
 
-# Calculate whether Jaccard similarity values are statistically significant
-library(jaccard)
-
-jaccard.test()...
+# # Calculate whether Jaccard similarity values are statistically significant
+# library(jaccard)
+# 
+# jaccard.test()...
