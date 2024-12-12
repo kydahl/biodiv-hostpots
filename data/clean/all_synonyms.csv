@@ -30,7 +30,6 @@ Athyrium filix-femina ssp. cyclosorum,Athyrium filix-femina var. cyclosorum
 Blechnum spicant,Blechnum spicant
 Dryopteris expansa,Dryopteris expansa
 Gymnocarpium dryopteris,Gymnocarpium dryopteris
-Polypodium glycyrrhiza,Polypodium glycyrrhiza
 Polystichum munitum,Polystichum munitum
 Pteridium aquilinum,Pteridium aquilinum
 Acer circinatum,Acer circinatum
@@ -59,7 +58,6 @@ Aquilegia formosa,Aquilegia formosa
 Aralia nudicaulis,Aralia nudicaulis
 Arbutus menziesii,Arbutus menziesii
 Arctostaphylos uva-ursi,Arctostaphylos uva-ursi
-Arctous ruber,Arctous alpina
 Argentina egedii,Argentina egedii
 Argentina anserina,Argentina anserina
 Arnica cordifolia,Arnica cordifolia
@@ -111,7 +109,6 @@ Comandra umbellata,Comandra umbellata
 Comarum palustre,Comarum palustre
 Conioselinum gmelinii,Conioselinum gmelinii
 Cornus canadensis,Cornus canadensis
-Cornus unalaschkensis,Cornus unalaschkensis
 Cornus suecica,Cornus suecica
 Cornus nuttallii,Cornus nuttallii
 Cornus sericea,Cornus sericea
@@ -221,7 +218,6 @@ Plantago maritima,Plantago maritima
 Platanthera dilatata,Platanthera dilatata
 Platanthera stricta,Platanthera stricta
 Platanthera hyperborea,Platanthera hyperborea
-Populus balsamifera ssp. balsamifera,Populus balsamifera
 Populus balsamifera ssp. trichocarpa,Populus balsamifera subsp. trichocarpa
 Populus tremuloides,Populus tremuloides
 Potamogeton natans,Potamogeton natans
@@ -332,13 +328,12 @@ Zostera marina,Zostera marina
 Hierochloe odorata,Hierochloe odorata
 Rhododendron columbianum,Rhododendron columbianum
 Alnus incana subsp. tenuifolia,Alnus incana subsp. tenuifolia
-Arctous alpina,Arctous alpina
 Ericameria nauseosa var. nauseosa,Ericameria nauseosa
-Populus balsamifera,Populus balsamifera
 Potamogeton nitens,Potamogeton natans
 Rhodiola rosea var. rosea,Rhodiola rosea
 Adiantum aleuticum,Adiantum pedatum
 Alnus incana ssp. tenuifolia,Alnus incana ssp. tenuifolia
+Arctous ruber,Arctous alpina
 Argentina anserina,Potentilla anserina
 Argentina egedii,Potentilla anserina ssp. groenlandica
 Betula pumila var. glandulifera,Betula pumila
@@ -353,6 +348,7 @@ Mahonia nervosa,Berberis nervosa
 Phyllospadix scouleri,Phyllospadix iwatensis
 Platanthera stricta,Platanthera dilatata
 Polypodium glycyrrhiza,Polypodium vulgare
+Populus balsamifera ssp. balsamifera,Populus balsamifera
 Pseudoroegneria spicata,Elymus spicatus
 Rhodiola rosea,Rhodiola rosea var. rosea
 Toxicodendron rydbergii,Toxicodendron radicans
