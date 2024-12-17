@@ -65,7 +65,7 @@ synonym_func <- function(in_df) {
   } else {
     out_df <- in_df
   }
-
+  
   
   # Problem species: these make gnr_resolve report an Internal Server Error, so deal with them separately
   # "Polypodium glycyrrhiza" -> Polypodium glycyrhiza D.C.Eaton
@@ -571,7 +571,6 @@ coverage_df <- final_data %>%
 
 write_csv(coverage_df, "data/clean/coverage_pcts.csv")
 
-
 # 5) Impute missing trait data --------------------------------------------
 
 # Write the final data from before imputation
@@ -631,15 +630,16 @@ traits_to_impute <- cbind(traits_to_impute, taxa) %>%
   mutate_if(is.character, function(x) {as.double(x) * 100})
 true_df = traits_to_impute %>% filter_at(vars(`LDMC_log`:`DiasporeMass_log`), all_vars(!is.na(.)))
 
-data = traits_to_impute_notaxa #%>% 
-  # mutate(LeafArea = exp(LeafArea_log),
-  #        PlantHeight = exp(PlantHeight_log),
-  #        DiasporeMass = exp(DiasporeMass_log),
-  #        LDMC = exp(LDMC_log),
-  #        .keep = "unused"
-  #        ) %>%
-  # mutate(across(GenusAbies:FamilyZosteraceae, ~ as.factor(as.logical(.x))))
-  # mutate(across(GenusAbies:FamilyZosteraceae, ~.x * 1000))
+data = traits_to_impute %>% 
+  mutate(
+    LeafArea = exp(LeafArea_log),
+    PlantHeight = exp(PlantHeight_log),
+    DiasporeMass = exp(DiasporeMass_log),
+    LDMC = exp(LDMC_log),
+    .keep = "unused"
+  ) #%>%
+# mutate(across(GenusAbies:FamilyZosteraceae, ~ as.factor(as.logical(.x))))
+# mutate(across(GenusAbies:FamilyZosteraceae, ~.x * 1000))
 
 # Identify numeric columns in the dataset
 numeric_vars <- sapply(data, is.numeric)
@@ -674,29 +674,27 @@ normalized_data[, numeric_vars] <- scale(
 PNW_imp_scaled <- missForest(scaled_data,
                              maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
                              ntree = 10000, # number of trees to grow in each forest
-                             verbose = TRUE#, # if 'TRUE', gives additional output between iterations
+                             verbose = TRUE, # if 'TRUE', gives additional output between iterations
                              # mtry = 1
-                             # variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
+                             variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
 )
-
-
 
 # run missForest imputation
 PNW_imp_normalized <- missForest(normalized_data,
-                             maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
-                             ntree = 10000, # number of trees to grow in each forest
-                             verbose = TRUE # if 'TRUE', gives additional output between iterations
-                             # mtry = 1
-                             # variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
+                                 maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
+                                 ntree = 10000, # number of trees to grow in each forest
+                                 verbose = TRUE, # if 'TRUE', gives additional output between iterations
+                                 # mtry = 1
+                                 variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
 )
 
 # run missForest imputation
 PNW_imp <- missForest(data,
-                                 maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
-                                 ntree = 10000, # number of trees to grow in each forest
-                                 verbose = TRUE#, # if 'TRUE', gives additional output between iterations
-                                 # mtry = 1
-                                 # variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
+                      maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
+                      ntree = 10000, # number of trees to grow in each forest
+                      verbose = TRUE#, # if 'TRUE', gives additional output between iterations
+                      # mtry = 1
+                      # variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
 )
 
 
