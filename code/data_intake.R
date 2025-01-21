@@ -86,7 +86,7 @@ synonym_func <- function(in_df) {
   species_list <- unique(out_df$Species_full)
   species_num <- length(species_list)
   
-  gnr_resolution = 1000 # make this smaller if the taxize server doesn't want to let you access too many species at once
+  gnr_resolution = 1 # make this smaller if the taxize server doesn't want to let you access too many species at once
   # num_seq <- 1 + 0:(species_num %/% X) * X # Resolve names X at a time, to avoid getting an Internal Service Error
   num_seq <- 1 + 0:(species_num %/% gnr_resolution) * gnr_resolution 
   
@@ -96,7 +96,8 @@ synonym_func <- function(in_df) {
     temp_seq <- ii + 0:(gnr_resolution-1)
     temp_species_list <- species_list[temp_seq]
     temp_species_out <- gnr_resolve(temp_species_list,
-                                    data_source_ids = 198, # The Leipzig Catalogue of Vascular Plants
+                                    data_source_ids = 199,#198, # The Leipzig Catalogue of Vascular Plants
+                                    http = "post", # since we're requesting a lot of records
                                     with_canonical_ranks = T,
                                     best_match_only = TRUE
     ) %>%
@@ -575,6 +576,7 @@ write_csv(coverage_df, "data/clean/coverage_pcts.csv")
 
 # Write the final data from before imputation
 write_csv(final_data, "data/clean/dataset_no_imputation.csv")
+# final_data = read_csv("data/clean/dataset_no_imputation.csv")
 
 # Put trait data in workable form for imputation
 data_in <- final_data %>%
@@ -642,7 +644,14 @@ data = traits_to_impute %>%
 # mutate(across(GenusAbies:FamilyZosteraceae, ~.x * 1000))
 
 # Identify numeric columns in the dataset
-numeric_vars <- sapply(data, is.numeric)
+numeric_var_names = c("Nmass (mg/g)", "LeafArea", "PlantHeight", "DiasporeMass", "LDMC")
+# numeric_vars <- sapply(data, is.numeric)
+numeric_vars <- names(data) %>% 
+  as.data.frame() %>% 
+  mutate(x = . %in% numeric_var_names) %>% 
+  pivot_wider(names_from = ".", values_from = "x") %>% 
+  as.logical()
+names(numeric_vars) = names(data)
 
 # Calculate means and standard deviations excluding NAs
 col_means <- sapply(data[, numeric_vars], mean, na.rm = TRUE)
@@ -676,7 +685,7 @@ PNW_imp_scaled <- missForest(scaled_data,
                              ntree = 10000, # number of trees to grow in each forest
                              verbose = TRUE, # if 'TRUE', gives additional output between iterations
                              # mtry = 1
-                             variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
+                             variablewise = F # if 'TRUE', the OOB error is returned for each variable separately
 )
 
 # run missForest imputation
@@ -685,14 +694,14 @@ PNW_imp_normalized <- missForest(normalized_data,
                                  ntree = 10000, # number of trees to grow in each forest
                                  verbose = TRUE, # if 'TRUE', gives additional output between iterations
                                  # mtry = 1
-                                 variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
+                                 variablewise = F # if 'TRUE', the OOB error is returned for each variable separately
 )
 
 # run missForest imputation
 PNW_imp <- missForest(data,
                       maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
                       ntree = 10000, # number of trees to grow in each forest
-                      verbose = TRUE#, # if 'TRUE', gives additional output between iterations
+                      verbose = F#, # if 'TRUE', gives additional output between iterations
                       # mtry = 1
                       # variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
 )
@@ -750,27 +759,18 @@ summary(imputed_scaled_to_original_scale)
 summary(imputed_normalized_to_original_scale)
 
 
-# !!! 
-
-# run missForest imputation
-PNW_imp <- missForest(data,
-                      maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
-                      ntree = 10000, # number of trees to grow in each forest
-                      verbose = TRUE#, # if 'TRUE', gives additional output between iterations
-                      # mtry = 1
-                      # variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
-)
-
-imp_df = PNW_imp$ximp
+imp_df = PNW_imp_normalized$ximp
 # traits_to_impute
-trait_names = c("LDMC_log", "Nmass (mg/g)", "LeafArea_log", "PlantHeight_log", "DiasporeMass_log")
+# trait_names = c("LDMC_log", "Nmass (mg/g)", "LeafArea_log", "PlantHeight_log", "DiasporeMass_log")
+trait_names = c("Woodiness", "LDMC", "Nmass (mg/g)", "LeafArea", "PlantHeight", "DiasporeMass")
 
 # add actual taxonomic columns back in and remove dummy variables
-imputed_traits <- cbind(traits_df[, 1:5], PNW_imp$ximp[, 1:6]) %>% 
-  mutate("LDMC (g/g)" = exp(LDMC_log), .keep = "unused") %>%
-  mutate("Diaspore mass (mg)" = exp(DiasporeMass_log), .keep = "unused") %>%
-  mutate("Plant height (m)" = exp(PlantHeight_log), .keep = "unused") %>%
-  mutate("Leaf area (mm2)" = exp(LeafArea_log), .keep = "unused") 
+imputed_traits <- cbind(traits_df[, 1:5], select(PNW_imp$ximp, all_of(trait_names))) %>% 
+  mutate("LDMC (g/g)" = LDMC,
+         "Diaspore mass (mg)" = DiasporeMass,
+         "Plant height (m)" = PlantHeight,
+         "Leaf area (mm2)" = LeafArea,
+         .keep = "unused")
 
 imputed_data <- left_join(
   select(final_data, -c("LDMC (g/g)":"Diaspore mass (mg)")),
@@ -795,13 +795,12 @@ var_df <- imputed_traits %>%
   mutate(PlantHeight_log = log(`Plant height (m)`)) %>%
   mutate(DiasporeMass_log = log(`Diaspore mass (mg)`)) %>%
   mutate(LDMC_log = log(`LDMC (g/g)`)) %>%
-  
   select(c("Nmass (mg/g)", "LeafArea_log", "PlantHeight_log", "DiasporeMass_log", "LDMC_log", -"Woodiness")) %>%
   summarise(across("Nmass (mg/g)":"LDMC_log", var)) %>% 
   cbind("Woodiness" = NA) %>% 
   pivot_longer(cols = everything(), names_to = "variable", values_to = "variance")
 
-error_df <- as.list(PNW_imp$OOBerror[1:6]) %>%
+error_df <- as.list(PNW_imp_normalized$OOBerror[1:6]) %>%
   as_tibble(.name_repair = "universal") %>%
   melt() %>%
   rename(error_value = value) %>%

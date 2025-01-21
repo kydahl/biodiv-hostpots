@@ -77,6 +77,7 @@ trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)",
 # Initialize the full phylogenetic tree
 tree <- readRDS("data/clean/full_tree.rds")
 
+
 # Get a single simulation
 numPatches <- 1000
 full_df_sample <- get.full_df(numPatches)
@@ -155,6 +156,7 @@ meanSD_df <- biodiv_plot_df %>%
 
 # Plot histograms in three columns
 # histogram_colors = c("black", rep("#E41A1C",2), rep("#4DAF4A", 5), rep("#377EB8", 9), NA)
+
 histogram_colors = c("black", rep(TEK_color,2), rep(Func_color, 3), rep(Phylo_color, 4), NA)
 
 strip_theme = strip_themed(background_x = elem_list_rect(fill = histogram_colors),
