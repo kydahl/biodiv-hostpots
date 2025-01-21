@@ -65,23 +65,39 @@ synonym_func <- function(in_df) {
   } else {
     out_df <- in_df
   }
-  # Initialize the synonym list data frame
+  
+  
+  # Problem species: these make gnr_resolve report an Internal Server Error, so deal with them separately
+  # "Polypodium glycyrrhiza" -> Polypodium glycyrhiza D.C.Eaton
+  # "Arctous ruber" ->  Arctostaphylos rubra (Rehder & E.H.Wilson) Fernald
+  # "Cornus unalaschkensis" -> Cornus unalaschkensis_x Ledeb.
+  # "Populus balsamifera ssp. balsamifera" # in_df = filter(in_df, (Species != "Populus balsamifera" | Ssp != "ssp. balsamifera"))
+  bad_list = c("Polypodium glycyrrhiza", "Arctous ruber", "Cornus unalaschkensis", "Populus balsamifera ssp. balsamifera")
+  out_df <- filter(out_df,!(Species_full %in% bad_list))
+  
+  # Initialize the synonym list data frame with these out cases, then add onto it
   synonyms_list <- tibble(
-    name_in = as.character(),
-    name_out = as.character()
+    name_in = bad_list,
+    name_out = c("Polypodium glycyrhiza", "Arctostaphylos rubra", "Cornus unalaschkensis", "Populus balsamifera")
   )
+  
   # Partition the list of species into chunks of 1000 names
   # otherwise it may be too large to pass to gnr_resolve()
   species_list <- unique(out_df$Species_full)
   species_num <- length(species_list)
-  num_seq <- 1 + 0:(species_num %/% 1000) * 1000
+  
+  gnr_resolution = 1 # make this smaller if the taxize server doesn't want to let you access too many species at once
+  # num_seq <- 1 + 0:(species_num %/% X) * X # Resolve names X at a time, to avoid getting an Internal Service Error
+  num_seq <- 1 + 0:(species_num %/% gnr_resolution) * gnr_resolution 
   
   # Collect synonyms
   for (ii in num_seq) {
-    temp_seq <- ii + 0:999
+    # temp_seq <- ii + 0:X # get the list of ii:(ii+X) species
+    temp_seq <- ii + 0:(gnr_resolution-1)
     temp_species_list <- species_list[temp_seq]
     temp_species_out <- gnr_resolve(temp_species_list,
-                                    data_source_ids = 198, # The Leipzig Catalogue of Vascular Plants
+                                    data_source_ids = 199,#198, # The Leipzig Catalogue of Vascular Plants
+                                    http = "post", # since we're requesting a lot of records
                                     with_canonical_ranks = T,
                                     best_match_only = TRUE
     ) %>%
@@ -485,7 +501,7 @@ full_species_synonyms_list %>%
 # Join Diaz and TRY data sets, preferring data entries from Diaz
 
 # Get coverage of traits
-coverage_df <-  rbind(
+coverage_df <- rbind(
   Diaz_data_sel %>% rename(original_name = original_name_Diaz),
   TRY_data_processed_wide,
   # Add back in species which lack trait data along with TEK data
@@ -556,11 +572,11 @@ coverage_df <- final_data %>%
 
 write_csv(coverage_df, "data/clean/coverage_pcts.csv")
 
-
 # 5) Impute missing trait data --------------------------------------------
 
 # Write the final data from before imputation
 write_csv(final_data, "data/clean/dataset_no_imputation.csv")
+# final_data = read_csv("data/clean/dataset_no_imputation.csv")
 
 # Put trait data in workable form for imputation
 data_in <- final_data %>%
@@ -606,35 +622,155 @@ traits_to_impute <- as.data.frame(traits_df) %>%
 #   pivot_longer(cols = GenusAbies:GenusZostera, names_to = "Genus") %>% 
 #   filter(value == 1) %>% select(Genus)
 
+traits_to_impute_notaxa <- traits_to_impute %>%
+  mutate_if(is.character, function(x) {as.double(x) * 100})
+true_df = traits_to_impute_notaxa %>% filter_at(vars(`LDMC_log`:`DiasporeMass_log`), all_vars(!is.na(.)))
+
+# !!! 
 # combine dummy vars with traits (comment this line out to not use taxa in imputation)
 traits_to_impute <- cbind(traits_to_impute, taxa) %>%
   mutate_if(is.character, function(x) {as.double(x) * 100})
 true_df = traits_to_impute %>% filter_at(vars(`LDMC_log`:`DiasporeMass_log`), all_vars(!is.na(.)))
 
-# traits_to_impute_notaxa <- traits_to_impute %>% 
-#   mutate_if(is.character, function(x) {as.double(x) * 100})
-# true_df = traits_to_impute %>% filter_at(vars(`LDMC_log`:`DiasporeMass_log`), all_vars(!is.na(.)))
+data = traits_to_impute %>% 
+  mutate(
+    LeafArea = exp(LeafArea_log),
+    PlantHeight = exp(PlantHeight_log),
+    DiasporeMass = exp(DiasporeMass_log),
+    LDMC = exp(LDMC_log),
+    .keep = "unused"
+  ) #%>%
+# mutate(across(GenusAbies:FamilyZosteraceae, ~ as.factor(as.logical(.x))))
+# mutate(across(GenusAbies:FamilyZosteraceae, ~.x * 1000))
 
+# Identify numeric columns in the dataset
+numeric_var_names = c("Nmass (mg/g)", "LeafArea", "PlantHeight", "DiasporeMass", "LDMC")
+# numeric_vars <- sapply(data, is.numeric)
+numeric_vars <- names(data) %>% 
+  as.data.frame() %>% 
+  mutate(x = . %in% numeric_var_names) %>% 
+  pivot_wider(names_from = ".", values_from = "x") %>% 
+  as.logical()
+names(numeric_vars) = names(data)
 
+# Calculate means and standard deviations excluding NAs
+col_means <- sapply(data[, numeric_vars], mean, na.rm = TRUE)
+col_sds <- sapply(data[, numeric_vars], sd, na.rm = TRUE)
 
-# run missForest imputation
-PNW_imp <- missForest(traits_to_impute,
-                      maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
-                      ntree = 10000, # number of trees to grow in each forest
-                      verbose = TRUE, # if 'TRUE', gives additional output between iterations
-                      variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
+# Calculate minimums and maximums excluding NAs
+col_mins <- sapply(data[, numeric_vars], min, na.rm = TRUE)
+col_maxs <- sapply(data[, numeric_vars], max, na.rm = TRUE)
+
+# Create a copy of the data to hold scaled values
+scaled_data <- data
+normalized_data <- data
+
+# Standardize numeric variables
+scaled_data[, numeric_vars] <- scale(
+  data[, numeric_vars],
+  center = col_means,
+  scale = col_sds
 )
 
-imp_df = PNW_imp$ximp
+# Apply min-max normalization to numeric variables
+normalized_data[, numeric_vars] <- scale(
+  data[, numeric_vars],
+  center = col_mins,
+  scale = col_maxs - col_mins
+)
+
+# run missForest imputation
+PNW_imp_scaled <- missForest(scaled_data,
+                             maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
+                             ntree = 10000, # number of trees to grow in each forest
+                             verbose = TRUE, # if 'TRUE', gives additional output between iterations
+                             # mtry = 1
+                             variablewise = F # if 'TRUE', the OOB error is returned for each variable separately
+)
+
+# run missForest imputation
+PNW_imp_normalized <- missForest(normalized_data,
+                                 maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
+                                 ntree = 10000, # number of trees to grow in each forest
+                                 verbose = TRUE, # if 'TRUE', gives additional output between iterations
+                                 # mtry = 1
+                                 variablewise = F # if 'TRUE', the OOB error is returned for each variable separately
+)
+
+# run missForest imputation
+PNW_imp <- missForest(data,
+                      maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
+                      ntree = 10000, # number of trees to grow in each forest
+                      verbose = F#, # if 'TRUE', gives additional output between iterations
+                      # mtry = 1
+                      # variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
+)
+
+
+# Initialize a data frame for the inverse-transformed data
+imputed_scaled_data <- PNW_imp_scaled$ximp
+imputed_normalized_data <- PNW_imp_normalized$ximp
+imputed_scaled_to_original_scale <- imputed_scaled_data
+imputed_normalized_to_original_scale <- imputed_normalized_data
+
+# Multiply by the standard deviation
+imputed_scaled_to_original_scale[, numeric_vars] <- sweep(
+  imputed_scaled_data[, numeric_vars],
+  MARGIN = 2,
+  STATS = col_sds,
+  FUN = "*"
+)
+
+# Add the mean
+imputed_scaled_to_original_scale[, numeric_vars] <- sweep(
+  imputed_scaled_to_original_scale[, numeric_vars],
+  MARGIN = 2,
+  STATS = col_means,
+  FUN = "+"
+)
+
+# Initialize a data frame for the inverse-transformed data
+imputed_normalized_to_original_scale <- imputed_normalized_data
+
+# Multiply by (max - min)
+imputed_normalized_to_original_scale[, numeric_vars] <- sweep(
+  imputed_normalized_data[, numeric_vars],
+  MARGIN = 2,
+  STATS = col_maxs - col_mins,
+  FUN = "*"
+)
+
+# Add the minimum
+imputed_normalized_to_original_scale[, numeric_vars] <- sweep(
+  imputed_normalized_to_original_scale[, numeric_vars],
+  MARGIN = 2,
+  STATS = col_mins,
+  FUN = "+"
+)
+
+
+# Summary of the original data (with missing values)
+summary(data)
+
+# Summary of the imputed data (after inverse transformation)
+summary(imputed_scaled_to_original_scale)
+
+# Summary of the imputed data (after inverse transformation)
+summary(imputed_normalized_to_original_scale)
+
+
+imp_df = PNW_imp_normalized$ximp
 # traits_to_impute
-trait_names = c("LDMC_log", "Nmass (mg/g)", "LeafArea_log", "PlantHeight_log", "DiasporeMass_log")
+# trait_names = c("LDMC_log", "Nmass (mg/g)", "LeafArea_log", "PlantHeight_log", "DiasporeMass_log")
+trait_names = c("Woodiness", "LDMC", "Nmass (mg/g)", "LeafArea", "PlantHeight", "DiasporeMass")
 
 # add actual taxonomic columns back in and remove dummy variables
-imputed_traits <- cbind(traits_df[, 1:5], PNW_imp$ximp[, 1:6]) %>% 
-  mutate("LDMC (g/g)" = exp(LDMC_log), .keep = "unused") %>%
-  mutate("Diaspore mass (mg)" = exp(DiasporeMass_log), .keep = "unused") %>%
-  mutate("Plant height (m)" = exp(PlantHeight_log), .keep = "unused") %>%
-  mutate("Leaf area (mm2)" = exp(LeafArea_log), .keep = "unused") 
+imputed_traits <- cbind(traits_df[, 1:5], select(PNW_imp$ximp, all_of(trait_names))) %>% 
+  mutate("LDMC (g/g)" = LDMC,
+         "Diaspore mass (mg)" = DiasporeMass,
+         "Plant height (m)" = PlantHeight,
+         "Leaf area (mm2)" = LeafArea,
+         .keep = "unused")
 
 imputed_data <- left_join(
   select(final_data, -c("LDMC (g/g)":"Diaspore mass (mg)")),
@@ -659,13 +795,12 @@ var_df <- imputed_traits %>%
   mutate(PlantHeight_log = log(`Plant height (m)`)) %>%
   mutate(DiasporeMass_log = log(`Diaspore mass (mg)`)) %>%
   mutate(LDMC_log = log(`LDMC (g/g)`)) %>%
-  
   select(c("Nmass (mg/g)", "LeafArea_log", "PlantHeight_log", "DiasporeMass_log", "LDMC_log", -"Woodiness")) %>%
   summarise(across("Nmass (mg/g)":"LDMC_log", var)) %>% 
   cbind("Woodiness" = NA) %>% 
   pivot_longer(cols = everything(), names_to = "variable", values_to = "variance")
 
-error_df <- as.list(PNW_imp$OOBerror[1:6]) %>%
+error_df <- as.list(PNW_imp_normalized$OOBerror[1:6]) %>%
   as_tibble(.name_repair = "universal") %>%
   melt() %>%
   rename(error_value = value) %>%

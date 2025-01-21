@@ -99,6 +99,7 @@ group_labeller <- function(in_column) {
              # c("FRic", "FDiv", "FDis", "FEve", "Q") ~ "Functional"
   )
 }
+
 # Helper function: place legends in empty facets of plot grids
 # Code by: Artem Sokolov, found here: https://stackoverflow.com/questions/54438495/shift-legend-into-empty-facets-of-a-faceted-plot-in-ggplot2
 shift_legend <- function(p) {
@@ -125,12 +126,15 @@ final_data <- read_csv("data/clean/final_dataset.csv") %>% #read_csv("data/clean
   relocate(c(`Nmass (mg/g)`, Woodiness, LeafArea_log:LDMC_log), .after = last_col())
 
 # Assign colors to biodiversity metrics according to type
+TEK_color = c4a("brewer.dark2", 3)[1]
+Phylo_color = c4a("brewer.dark2", 3)[2]
+Func_color = c4a("brewer.dark2", 3)[3]
 x_label_color_function <- function(string) {
   out <- case_match(string,
                     "Taxonomic" ~ "black",
-                    "TEK" ~ c4a("poly.light24", 3)[1],
-                    "Phylogenetic" ~ c4a("poly.light24", 3)[2],
-                    "Functional" ~ c4a("poly.light24", 3)[3],)
+                    "TEK" ~ TEK_color,
+                    "Phylogenetic" ~ Phylo_color,
+                    "Functional" ~ Func_color)
   out <- as.character(out)
 }
 
@@ -141,8 +145,6 @@ trait_names <- c("LDMC (g/g)", "Nmass (mg/g)", "Woodiness", "Plant height (m)",
 
 # Initialize the full phylogenetic tree
 tree <- readRDS("data/clean/full_tree.rds")
-
-
 
 
 # Get a single simulation
@@ -178,7 +180,7 @@ meanSD_df <- biodiv_plot_df %>%
 
 # Plot histograms in three columns
 # histogram_colors = c("black", rep("#E41A1C",2), rep("#4DAF4A", 5), rep("#377EB8", 9), NA)
-histogram_colors = c("black", rep(c4a("poly.light24", 3)[1],2), rep(c4a("poly.light24", 3)[2], 3), rep(c4a("poly.light24", 3)[3], 4), NA)
+histogram_colors = c("black", rep(TEK_color,2), rep(Func_color, 3), rep(Phylo_color, 4), NA)
 
 biodiv_plot_df2 <- right_join(biodiv_plot_df, meanSD_df, by = c("label")) %>%
   distinct()
@@ -213,7 +215,7 @@ plot_df$label <-  metric_factors(plot_df$label)
 
 strip_theme = strip_themed(
   background_x = elem_list_rect(fill = histogram_colors),
-  text_x = elem_list_text(color = c(rep("white",3), rep("grey28",3), rep("white",4)),
+  text_x = elem_list_text(color = rep("white", 10), #c(rep("white",3), rep("grey28",3), rep("white",4)),
                           face = rep("bold", 10), size = rep(8,10),
                           by_layer_x = TRUE))
 
@@ -697,7 +699,7 @@ ddata_labels = label(ddata)
 # ddata_labels$color <- rev(c("#E41A1C", "#E41A1C", "#377EB8", "black", "#377EB8", "#377EB8", 
 #                             "#4DAF4A", "#377EB8", "#377EB8", "#377EB8", "#4DAF4A", "#4DAF4A", 
 #                             "#4DAF4A", "#4DAF4A", "#377EB8", "#377EB8", "#377EB8"))
-ddata_labels$color <- rev(c(c4a("poly.light24", 3)[1], c4a("poly.light24", 3)[1], "black", rep(c4a("poly.light24", 3)[2], 3), rep(c4a("poly.light24", 3)[3], 4)))
+ddata_labels$color <- c(Func_color, "black", rep(TEK_color, 2), Func_color, rep(Phylo_color, 3), Func_color, Phylo_color)
 # ddata_labels$color <- rev(c("#E41A1C", "#E41A1C", "black", rep("#4DAF4A", 2), rep("#377EB8", 4)))
 
 
