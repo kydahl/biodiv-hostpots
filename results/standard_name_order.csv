@@ -1,11 +1,11 @@
-"","x"
-"1","Species variability (PD)"
-"2","Species dispersion (FD)"
-"3","Faith's (PD)"
-"4","Species richness (PD)"
-"5","Rao's entropy (PD)"
-"6","Rao's entropy (FD)"
-"7","Indigenous names (TEK)"
-"8","Recorded Indigenous uses (TEK)"
-"9","Species richness (TD)"
-"10","Species richness (FD)"
+,x
+1,Phylogenetic species variability
+2,Functional dispersion
+3,Faith's metric
+4,Phylogenetic richness
+5,Phylogenetic Rao's entropy
+6,Functional Rao's entropy
+7,Indigenous names
+8,Recorded Indigenous uses
+9,Species richness
+10,Functional richness
