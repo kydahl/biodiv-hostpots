@@ -66,7 +66,7 @@ metric_labeller <- function(in_column) {
              # "Menhinick" ~ "Menhinick",
              # "McIntosh" ~ "McIntosh",
              "PSVs" ~ "Phylogenetic species variability",
-             "PSR" ~ "Phylogenetic richness",
+             "PSR" ~ "Phylogenetic species richness",
              "dummy" ~ ""
   )
 }
@@ -76,7 +76,7 @@ metric_factors <- function(in_column) {
     "Species richness", "Indigenous names",   "Recorded Indigenous uses",
     "Number of 'endemic' species",
     "Functional Rao's entropy", "Functional richness", "Functional dispersion",
-    "Phylogenetic Rao's entropy", "Faith's metric", "Phylogenetic species variability", "Phylogenetic richness"
+    "Phylogenetic Rao's entropy", "Faith's metric", "Phylogenetic species variability", "Phylogenetic species richness"
     
     # "Functional sp. divergence",
     #
@@ -598,7 +598,7 @@ full_comp_df$baseline_label <-  case_match(full_comp_df$baseline,
                                            # "Menhinick" ~ "Menhinick",
                                            # "McIntosh" ~ "McIntosh",
                                            "PSVs" ~ "Phylogenetic species variability",
-                                           "PSR" ~ "Phylogenetic richness",
+                                           "PSR" ~ "Phylogenetic species richness",
                                            "dummy" ~ ""
 )
 
@@ -622,7 +622,7 @@ full_comp_df$comparison_label <-  case_match(full_comp_df$comparison,
                                              # "Menhinick" ~ "Menhinick",
                                              # "McIntosh" ~ "McIntosh",
                                              "PSVs" ~ "Phylogenetic species variability",
-                                             "PSR" ~ "Phylogenetic richness",
+                                             "PSR" ~ "Phylogenetic species richness",
                                              "dummy" ~ ""
 )
 
@@ -709,7 +709,7 @@ ddata_labels$group <- case_match(
   c("Indigenous names", "Recorded Indigenous uses") ~ "TEK",
   # c("Rao's entropy (FD)", "Species dispersion (FD)") ~ "Functional",
   c("Functional Rao's entropy", "Functional richness", "Functional dispersion") ~ "Functional",
-  c("Phylogenetic Rao's entropy", "Faith's metric", "Phylogenetic species variability", "Phylogenetic richness") ~ "Phylogenetic",
+  c("Phylogenetic Rao's entropy", "Faith's metric", "Phylogenetic species variability", "Phylogenetic species richness") ~ "Phylogenetic",
   # c("Faith's (PD)", "Gini and Simpson", "Simpson",
   #   "Shannon", "Margalef", "Menhinick",
   #   "McIntosh", "Species variability (PD)", "Species richness (PD)") ~ "Phylogenetic",
@@ -730,7 +730,8 @@ ggplot() +
             size = 1.25) + 
   scale_color_manual(values = as.character(ddata_labels$color)) +
   scale_y_continuous(expand=c(0.5, 0),
-                     trans = "reverse") + 
+                     trans = "reverse"
+                     ) + 
   coord_flip() +
   guides(color = "none") +
   theme_cowplot(4) +
@@ -756,7 +757,7 @@ ggsave("figures/Figure3_Dendrogram.png", width = 3.5625, height = 1, units = "in
 # standard_name_order = (rev(colnames(m_prec)[pair_prec_cluster$order]))
 # write.csv(standard_name_order, "results/standard_name_order.csv")
 
-standard_name_order = (read_csv("results/standard_name_order.csv"))$x
+# standard_name_order = (read_csv("results/standard_name_order.csv"))$x
 
 # Get colors assigned to biodiversity metrics to use for text labels
 plot_colours <- full_comp_df %>%
@@ -774,8 +775,8 @@ jaccard_heatmap <- full_comp_df %>%
   geom_tile(color = "black") +
   geom_text(aes(label = round(mean, 2)), color = "black", size = 2.5) +
   scale_fill_gradient("Mean value", low = "white", high = "blue") +
-  scale_y_discrete("Comparison index", limits = standard_name_order) +
-  scale_x_discrete("Baseline index", limits = standard_name_order) +
+  scale_y_discrete("Comparison index", limits = ddata$labels$label) +
+  scale_x_discrete("Baseline index", limits = ddata$labels$label) +
   theme_cowplot(10) +
   theme(
     axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1,
@@ -804,14 +805,14 @@ precision_heatmap <- full_comp_df %>%
   geom_tile(color = "black") +
   geom_text(aes(label = round(mean, 2)), color = "black", size = 2.5) +
   scale_fill_gradient("Mean value", low = "white", high = "blue") +
-  scale_y_discrete("Comparison index", limits = standard_name_order) +
-  scale_x_discrete("Baseline index", limits = standard_name_order) +
+  scale_y_discrete("Comparison index", limits = ddata$labels$label) +
+  scale_x_discrete("Baseline index", limits = ddata$labels$label) +
   theme_cowplot(10) +
   theme(
     axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1,
-                               color = rev(plot_colours$baseline_color),
+                               color = (plot_colours$baseline_color),
                                face = "bold"),
-    axis.text.y = element_text(color = rev(plot_colours$baseline_color),
+    axis.text.y = element_text(color = (plot_colours$baseline_color),
                                face = "bold")
   ) +
   guides(fill = guide_colorbar(barheight = 25,
@@ -827,14 +828,14 @@ recall_heatmap <- full_comp_df %>%
   geom_tile(color = "black") +
   geom_text(aes(label = round(mean, 2)), color = "black", size = 2.5) +
   scale_fill_gradient("Mean value", low = "white", high = "blue") +
-  scale_y_discrete("Comparison index", limits = standard_name_order) +
-  scale_x_discrete("Baseline index", limits = standard_name_order) +
+  scale_y_discrete("Comparison index", limits = ddata$labels$label) +
+  scale_x_discrete("Baseline index", limits = ddata$labels$label) +
   theme_cowplot(10) +
   theme(
     axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1,
-                               color = rev(plot_colours$baseline_color),
+                               color = (plot_colours$baseline_color),
                                face = "bold"),
-    axis.text.y = element_text(color = rev(plot_colours$baseline_color),
+    axis.text.y = element_text(color = (plot_colours$baseline_color),
                                face = "bold")
   ) +
   guides(fill = guide_colorbar(barheight = 25,

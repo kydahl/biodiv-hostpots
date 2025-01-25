@@ -29,6 +29,7 @@ library(tidyverse)
 library(reshape2)
 library(readxl)
 library(taxize)
+library(taxizedb)
 library(caret)
 library(missForest)
 
@@ -91,19 +92,23 @@ synonym_func <- function(in_df) {
   num_seq <- 1 + 0:(species_num %/% gnr_resolution) * gnr_resolution 
   
   # Collect synonyms
-  for (ii in num_seq) {
-    # temp_seq <- ii + 0:X # get the list of ii:(ii+X) species
-    temp_seq <- ii + 0:(gnr_resolution-1)
-    temp_species_list <- species_list[temp_seq]
-    temp_species_out <- gnr_resolve(temp_species_list,
-                                    data_source_ids = 199,#198, # The Leipzig Catalogue of Vascular Plants
-                                    http = "post", # since we're requesting a lot of records
-                                    with_canonical_ranks = T,
-                                    best_match_only = TRUE
-    ) %>%
-      select(name_in = user_supplied_name, name_out = matched_name2)
-    synonyms_list <- rbind(synonyms_list, temp_species_out)
-  }
+  temp_species_out <- GNA_Verify_data <- read_csv("data/raw/GNA_verifier_output.csv") %>% 
+    select(name_in = ScientificName, name_out = MatchedCanonical)
+  synonyms_list <- temp_species_out
+  
+  # for (ii in num_seq) {
+  #   # temp_seq <- ii + 0:X # get the list of ii:(ii+X) species
+  #   temp_seq <- ii + 0:(gnr_resolution-1)
+  #   temp_species_list <- species_list[temp_seq]
+  #   temp_species_out <- gna_verifier(temp_species_list,
+  #                                   data_sources = 198, # The Leipzig Catalogue of Vascular Plants
+  #                                   http = "post", # since we're requesting a lot of records
+  #                                   with_canonical_ranks = T,
+  #                                   best_match_only = TRUE
+  #   ) %>%
+  #     select(name_in = user_supplied_name, name_out = matched_name2)
+  #   synonyms_list <- rbind(synonyms_list, temp_species_out)
+  # }
   
   num_name_changes <- dim(filter(synonyms_list, name_in != name_out))[1]
   print(paste0("There are ", num_name_changes, " necessary name changes."))
@@ -119,9 +124,10 @@ synonym_func <- function(in_df) {
   custom_synonyms_list <- read_csv("data/clean/synonym_list.csv", show_col_types = FALSE)
   
   # Check if there are disagreements between EVC's list and GNR
-  GNR_synonyms <- rename(synonyms_list, original_name = name_in, Synonym_GNR = name_out)
-  compare_synonyms_df <- left_join(custom_synonyms_list, GNR_synonyms)
-  syn_disagree_df <- filter(compare_synonyms_df, Synonym != Synonym_GNR)
+  # GNR_synonyms <- rename(synonyms_list, original_name = name_in, Synonym_GNR = name_out)
+  GNA_synonyms <- rename(synonyms_list, original_name = name_in, Synonym_GNA = name_out)
+  compare_synonyms_df <- left_join(custom_synonyms_list, GNA_synonyms)
+  syn_disagree_df <- filter(compare_synonyms_df, Synonym != Synonym_GNA)
   cat(paste0("There are ", dim(syn_disagree_df)[1], " synonym disagreements between GNR_resolve and our custom synonym list. \n
                Check the file data/clean/synonym_disagreements.csv for details."))
   write_csv(syn_disagree_df, "data/clean/synonym_disagreements.csv")
@@ -170,6 +176,20 @@ base_data <- read_csv("data/raw/PNW_Species_w_Metadata.csv", show_col_types = FA
   # Remove species for which we lack phylogenetic data: Pterospora andromedea
   # filter(Species != "Pterospora andromedea") %>% 
   synonym_func()
+write_csv(base_data, "data/clean/base_data.csv")
+
+# Save species list to enter into GNA Verifier
+base_data %>% 
+  select(Species:Var) %>% 
+  mutate(Species = apply(., 1, function(x) paste(na.omit(x), collapse = " "))) %>% 
+  select(Species) %>% 
+  write_csv("data/raw/original_species_names_list.csv")
+# 
+# # Load output from GNA Verifier
+# GNA_Verify_data <- read_csv("data/raw/GNA_verifier_output.csv") %>% 
+#   select(ScientificName, MatchedName, MatchedCanonical, CurrentName, TaxonomicStatus) %>% 
+#   select(ScientificName, MatchedCanonical, TaxonomicStatus)
+
 
 full_species_synonyms_list <- data.frame(
   original_name = base_data$original_name,
@@ -210,20 +230,20 @@ full_data <- full_join(select(base_data,
   filter(!is.na(N_Names))
 
 # # Uncomment and run the code below to take a closer look at which species were renamed
-# # Check for synonymous species with multiple entries
-# duplicate_df <- full_data %>%
-#   group_by(Species_full) %>%
+# Check for synonymous species with multiple entries
+# duplicate_df <- base_data %>%
+#   group_by(Synonym) %>%
 #   filter(n() > 1)
 #
 # # Find which species were in our original TEK dataset that are missing from the full dataset
-# full_species <- full_data$Species
+# full_species <- base_data$Species
 # TEK_species <- TEK_data$Species
 #
-# lost_species <- TEK_species[which(!(TEK_species %in% full_species))]
+# lost_species <- TEK_species[which(!(TEK_species %in% full_species))] # None lost
 #
 # # Check that these were all renamed to synonyms
-# all(lost_species %in% full_data$original_name) # TRUE
-# true_lost_species <- lost_species[which(!(lost_species %in% full_data$original_name))]
+# all(lost_species %in% base_data$original_name) # TRUE
+# true_lost_species <- lost_species[which(!(lost_species %in% base_data$original_name))]
 
 # 2) Load in and process Diaz data set ------------------------------------
 
@@ -818,4 +838,4 @@ final_dataset = imputed_data %>%
   select(c("Synonym", "Family", "N_Names", "N_Langs", "N_Uses", "Species", "Ssp_var", "Nmass (mg/g)", "Woodiness", "LDMC (g/g)", "Diaspore mass (mg)", "Plant height (m)", "Leaf area (mm2)")) %>% 
   mutate(species_id = row_number())
 
-write_csv(final_dataset, "data/clean/final_dataset_notaxa.csv")
+write_csv(final_dataset, "data/clean/final_dataset.csv")

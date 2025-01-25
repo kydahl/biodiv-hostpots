@@ -59,7 +59,8 @@ final_data <- read_csv("data/clean/final_dataset.csv") %>%
   # Put traits at the end
   relocate(c(`Nmass (mg/g)`, Woodiness, LeafArea_log:LDMC_log), .after = last_col())
 
-tree <- readRDS("data/clean/full_tree.rds")
+# tree <- readRDS("data/clean/full_tree.rds") # old tree
+tree <- readRDS("data/clean/final_tree.rds")
 # system.time({temp_full_df = get.full_df(10000)})
 # system.time({explore_df = get.biodiv_df(temp_full_df, tree)})
 
@@ -228,8 +229,3 @@ for (metric_name in metric_names) {
 }
 
 saveRDS(full_compare_df, file = "results/final_comparisons.rds")
-
-# # Calculate whether Jaccard similarity values are statistically significant
-# library(jaccard)
-# 
-# jaccard.test()...

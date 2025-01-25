@@ -1,0 +1,329 @@
+Species,Ssp,Var,author,Ssp_author,Synonym (scientific name),Common (Western) name,Family,Covered in TRY?,Covered in Native American Ethnobotany database?,Covered in Pierce et al. 2017?,Covered in knb?,IUCN Status,TRY data available,Species_full,Species_full_author,Synonym,original_name,Genus
+Abies amabilis,,,(Douglas ex Louden) Douglas ex Forbes,,/,NA,Pinaceae,Y,Y,N,Y (germination),Stable (Least Concern),requested,Abies amabilis,Abies amabilis (Douglas ex Louden) Douglas ex Forbes,Abies amabilis,Abies amabilis,Abies
+Abies grandis,,,(Douglas ex D. Don) Lindl.,,/,NA,Pinaceae,Y,Y,N,N,Stable (Least Concern),requested,Abies grandis,Abies grandis (Douglas ex D. Don) Lindl.,Abies grandis,Abies grandis,Abies
+Abies lasiocarpa,,,(Hook.) Nutt,,/,NA,Pinaceae,Y,Y,N,Y,Stable (Least Concern),requested,Abies lasiocarpa,Abies lasiocarpa (Hook.) Nutt,Abies lasiocarpa,Abies lasiocarpa,Abies
+Chamaecyparis nootkatensis,,,(D. Don) Spach,,Cupressus nootkatensis D. Don,NA,Cupressaceae,N,Y,N,Y (Chamaecyparis spp.),Stable (Least Concern),requested,Chamaecyparis nootkatensis,Chamaecyparis nootkatensis (D. Don) Spach,Chamaecyparis nootkatensis,Chamaecyparis nootkatensis,Chamaecyparis
+Juniperus communis,,,L.,,NA,NA,Cupressaceae,Y,Y,Y,Y,Increasing (Least Concern),requested,Juniperus communis,Juniperus communis L.,Juniperus communis,Juniperus communis,Juniperus
+Juniperus scopulorum,,,Sarg.,,NA,Rocky Mountain Juniper,Cupressaceae,Y,Y,N,Y,Increasing (Least Concern),requested,Juniperus scopulorum,Juniperus scopulorum Sarg.,Juniperus scopulorum,Juniperus scopulorum,Juniperus
+Juniperus maritima,,,Adams,,NA,Seaside Juniper,Cupressaceae,Y,N,N,N,Increasing (Least Concern),not available?,Juniperus maritima,Juniperus maritima Adams,Juniperus maritima,Juniperus maritima,Juniperus
+Larix laricina,,,(Du Roi) K. Koch,,NA,tamarack/alpine larch,Pinaceae,Y,Y,N,Y,Stable (Least Concern),requested,Larix laricina,Larix laricina (Du Roi) K. Koch,Larix laricina,Larix laricina,Larix
+Larix occidentalis,,,Nutt.,,NA,western larch,Pinaceae,Y,Y,N,N,Stable (Least Concern),requested,Larix occidentalis,Larix occidentalis Nutt.,Larix occidentalis,Larix occidentalis,Larix
+Picea engelmannii,,,Parry ex Engelm,,NA,Engelmann spruce,Pinaceae,Y,Y,N,Y,Stable (Least Concern),requested,Picea engelmannii,Picea engelmannii Parry ex Engelm,Picea engelmannii,Picea engelmannii,Picea
+Picea glauca,,,(Moench) Voss,,NA,white spruce,Pinaceae,Y,Y,N,Y,Stable (Least Concern),requested,Picea glauca,Picea glauca (Moench) Voss,Picea glauca,Picea glauca,Picea
+Picea mariana,,,"(Mill.) Britton, Sterns&Poggenb.",,NA,black spruce,Pinaceae,Y,Y,N,Y,Stable (Least Concern),requested,Picea mariana,"Picea mariana (Mill.) Britton, Sterns&Poggenb.",Picea mariana,Picea mariana,Picea
+Picea sitchensis,,,(Bong.) Carriere,,NA,sitka spruce,Pinaceae,Y,Y,Y,N,Stable (Least Concern),requested,Picea sitchensis,Picea sitchensis (Bong.) Carriere,Picea sitchensis,Picea sitchensis,Picea
+Pinus albicaulis,,,Engelm.,,NA,whitebark pine,Pinaceae,Y,Y,N,Y (pres/abs),Decreasing (Endangered),requested,Pinus albicaulis,Pinus albicaulis Engelm.,Pinus albicaulis,Pinus albicaulis,Pinus
+Pinus contorta,,,Douglas ex Louden,,NA,lodgepole pine,Pinaceae,Y,Y,N,Y (germination),Stable (Least Concern),requested,Pinus contorta,Pinus contorta Douglas ex Louden,Pinus contorta,Pinus contorta,Pinus
+Pinus monticola,,,Douglas ex D. Don,,NA,western white pine,Pinaceae,Y,Y,N,N,Decreasing (Near threatened),requested,Pinus monticola,Pinus monticola Douglas ex D. Don,Pinus monticola,Pinus monticola,Pinus
+Pinus ponderosa,,,C. Lawson,,NA,ponderosa pine,Pinaceae,Y,Y,Y,Y,Stable (Least Concern),requested,Pinus ponderosa,Pinus ponderosa C. Lawson,Pinus ponderosa,Pinus ponderosa,Pinus
+Pseudotsuga menziesii,,,(Mirb.) Franco,,NA,Douglas-fir,Pinaceae,Y,Y,N,NA,Stable (Least Concern),requested,Pseudotsuga menziesii,Pseudotsuga menziesii (Mirb.) Franco,Pseudotsuga menziesii,Pseudotsuga menziesii,Pseudotsuga
+Taxus brevifolia,,,Nutt.,,NA,Pacific yew/western yew,Taxaceae,Y,Y,N,NA,Decreasing (Near threatened),requested,Taxus brevifolia,Taxus brevifolia Nutt.,Taxus brevifolia,Taxus brevifolia,Taxus
+Thuja plicata,,,Donn ex D. Don,,NA,western redcedar,Cupressaceae,Y,Y,N,NA,Stable (Least Concern),requested,Thuja plicata,Thuja plicata Donn ex D. Don,Thuja plicata,Thuja plicata,Thuja
+Tsuga heterophylla,,,(Raf.) Sarg.,,NA,western hemlock,Pinaceae,Y,Y,N,Y (germination),Increasing (Least Concern),requested,Tsuga heterophylla,Tsuga heterophylla (Raf.) Sarg.,Tsuga heterophylla,Tsuga heterophylla,Tsuga
+Tsuga mertensiana,,,(Bong.)Carriere,,NA,mountain hemlock,Pinaceae,Y,Y,N,Y (germination),Increasing (Least Concern),requested,Tsuga mertensiana,Tsuga mertensiana (Bong.)Carriere,Tsuga mertensiana,Tsuga mertensiana,Tsuga
+Equisetum arvense,,,L.,,/,NA,Equisetaceae,Y,Y,Y,NA,Unknown (Least Concern),requested,Equisetum arvense,Equisetum arvense L.,Equisetum arvense,Equisetum arvense,Equisetum
+Equisetum telmateia,,,Ehrh.,,/,NA,Equisetaceae,Y,Y,Y,NA,Increasing (Least Concern),requested,Equisetum telmateia,Equisetum telmateia Ehrh.,Equisetum telmateia,Equisetum telmateia,Equisetum
+Equisetum hyemale,ssp. affine,,L.,(Engelm.) Calder & Roy L. Taylor,/,NA,Equisetaceae,Y,Y,N,NA,/,requested,Equisetum hyemale subsp. affine,Equisetum hyemale L. ssp. affine (Engelm.) Calder & Roy L. Taylor,Equisetum hyemale subsp. affine,Equisetum hyemale ssp. affine,Equisetum
+Lycopodium clavatum,,,L.,,/,NA,Lycopodiaceae,Y,Y,Y,NA,/,requested,Lycopodium clavatum,Lycopodium clavatum L.,Lycopodium clavatum,Lycopodium clavatum,Lycopodium
+Adiantum aleuticum,,,(Rupr.) Paris (syn. A. pedatum L.),,/,NA,Pteridaceae,Y,Y,N,NA,/,requested,Adiantum aleuticum,Adiantum aleuticum (Rupr.) Paris (syn. A. pedatum L.),Adiantum aleuticum,Adiantum aleuticum,Adiantum
+Athyrium filix-femina,ssp. cyclosorum,,(L.) Roth.,(Rupr.) C. Chr.,Athyrium filix-foemina (L.) Roth,NA,Dryopteridaceae,Y,Y,Y (different family specified),NA,/,requested,Athyrium filix-femina subsp. cyclosorum,Athyrium filix-femina (L.) Roth. ssp. cyclosorum (Rupr.) C. Chr.,Athyrium filix-femina subsp. cyclosorum,Athyrium filix-femina ssp. cyclosorum,Athyrium
+Blechnum spicant,,,(L.) Sm.,,NA,deer fern,Blechnaceae,Y,Y,Y,NA,/,requested,Blechnum spicant,Blechnum spicant (L.) Sm.,Blechnum spicant,Blechnum spicant,Blechnum
+Dryopteris expansa,,,(K.B. Presl) Fraser-Jenkins & Jermy,,NA,spiny wood fern,Dryopteridaceae,Y,Y,Y,NA,/,requested,Dryopteris expansa,Dryopteris expansa (K.B. Presl) Fraser-Jenkins & Jermy,Dryopteris expansa,Dryopteris expansa,Dryopteris
+Gymnocarpium dryopteris,,,s (L.) Newm.,,NA,oak fern,Dryopteridaceae,Y,Y,Y,NA,/,requested,Gymnocarpium dryopteris,Gymnocarpium dryopteris s (L.) Newm.,Gymnocarpium dryopteris,Gymnocarpium dryopteris,Gymnocarpium
+Polystichum munitum,,,(Kaulf.) C. Presl,,NA,western swordfern,Dryopteridaceae,Y,Y,N,NA,/,requested,Polystichum munitum,Polystichum munitum (Kaulf.) C. Presl,Polystichum munitum,Polystichum munitum,Polystichum
+Pteridium aquilinum,,,m (L.) Kuhn,,NA,bracken fern,Denstaedtiaceae,Y,Y,Y,NA,Stable (Least Concern),requested,Pteridium aquilinum,Pteridium aquilinum m (L.) Kuhn,Pteridium aquilinum,Pteridium aquilinum,Pteridium
+Acer circinatum,,,Pursh,,/,NA,Aceraceae,Y,Y,N,NA,Stable (Least Concern),requested,Acer circinatum,Acer circinatum Pursh,Acer circinatum,Acer circinatum,Acer
+Acer glabrum,,,Torr.,,/,NA,Aceraceae,Y,Y,N,NA,Unknown (Least Concern),requested,Acer glabrum,Acer glabrum Torr.,Acer glabrum,Acer glabrum,Acer
+Acer macrophyllum,,,Pursh,,/,NA,Aceraceae,Y,Y,N,NA,Unknown (Least Concern),requested,Acer macrophyllum,Acer macrophyllum Pursh,Acer macrophyllum,Acer macrophyllum,Acer
+Achillea millefolium,,,L.,,/,NA,Asteraceae,Y,Y,N,NA,Unknown (Least Concern),requested,Achillea millefolium,Achillea millefolium L.,Achillea millefolium,Achillea millefolium,Achillea
+Achlys triphylla,,,(Smith) DC,,/,NA,Berberidaceae,Y,Y,N,NA,/,requested,Achlys triphylla,Achlys triphylla (Smith) DC,Achlys triphylla,Achlys triphylla,Achlys
+Actaea rubra,,,(Aiton) Willd,,/,NA,Ranunculaceae,Y,Y,N,NA,/,requested,Actaea rubra,Actaea rubra (Aiton) Willd,Actaea rubra,Actaea rubra,Actaea
+Agoseris glauca,,,(Pursh) Raf.,,/,NA,Asteraceae,Y,Y,Y,NA,/,requested,Agoseris glauca,Agoseris glauca (Pursh) Raf.,Agoseris glauca,Agoseris glauca,Agoseris
+Allium cernuum,,,Roth,,NA,nodding onion,Liliaceae,Y,Y,N,NA,/,requested,Allium cernuum,Allium cernuum Roth,Allium cernuum,Allium cernuum,Allium
+Allium schoenoprasum,,var. sibiricum,(L.) Hartm.,,NA,wild chives,Liliaceae,Y,Y,N,NA,Stable (Least Concern),"requested, but as Allium schoenoprasum since var. type was not found",Allium schoenoprasum var. sibiricum,Allium schoenoprasum var. sibiricum (L.) Hartm.,Allium schoenoprasum var. sibiricum,Allium schoenoprasum var. sibiricum,Allium
+Allium geyeri,,,S. Watson,,NA,Geyer's onion,Liliaceae,Y,Y,N,NA,Unknown (Least Concern),requested,Allium geyeri,Allium geyeri S. Watson,Allium geyeri,Allium geyeri,Allium
+Alnus incana,ssp. tenuifolia,,(L.) Moench,(Nutt.) Breitung,NA,mountain alder,Betulaceae,Y,Y,Y (not spp.),NA,Stable (Least Concern),requested,Alnus incana subsp. tenuifolia,Alnus incana (L.) Moench ssp. tenuifolia (Nutt.) Breitung,Alnus incana subsp. tenuifolia,Alnus incana ssp. tenuifolia,Alnus
+Alnus viridis,ssp. crispa,,(Chaix) DC.,(Aiton) Turrill,NA,green alder,Betulaceae,Y,Y,Y (not spp.),NA,/,not found,Alnus viridis subsp. crispa,Alnus viridis (Chaix) DC. ssp. crispa (Aiton) Turrill,Alnus viridis subsp. crispa,Alnus viridis ssp. crispa,Alnus
+Alnus viridis,ssp. sinuata,,(Chaix) DC.,(Regel) A. Löve & D. Löve,NA,Sitka alder,Betulaceae,Y,Y,Y (not spp.),NA,/,not found,Alnus viridis subsp. sinuata,Alnus viridis (Chaix) DC. ssp. sinuata (Regel) A. Löve & D. Löve,Alnus viridis subsp. sinuata,Alnus viridis ssp. sinuata,Alnus
+Alnus rubra,,,Bong,,NA,red alder,Betulaceae,Y,Y,N,NA,Stable (Least Concern),requested,Alnus rubra,Alnus rubra Bong,Alnus rubra,Alnus rubra,Alnus
+Amelanchier alnifolia,,,Nutt. ex M. Roem.,,NA,saskatoonberry,Rosaceae,Y,Y,N,NA,Stable (Least Concern),requested,Amelanchier alnifolia,Amelanchier alnifolia Nutt. ex M. Roem.,Amelanchier alnifolia,Amelanchier alnifolia,Amelanchier
+Anaphalis margaritacea,,,(L.) Benth.,,NA,pearly everlasting,Asteraceae,Y,Y,Y,NA,/,requested,Anaphalis margaritacea,Anaphalis margaritacea (L.) Benth.,Anaphalis margaritacea,Anaphalis margaritacea,Anaphalis
+Anemone multifida,,,Poir.,,NA,Pacific anemone,Ranunculaceae,Y,Y,N,NA,/,requested,Anemone multifida,Anemone multifida Poir.,Anemone multifida,Anemone multifida,Anemone
+Angelica genuflexa,,,Nutt.,,NA,kneeling angelica,Apiaceae,Y,Y,N,NA,/,requested,Angelica genuflexa,Angelica genuflexa Nutt.,Angelica genuflexa,Angelica genuflexa,Angelica
+Angelica lucida,,,L.,,NA,seacoast angelica/sea-watch/wild celery,Apiaceae,Y,Y,N,NA,/,requested,Angelica lucida,Angelica lucida L.,Angelica lucida,Angelica lucida,Angelica
+Antennaria neglecta,,,Greene,,NA,field pussytoes,Asteraceae,Y,Y,N,NA,/,requested,Antennaria neglecta,Antennaria neglecta Greene,Antennaria neglecta,Antennaria neglecta,Antennaria
+Apocynum cannabinum,,,L.,,NA,Indian-hemp,Apocynaceae,Y,Y,N,NA,/,requested,Apocynum cannabinum,Apocynum cannabinum L.,Apocynum cannabinum,Apocynum cannabinum,Apocynum
+Apocynum androsaemifolium,,,L.,,NA,spreading dogbane,Apocynaceae,Y,Y,Y,NA,/,requested,Apocynum androsaemifolium,Apocynum androsaemifolium L.,Apocynum androsaemifolium,Apocynum androsaemifolium,Apocynum
+Aquilegia formosa,,,Fisch. ex DC.,,NA,western columbine,Ranunculaceae,Y,Y,N,NA,/,requested,Aquilegia formosa,Aquilegia formosa Fisch. ex DC.,Aquilegia formosa,Aquilegia formosa,Aquilegia
+Aralia nudicaulis,,,L.,,NA,wild sarsaparilla,Araliaceae,Y,Y,N,NA,/,requested,Aralia nudicaulis,Aralia nudicaulis L.,Aralia nudicaulis,Aralia nudicaulis,Aralia
+Arbutus menziesii,,,Pursh,,NA,Arbutus/Pacific madrone,Ericaceae,Y,Y,N,NA,Stable (Least Concern),requested,Arbutus menziesii,Arbutus menziesii Pursh,Arbutus menziesii,Arbutus menziesii,Arbutus
+Arctostaphylos uva-ursi,,,(L.) Spreng.,,NA,kinnikinnick/bearberry,Ericaceae,Y,Y,Y,NA,/,requested,Arctostaphylos uva-ursi,Arctostaphylos uva-ursi (L.) Spreng.,Arctostaphylos uva-ursi,Arctostaphylos uva-ursi,Arctostaphylos
+Argentina egedii,,,(Wormsk.) Rydb.,,NA,pacific silverweed,Rosaceae,Y,Y,N,NA,/,not found,Argentina egedii,Argentina egedii (Wormsk.) Rydb.,Argentina egedii,Argentina egedii,Argentina
+Argentina anserina,,,(L.) Rydb.,,NA,common silverweed,Rosaceae,N,Y,N,NA,Unknown (Least Concern),requested,Argentina anserina,Argentina anserina (L.) Rydb.,Argentina anserina,Argentina anserina,Argentina
+Arnica cordifolia,,,Hook.,,NA,heartleaved arnica,Asteraceae,Y,Y,N,NA,/,requested,Arnica cordifolia,Arnica cordifolia Hook.,Arnica cordifolia,Arnica cordifolia,Arnica
+Artemisia dracunculus,,,L.,,NA,wild tarragon/dragon sagewort,Asteraceae,Y,Y,Y,NA,/,requested,Artemisia dracunculus,Artemisia dracunculus L.,Artemisia dracunculus,Artemisia dracunculus,Artemisia
+Artemisia frigida,,,Willd.,,NA,northern wormwood/prairie sagewort,Asteraceae,Y,Y,N,NA,/,requested,Artemisia frigida,Artemisia frigida Willd.,Artemisia frigida,Artemisia frigida,Artemisia
+Artemisia ludoviciana,,,Nutt.,,NA,white sagebrush,Asteraceae,Y,Y,Y,NA,/,requested,Artemisia ludoviciana,Artemisia ludoviciana Nutt.,Artemisia ludoviciana,Artemisia ludoviciana,Artemisia
+Artemisia tilesii,,,Ledeb.,,NA,"Tilesius’ wormwood, or “caribou leaves”",Asteraceae,Y,Y,N,NA,/,requested,Artemisia tilesii,Artemisia tilesii Ledeb.,Artemisia tilesii,Artemisia tilesii,Artemisia
+Artemisia tridentata,,,Nutt.,,NA,big sagebrush,Asteraceae,Y,Y,N,NA,Stable (Least Concern),requested,Artemisia tridentata,Artemisia tridentata Nutt.,Artemisia tridentata,Artemisia tridentata,Artemisia
+Aruncus dioicus,,,(Walter) Fernald,,NA,goatsbeard/bride's father,Rosaceae,Y,Y,Y,NA,/,requested,Aruncus dioicus,Aruncus dioicus (Walter) Fernald,Aruncus dioicus,Aruncus dioicus,Aruncus
+Asarum caudatum,,,Lindl.,,NA,wild ginger,Aristolochiaceae,Y,Y,N,NA,/,requested,Asarum caudatum,Asarum caudatum Lindl.,Asarum caudatum,Asarum caudatum,Asarum
+Asclepias speciosa,,,Torr.,,NA,common milkweed,Asclepiadaceae,Y,Y,N,NA,/,requested,Asclepias speciosa,Asclepias speciosa Torr.,Asclepias speciosa,Asclepias speciosa,Asclepias
+Balsamorhiza sagittata,,,(Pursh) Nutt.,,NA,arrowleaf balsamroot/spring sunflower,Asteraceae,Y,Y,N,NA,/,requested,Balsamorhiza sagittata,Balsamorhiza sagittata (Pursh) Nutt.,Balsamorhiza sagittata,Balsamorhiza sagittata,Balsamorhiza
+Betula nana,,,L.,,NA,scrub birch,Betulaceae,Y,Y,Y,NA,Stable (Least Concern),requested,Betula nana,Betula nana L.,Betula nana,Betula nana,Betula
+Betula pumila,,var. glandulifera,Regel,,NA,bog birch,Betulaceae,Y,Y,N,NA,Stable (Least Concern),found w/o var. glandulifolia,Betula pumila var. glandulifera,Betula pumila var. glandulifera Regel,Betula pumila var. glandulifera,Betula pumila var. glandulifera,Betula
+Betula occidentalis,,,Hook.,,NA,water birch,Betulaceae,Y,Y,N,NA,Stable (Least Concern),requested,Betula occidentalis,Betula occidentalis Hook.,Betula occidentalis,Betula occidentalis,Betula
+Betula papyrifera,,,Marsh.,,NA,paper birch,Betulaceae,Y,Y,N,NA,Stable (Least Concern),requested,Betula papyrifera,Betula papyrifera Marsh.,Betula papyrifera,Betula papyrifera,Betula
+Boschniakia hookeri,,,Walp.,,NA,groundcone/poque,Orobanchaceae,Y,Y,N,NA,/,requested,Boschniakia hookeri,Boschniakia hookeri Walp.,Boschniakia hookeri,Boschniakia hookeri,Boschniakia
+Boschniakia rossica,,,(Cham. & Schltdl.) Fedtsch.,,NA,northern groundcone,Orobanchaceae,Y,Y,N,NA,/,requested,Boschniakia rossica,Boschniakia rossica (Cham. & Schltdl.) Fedtsch.,Boschniakia rossica,Boschniakia rossica,Boschniakia
+Bromus carinatus,,,Hook. & Arn.,,NA,bromegrass,Poaceae,Y,Y,N,NA,/,requested,Bromus carinatus,Bromus carinatus Hook. & Arn.,Bromus carinatus,Bromus carinatus,Bromus
+Calamagrostis rubescens,,,Buckley,,NA,pinegrass/timbergrass,Poaceae,Y,Y,N,NA,/,requested,Calamagrostis rubescens,Calamagrostis rubescens Buckley,Calamagrostis rubescens,Calamagrostis rubescens,Calamagrostis
+Calochortus macrocarpus,,,Douglas,,NA,sagebrush mariposa lily,Liliaceae,Y,Y,N,NA,/,requested,Calochortus macrocarpus,Calochortus macrocarpus Douglas,Calochortus macrocarpus,Calochortus macrocarpus,Calochortus
+Calypso bulbosa,,,(L.) Oakes,,NA,false ladyslipper/fairy slipper,Orchidaceae,Y,Y,N,NA,/,requested,Calypso bulbosa,Calypso bulbosa (L.) Oakes,Calypso bulbosa,Calypso bulbosa,Calypso
+Camassia quamash,,,(Pursh) Greene,,NA,common camas,Liliaceae,Y,Y,N,NA,/,requested,Camassia quamash,Camassia quamash (Pursh) Greene,Camassia quamash,Camassia quamash,Camassia
+Camassia leichtlinii,,,(Baker) S. Watson,,NA,NA,Liliaceae,Y,Y,N,NA,/,requested,Camassia leichtlinii,Camassia leichtlinii (Baker) S. Watson,Camassia leichtlinii,Camassia leichtlinii,Camassia
+Campanula rotundifolia,,,L.,,NA,blue harebell,Campanulaceae,Y,Y,this dataset does not seem worth it,NA,/,requested,Campanula rotundifolia,Campanula rotundifolia L.,Campanula rotundifolia,Campanula rotundifolia,Campanula
+Carex obnupta,,,L.H. Bailey,,NA,slough sedge,Cyperaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Carex obnupta,Carex obnupta L.H. Bailey,Carex obnupta,Carex obnupta,Carex
+Carex rostrata,,,Stokes,,NA,beaked sedge,Cyperaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Carex rostrata,Carex rostrata Stokes,Carex rostrata,Carex rostrata,Carex
+Castilleja miniata,,,Douglas ex Hook.,,NA,red paintbrush,Scrophulariaceae,Y,Y,NA,NA,/,requested,Castilleja miniata,Castilleja miniata Douglas ex Hook.,Castilleja miniata,Castilleja miniata,Castilleja
+Castilleja hispida,,,Benth.,,NA,harsh paintbruch,Scrophulariaceae,Y,Y,NA,NA,/,requested,Castilleja hispida,Castilleja hispida Benth.,Castilleja hispida,Castilleja hispida,Castilleja
+Ceanothus sanguineus,,,Pursh,,NA,buckbrush/restem ceanothus,Rhamnaceae,Y,Y,NA,NA,/,requested,Ceanothus sanguineus,Ceanothus sanguineus Pursh,Ceanothus sanguineus,Ceanothus sanguineus,Ceanothus
+Ceanothus velutinus,,,Douglas ex Hook.,,NA,snowbrush,Rhamnaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Ceanothus velutinus,Ceanothus velutinus Douglas ex Hook.,Ceanothus velutinus,Ceanothus velutinus,Ceanothus
+Chenopodium capitatum,,,(L.) Asch.,,NA,strawberry blite,Chenopodiaceae,Y,Y,NA,NA,/,requested,Chenopodium capitatum,Chenopodium capitatum (L.) Asch.,Chenopodium capitatum,Chenopodium capitatum,Chenopodium
+Chimaphila umbellata,,,(L.) W. Bartram,,NA,pipsissewa/prince's pine,Ericaceae,Y,Y,NA,NA,/,requested,Chimaphila umbellata,Chimaphila umbellata (L.) W. Bartram,Chimaphila umbellata,Chimaphila umbellata,Chimaphila
+Cicuta douglasii,,,(DC.) J.M. Coult. & Rose,,NA,Douglas’ water-hemlock,Apiaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Cicuta douglasii,Cicuta douglasii (DC.) J.M. Coult. & Rose,Cicuta douglasii,Cicuta douglasii,Cicuta
+Cicuta virosa,,,L.,,NA,Mackenzie’s water-hemlock,Apiaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Cicuta virosa,Cicuta virosa L.,Cicuta virosa,Cicuta virosa,Cicuta
+Cirsium brevistylum,,,Cronquist,,NA,clustered thistle,Asteraceae,Y,Y,NA,NA,/,requested,Cirsium brevistylum,Cirsium brevistylum Cronquist,Cirsium brevistylum,Cirsium brevistylum,Cirsium
+Cirsium edule,,,Nutt.,,NA,edibel thistle,Asteraceae,Y,Y,NA,NA,/,requested,Cirsium edule,Cirsium edule Nutt.,Cirsium edule,Cirsium edule,Cirsium
+Cirsium hookerianum,,,Nutt.,,NA,white thistle,Asteraceae,Y,Y,NA,NA,/,requested,Cirsium hookerianum,Cirsium hookerianum Nutt.,Cirsium hookerianum,Cirsium hookerianum,Cirsium
+Cirsium undulatum,,,Nutt.,,NA,wavyleaf thistle,Asteraceae,Y,Y,NA,NA,/,requested,Cirsium undulatum,Cirsium undulatum Nutt.,Cirsium undulatum,Cirsium undulatum,Cirsium
+Cirsium arvense,,,(L.) Scop.,,NA,Canada thistle,Asteraceae,Y,Y,NA,NA,/,requested,Cirsium arvense,Cirsium arvense (L.) Scop.,Cirsium arvense,Cirsium arvense,Cirsium
+Cirsium vulgare,,,(Savi) Ten.,,NA,Scottish thistle/bull thistle,Asteraceae,Y,Y,NA,NA,/,requested,Cirsium vulgare,Cirsium vulgare (Savi) Ten.,Cirsium vulgare,Cirsium vulgare,Cirsium
+Claytonia lanceolata,,,Pall. ex Pursh,,NA,spring beauty/mountain pine,Portulacaceae,Y,Y,NA,NA,/,requested,Claytonia lanceolata,Claytonia lanceolata Pall. ex Pursh,Claytonia lanceolata,Claytonia lanceolata,Claytonia
+Claytonia sibirica,,,L.,,NA,Siberian miner’s lettuce,Portulacaceae,Y,Y,NA,NA,/,requested,Claytonia sibirica,Claytonia sibirica L.,Claytonia sibirica,Claytonia sibirica,Claytonia
+Clematis columbiana,,,(Nutt.) Torr. & A. Gray,,NA,rock blue clematis,Ranunculaceae,Y,Y,NA,NA,/,requested,Clematis columbiana,Clematis columbiana (Nutt.) Torr. & A. Gray,Clematis columbiana,Clematis columbiana,Clematis
+Clematis occidentalis,,,(Hornem.) DC.,,NA,western blue clematis/blue virgin’s-bower,Ranunculaceae,Y,Y,NA,NA,/,requested,Clematis occidentalis,Clematis occidentalis (Hornem.) DC.,Clematis occidentalis,Clematis occidentalis,Clematis
+Clematis ligusticifolia,,,Nutt.,,NA,western white clematis,Ranunculaceae,Y,Y,NA,NA,/,requested,Clematis ligusticifolia,Clematis ligusticifolia Nutt.,Clematis ligusticifolia,Clematis ligusticifolia,Clematis
+Clintonia uniflora,,,(Menzies ex Schult. & Schult. f.) Kunth,,NA,Queenscup,Liliaceae,Y,Y,NA,NA,/,requested,Clintonia uniflora,Clintonia uniflora (Menzies ex Schult. & Schult. f.) Kunth,Clintonia uniflora,Clintonia uniflora,Clintonia
+Comandra umbellata,,,(L.) Nutt.,,NA,bastard toadflax,Santalaceae,Y,Y,NA,NA,/,requested,Comandra umbellata,Comandra umbellata (L.) Nutt.,Comandra umbellata,Comandra umbellata,Comandra
+Comarum palustre,,,L.,,NA,purple marshlocks/marsh cinquefoil,Rosaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Comarum palustre,Comarum palustre L.,Comarum palustre,Comarum palustre,Comarum
+Conioselinum gmelinii,,,(Cham. & Schltdl.) Steud.,,NA,Pacific hemlockparsley,Apiaceae,N,Y,NA,NA,/,not found,Conioselinum gmelinii,Conioselinum gmelinii (Cham. & Schltdl.) Steud.,Conioselinum gmelinii,Conioselinum gmelinii,Conioselinum
+Cornus canadensis,,,L.,,NA,Canada bunchberry/dwarf dogwood,Cornaceae,Y,Y,NA,NA,/,requested,Cornus canadensis,Cornus canadensis L.,Cornus canadensis,Cornus canadensis,Cornus
+Cornus suecica,,,L.,,NA,dwarf bog bunchberry,Cornaceae,Y,Y,NA,NA,/,requested,Cornus suecica,Cornus suecica L.,Cornus suecica,Cornus suecica,Cornus
+Cornus nuttallii,,,Audubon ex Torr. & A. Gray,,NA,Pacific flowering dogwood,Cornaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Cornus nuttallii,Cornus nuttallii Audubon ex Torr. & A. Gray,Cornus nuttallii,Cornus nuttallii,Cornus
+Cornus sericea,,,L.,,NA,red-osier dogwood/red willow,Cornaceae,Y,Y,NA,NA,Increasing (Least Concern),requested,Cornus sericea,Cornus sericea L.,Cornus sericea,Cornus sericea,Cornus
+Corylus cornuta,,,Marhs.,,NA,beaked hazelnut,Betulaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Corylus cornuta,Corylus cornuta Marhs.,Corylus cornuta,Corylus cornuta,Corylus
+Crataegus douglasii,,,Lindl.,,NA,black hawthorn,Rosaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Crataegus douglasii,Crataegus douglasii Lindl.,Crataegus douglasii,Crataegus douglasii,Crataegus
+Dasiphora fruticosa,,,(L.) Rydb.,,NA,shrubby cinquefoil,Rosaceae,Y,N,NA,NA,/,requested,Dasiphora fruticosa,Dasiphora fruticosa (L.) Rydb.,Dasiphora fruticosa,Dasiphora fruticosa,Dasiphora
+Delphinium nuttallianum,,,Pritz. ex Walp,,NA,larkspur,Ranunculaceae,Y,Y,NA,NA,/,requested,Delphinium nuttallianum,Delphinium nuttallianum Pritz. ex Walp,Delphinium nuttallianum,Delphinium nuttallianum,Delphinium
+Dicentra formosa,,,(Haw.) Walp.,,NA,Pacific bleedingheart,Fumariaceae,Y,Y,NA,NA,/,requested,Dicentra formosa,Dicentra formosa (Haw.) Walp.,Dicentra formosa,Dicentra formosa,Dicentra
+Dodecatheon hendersonii,,,A. Gray,,NA,shootingstars,Primulaceae,Y,Y,NA,NA,/,not found,Dodecatheon hendersonii,Dodecatheon hendersonii A. Gray,Dodecatheon hendersonii,Dodecatheon hendersonii,Dodecatheon
+Dodecatheon pauciflorum,,,(Durand) Greene,,NA,shootingstars,Primulaceae,N,N,NA,NA,/,not found,Dodecatheon pauciflorum,Dodecatheon pauciflorum (Durand) Greene,Dodecatheon pauciflorum,Dodecatheon pauciflorum,Dodecatheon
+Dodecatheon pulchellum,,,(Raf.) Merr.,,NA,shootingstars,Primulaceae,Y,Y,NA,NA,/,not found,Dodecatheon pulchellum,Dodecatheon pulchellum (Raf.) Merr.,Dodecatheon pulchellum,Dodecatheon pulchellum,Dodecatheon
+Dodecatheon jeffreyi,,,Van Houtte,,NA,shootingstars,Primulaceae,Y,Y,NA,NA,/,not found,Dodecatheon jeffreyi,Dodecatheon jeffreyi Van Houtte,Dodecatheon jeffreyi,Dodecatheon jeffreyi,Dodecatheon
+Drosera rotundifolia,,,L.,,NA,English sundew,Droseraceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Drosera rotundifolia,Drosera rotundifolia L.,Drosera rotundifolia,Drosera rotundifolia,Drosera
+Drosera anglica,,,Huds.,,NA,English sundew,Droseraceae,Y,N,NA,NA,/,requested,Drosera anglica,Drosera anglica Huds.,Drosera anglica,Drosera anglica,Drosera
+Elaeagnus commutata,,,Bernh. ex Rydb,,NA,silveryberry,Elaeagnaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Elaeagnus commutata,Elaeagnus commutata Bernh. ex Rydb,Elaeagnus commutata,Elaeagnus commutata,Elaeagnus
+Empetrum nigrum,,,L.,,NA,black crowberry/blackberry,Empetraceae,Y,Y,NA,NA,/,requested,Empetrum nigrum,Empetrum nigrum L.,Empetrum nigrum,Empetrum nigrum,Empetrum
+Epilobium angustifolium,,,L.,,NA,firewood,Onagraceae,Y,N,NA,NA,/,requested,Epilobium angustifolium,Epilobium angustifolium L.,Epilobium angustifolium,Epilobium angustifolium,Epilobium
+Ericameria nauseosa,,,(Pall. ex Pursh) G.L. Nesom & Baird,,NA,common rabbitbrush,Asteraceae,Y,Y,NA,NA,/,requested,Ericameria nauseosa,Ericameria nauseosa (Pall. ex Pursh) G.L. Nesom & Baird,Ericameria nauseosa,Ericameria nauseosa,Ericameria
+Eriophorum angustifolium,,,Honck.,,NA,cottongrass,Cyperaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Eriophorum angustifolium,Eriophorum angustifolium Honck.,Eriophorum angustifolium,Eriophorum angustifolium,Eriophorum
+Eriophorum chamissonis,,,C.A. May.,,NA,cottongrass,Cyperaceae,Y,N,NA,NA,Unknown (Least Concern),requested,Eriophorum chamissonis,Eriophorum chamissonis C.A. May.,Eriophorum chamissonis,Eriophorum chamissonis,Eriophorum
+Erythronium grandiflorum,,,Pursh.,,NA,yellow glacier lily/yellow avalance,Liliaceae,Y,Y,NA,NA,/,requested,Erythronium grandiflorum,Erythronium grandiflorum Pursh.,Erythronium grandiflorum,Erythronium grandiflorum,Erythronium
+Eurybia conspicua,,,(Lindl.) G.L. Nesom,,NA,western showy aster,Asteraceae,Y,Y,NA,NA,/,requested,Eurybia conspicua,Eurybia conspicua (Lindl.) G.L. Nesom,Eurybia conspicua,Eurybia conspicua,Eurybia
+Fragaria chiloensis,,,(L.) Mill.,,NA,seaside/beach strawberry,Rosaceae,Y,Y,NA,NA,/,requested,Fragaria chiloensis,Fragaria chiloensis (L.) Mill.,Fragaria chiloensis,Fragaria chiloensis,Fragaria
+Fragaria vesca,,,L.,,NA,woodland strawberry,Rosaceae,Y,Y,NA,NA,/,requested,Fragaria vesca,Fragaria vesca L.,Fragaria vesca,Fragaria vesca,Fragaria
+Fragaria virginiana,,,Duchesne,,NA,blueleaf/Virgina strawberry,Rosaceae,Y,Y,NA,NA,/,requested,Fragaria virginiana,Fragaria virginiana Duchesne,Fragaria virginiana,Fragaria virginiana,Fragaria
+Frangula purshiana,,,(DC.) Cooper,,NA,Cascara,Rhamnaceae,Y,Y,NA,NA,Decreasing (Least Concern),requested,Frangula purshiana,Frangula purshiana (DC.) Cooper,Frangula purshiana,Frangula purshiana,Frangula
+Frasera montana,,,Mulford,,NA,White Frasera,Gentianaceae,Y,Y,NA,NA,/,requested,Frasera montana,Frasera montana Mulford,Frasera montana,Frasera montana,Frasera
+Fritillaria affinis,,,(Schult.) Sealy,,NA,chocolate lily/riceroot,Liliaceae,Y,Y,NA,NA,/,requested,Fritillaria affinis,Fritillaria affinis (Schult.) Sealy,Fritillaria affinis,Fritillaria affinis,Fritillaria
+Fritillaria camschatcensis,,,(L.) Ker Gawl.,,NA,"northern riceroot, Kamchatka fritillaria, sarana lily",Liliaceae,Y,Y,NA,NA,/,requested,Fritillaria camschatcensis,Fritillaria camschatcensis (L.) Ker Gawl.,Fritillaria camschatcensis,Fritillaria camschatcensis,Fritillaria
+Fritillaria pudica,,,(Pursh) Spreng.,,NA,yellowbells/yellow fritillary,Liliaceae,Y,Y,NA,NA,/,requested,Fritillaria pudica,Fritillaria pudica (Pursh) Spreng.,Fritillaria pudica,Fritillaria pudica,Fritillaria
+Gaillardia aristata,,,Pursh,,NA,"brown-eyed Susan, blanketflower, or common gaillardia",Asteraceae,Y,Y,NA,NA,/,requested,Gaillardia aristata,Gaillardia aristata Pursh,Gaillardia aristata,Gaillardia aristata,Gaillardia
+Galium aparine,,,L.,,NA,common bedstraw,Rubiaceae,Y,Y,NA,NA,/,requested,Galium aparine,Galium aparine L.,Galium aparine,Galium aparine,Galium
+Galium triflorum,,,Michx.,,NA,sweet-scented bedstraw,Rubiaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Galium triflorum,Galium triflorum Michx.,Galium triflorum,Galium triflorum,Galium
+Gaultheria shallon,,,Pursh,,NA,salal,Ericaceae,Y,Y,NA,NA,/,requested,Gaultheria shallon,Gaultheria shallon Pursh,Gaultheria shallon,Gaultheria shallon,Gaultheria
+Geranium viscosissimum,,,Fisch. & C.A. Mey. ex C.A. Mey.,,NA,sticky purple geranium,Geraniaceae,Y,Y,NA,NA,/,requested,Geranium viscosissimum,Geranium viscosissimum Fisch. & C.A. Mey. ex C.A. Mey.,Geranium viscosissimum,Geranium viscosissimum,Geranium
+Geum macrophyllum,,,Willd.,,NA,large-leaved avens,Rosaceae,Y,Y,NA,NA,/,requested,Geum macrophyllum,Geum macrophyllum Willd.,Geum macrophyllum,Geum macrophyllum,Geum
+Geum triflorum,,,Pursh,,NA,old man’s whiskers/prairie smoke,Rosaceae,Y,Y,NA,NA,/,requested,Geum triflorum,Geum triflorum Pursh,Geum triflorum,Geum triflorum,Geum
+Glaux maritima,,,L.,,NA,sea milkwort,Primulaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Glaux maritima,Glaux maritima L.,Glaux maritima,Glaux maritima,Glaux
+Goodyera oblongifolia,,,Raf.,,NA,western rattlesnake plantain,Orchidaceae,Y,Y,NA,NA,/,requested,Goodyera oblongifolia,Goodyera oblongifolia Raf.,Goodyera oblongifolia,Goodyera oblongifolia,Goodyera
+Hackelia diffusa,,,(Lehm.) I.M. Johnst.,,NA,spreading stickseed,Boraginaceae,Y,Y,NA,NA,/,requested,Hackelia diffusa,Hackelia diffusa (Lehm.) I.M. Johnst.,Hackelia diffusa,Hackelia diffusa,Hackelia
+Lappula occidentalis,,,(S. Watson) Greene,,NA,western stickseed,Boraginaceae,Y,Y,NA,NA,/,requested,Lappula occidentalis,Lappula occidentalis (S. Watson) Greene,Lappula occidentalis,Lappula occidentalis,Lappula
+Hedysarum alpinum,,,L.,,NA,alpine sweetvetch,Fabaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Hedysarum alpinum,Hedysarum alpinum L.,Hedysarum alpinum,Hedysarum alpinum,Hedysarum
+Heracleum maximum,,,Bartram,,NA,common cow-parsnip,Apiaceae,Y,Y,NA,NA,Unknown (Least Concern),not found,Heracleum maximum,Heracleum maximum Bartram,Heracleum maximum,Heracleum maximum,Heracleum
+Heuchera cylindrica,,,Douglas ex Hook.,,NA,roundleaf alumroot,Saxifragaceae,Y,Y,NA,NA,/,requested,Heuchera cylindrica,Heuchera cylindrica Douglas ex Hook.,Heuchera cylindrica,Heuchera cylindrica,Heuchera
+Heuchera chlorantha,,,Piper,,NA,meadow alumroot,Saxifragaceae,Y,N,NA,NA,/,request,Heuchera chlorantha,Heuchera chlorantha Piper,Heuchera chlorantha,Heuchera chlorantha,Heuchera
+Hierochloe hirta,,,(Schrank) Borbás,,NA,northern sweetgrass,Poaceae,Y,N,NA,NA,/,not found,Hierochloe hirta,Hierochloe hirta (Schrank) Borbás,Hierochloe hirta,Hierochloe hirta,Hierochloe
+Hordeum jubatum,,,L.,,NA,foxtail barley,Poaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Hordeum jubatum,Hordeum jubatum L.,Hordeum jubatum,Hordeum jubatum,Hordeum
+Holodiscus discolor,,,(Pursh) Maxim,,NA,oceanspray,Rosaceae,Y,Y,NA,NA,/,requested,Holodiscus discolor,Holodiscus discolor (Pursh) Maxim,Holodiscus discolor,Holodiscus discolor,Holodiscus
+Juncus effusus,,,L.,,NA,common rush,Juncaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Juncus effusus,Juncus effusus L.,Juncus effusus,Juncus effusus,Juncus
+Kalmia microphylla,,,(Hook.) A. Heller,,NA,bog/swamp laurel,Ericaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Kalmia microphylla,Kalmia microphylla (Hook.) A. Heller,Kalmia microphylla,Kalmia microphylla,Kalmia
+Lathyrus ochroleucus,,,Hook.,,NA,cream pea,Fabaceae,Y,Y,NA,NA,/,requested,Lathyrus ochroleucus,Lathyrus ochroleucus Hook.,Lathyrus ochroleucus,Lathyrus ochroleucus,Lathyrus
+Lathyrus japonicus,,,Willd.,,NA,beach pea,Fabaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Lathyrus japonicus,Lathyrus japonicus Willd.,Lathyrus japonicus,Lathyrus japonicus,Lathyrus
+Lathyrus nevadensis,,,S. Watson,,NA,Sierra pea,Fabaceae,Y,Y,NA,NA,/,requested,Lathyrus nevadensis,Lathyrus nevadensis S. Watson,Lathyrus nevadensis,Lathyrus nevadensis,Lathyrus
+Lewisia rediviva,,,Pursh,,NA,bitterroot,Portulaceae,Y,Y,NA,NA,/,requested,Lewisia rediviva,Lewisia rediviva Pursh,Lewisia rediviva,Lewisia rediviva,Lewisia
+Leymus cinereus,,,(Scribn. & Merr.) A. Love,,NA,basin/giant wildrye,Poaceae,Y,Y,NA,NA,/,requested,Leymus cinereus,Leymus cinereus (Scribn. & Merr.) A. Love,Leymus cinereus,Leymus cinereus,Leymus
+Leymus mollis,,,(Trin.) Pilg.,,NA,American dunegrass,Poaceae,Y,Y,NA,NA,/,requested,Leymus mollis,Leymus mollis (Trin.) Pilg.,Leymus mollis,Leymus mollis,Leymus
+Ligusticum canbyi,,,(J.M. Coult. & Rose) J.M. Coult. & Rose,,NA,Canby's lovage/Canby’s licorice-root,Apiaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Ligusticum canbyi,Ligusticum canbyi (J.M. Coult. & Rose) J.M. Coult. & Rose,Ligusticum canbyi,Ligusticum canbyi,Ligusticum
+Ligusticum scoticum,,,L.,,NA,Scottish lovage/ Scottish licorice-root,Apiaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Ligusticum scoticum,Ligusticum scoticum L.,Ligusticum scoticum,Ligusticum scoticum,Ligusticum
+Lilium columbianum,,,Leichtlin,,NA,tiger lily/Columbia lily,Liliaceae,Y,Y,NA,NA,/,requested,Lilium columbianum,Lilium columbianum Leichtlin,Lilium columbianum,Lilium columbianum,Lilium
+Linnaea borealis,,,L.,,NA,twinflower,Caprifoliaceae,Y,Y,NA,NA,/,requested,Linnaea borealis,Linnaea borealis L.,Linnaea borealis,Linnaea borealis,Linnaea
+Lithospermum ruderale,,,Douglas ex Lehm.,,NA,western stoneseed,Boraginaceae,Y,Y,NA,NA,/,requested,Lithospermum ruderale,Lithospermum ruderale Douglas ex Lehm.,Lithospermum ruderale,Lithospermum ruderale,Lithospermum
+Lomatium canbyi,,,(J.M. Coult. & Rose) J.M. Coult. & Rose,,NA,Canby’s biscuitroot,Apiaceae,Y,Y,NA,NA,/,requested,Lomatium canbyi,Lomatium canbyi (J.M. Coult. & Rose) J.M. Coult. & Rose,Lomatium canbyi,Lomatium canbyi,Lomatium
+Lomatium cous,,,(S. Watson) J.M. Coult. & Rose,,NA,/,Apiaceae,Y,Y,NA,NA,/,requested,Lomatium cous,Lomatium cous (S. Watson) J.M. Coult. & Rose,Lomatium cous,Lomatium cous,Lomatium
+Lomatium dissectum,,,(Nutt.) Mathias & Constance,,NA,"chocolate tips, or fernleaf biscuitroot",Apiaceae,Y,Y,NA,NA,/,requested,Lomatium dissectum,Lomatium dissectum (Nutt.) Mathias & Constance,Lomatium dissectum,Lomatium dissectum,Lomatium
+Lomatium geyeri,,,(S. Watson) J.M. Coult. & Rose,,NA,Geyer’s biscuitroot,Apiaceae,Y,Y,NA,NA,/,requested,Lomatium geyeri,Lomatium geyeri (S. Watson) J.M. Coult. & Rose,Lomatium geyeri,Lomatium geyeri,Lomatium
+Lomatium macrocarpum,,,(Nutt. ex Torr. & A. Gray) J.M. Coult. & Rose,,NA,desert parsley/bigseed biscuitroot,Apiaceae,N,Y,NA,NA,/,requested,Lomatium macrocarpum,Lomatium macrocarpum (Nutt. ex Torr. & A. Gray) J.M. Coult. & Rose,Lomatium macrocarpum,Lomatium macrocarpum,Lomatium
+Lomatium nudicaule,,,(Pursh) J.M. Coult. & Rose,,NA,"“wild celery,” barestem lomatium/barestem biscuitroot",Apiaceae,Y,Y,NA,NA,/,requested,Lomatium nudicaule,Lomatium nudicaule (Pursh) J.M. Coult. & Rose,Lomatium nudicaule,Lomatium nudicaule,Lomatium
+Lonicera ciliosa,,,(Pursh) Poir. ex DC.,,NA,orange honeysuckle,Caprifoliaceae,Y,Y,NA,NA,/,requested,Lonicera ciliosa,Lonicera ciliosa (Pursh) Poir. ex DC.,Lonicera ciliosa,Lonicera ciliosa,Lonicera
+Lonicera involucrata,,,(Richardson) Banks ex Spreng.,,NA,"black twinberry, or twinflower honeysuckle",Caprifoliaceae,Y,Y,NA,NA,/,requested,Lonicera involucrata,Lonicera involucrata (Richardson) Banks ex Spreng.,Lonicera involucrata,Lonicera involucrata,Lonicera
+Lupinus nootkatensis,,,Donn ex Sims,,NA,Nootka lupine,Fabaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Lupinus nootkatensis,Lupinus nootkatensis Donn ex Sims,Lupinus nootkatensis,Lupinus nootkatensis,Lupinus
+Lupinus polyphyllus,,,Lindl,,NA,bigleaf lupine,Fabaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Lupinus polyphyllus,Lupinus polyphyllus Lindl,Lupinus polyphyllus,Lupinus polyphyllus,Lupinus
+Lysichiton americanus,,,Hultén & H. St. John,,NA,American skunk-cabbage,Araceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Lysichiton americanus,Lysichiton americanus Hultén & H. St. John,Lysichiton americanus,Lysichiton americanus,Lysichiton
+Mahonia aquifolium,,,(Pursh) Nutt.,,NA,tall Oregon-grape,Berberidaceae,Y,Y,NA,NA,/,not found,Mahonia aquifolium,Mahonia aquifolium (Pursh) Nutt.,Mahonia aquifolium,Mahonia aquifolium,Mahonia
+Mahonia nervosa,,,(Pursh) Nutt.,,NA,dull-leaved Oregon-grape,Berberidaceae,N,Y,NA,NA,/,not found,Mahonia nervosa,Mahonia nervosa (Pursh) Nutt.,Mahonia nervosa,Mahonia nervosa,Mahonia
+Maianthemum dilatatum,,,(Alph. Wood) A. Nelson & J.F. Macbr.,,NA,"wild lily-of-thevalley, or false lily-of-the-valley",Liliaceae,Y,Y,NA,NA,/,requested,Maianthemum dilatatum,Maianthemum dilatatum (Alph. Wood) A. Nelson & J.F. Macbr.,Maianthemum dilatatum,Maianthemum dilatatum,Maianthemum
+Maianthemum racemosum,ssp. amplexicaule,,NA,(Nutt.) LaFrankie,NA,false Solomon's-seal,Liliaceae,Y,Y,NA,NA,/,requested,Maianthemum racemosum subsp. amplexicaule,Maianthemum racemosum NA ssp. amplexicaule (Nutt.) LaFrankie,Maianthemum racemosum subsp. amplexicaule,Maianthemum racemosum ssp. amplexicaule,Maianthemum
+Malus fusca,,,(Raf.) C.K. Schneid,,NA,Pacific crabapple,Rosaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Malus fusca,Malus fusca (Raf.) C.K. Schneid,Malus fusca,Malus fusca,Malus
+Mentha arvensis,,,L.,,NA,field mint/Canada mint,Lamiaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Mentha arvensis,Mentha arvensis L.,Mentha arvensis,Mentha arvensis,Mentha
+Menziesia ferruginea,,,Sm.,,NA,false azalea/fool’s huckleberry,Ericaceae,Y,Y,NA,NA,/,not found,Menziesia ferruginea,Menziesia ferruginea Sm.,Menziesia ferruginea,Menziesia ferruginea,Menziesia
+Moneses uniflora,,,(L.) A. Gray,,NA,single delight/one-flowered pyrola,Ericaceae,Y,Y,NA,NA,/,requested,Moneses uniflora,Moneses uniflora (L.) A. Gray,Moneses uniflora,Moneses uniflora,Moneses
+Monotropa uniflora,,,L.,,NA,Indian-pipe,Monotropaceae,Y,Y,NA,NA,/,requested,Monotropa uniflora,Monotropa uniflora L.,Monotropa uniflora,Monotropa uniflora,Monotropa
+Myrica gale,,,L.,,NA,sweetgale,Myricaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Myrica gale,Myrica gale L.,Myrica gale,Myrica gale,Myrica
+Nicotiana attenuata,,,Torr. ex S. Watson,,NA,wild/coyote tobacco,Solanaceae,N,Y,NA,NA,/,requested,Nicotiana attenuata,Nicotiana attenuata Torr. ex S. Watson,Nicotiana attenuata,Nicotiana attenuata,Nicotiana
+Nicotiana quadrivalvis,,,Pursh,,NA,Haida/Northwest Coast tobacco,Solanaceae,Y,Y,NA,NA,/,requested,Nicotiana quadrivalvis,Nicotiana quadrivalvis Pursh,Nicotiana quadrivalvis,Nicotiana quadrivalvis,Nicotiana
+Nicotiana tabacum,,,L.,,NA,cultivated tobacco,Solanaceae,Y,Y,NA,NA,/,requested,Nicotiana tabacum,Nicotiana tabacum L.,Nicotiana tabacum,Nicotiana tabacum,Nicotiana
+Nuphar lutea,,,(L.) Sm. ssp. polysepala (Engelm.) E.O. Beal,,NA,yellow pond-lily,Nymphaeaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Nuphar lutea,Nuphar lutea (L.) Sm. ssp. polysepala (Engelm.) E.O. Beal,Nuphar lutea,Nuphar lutea,Nuphar
+Oemleria cerasiformis,,,(Torr. & A. Gray ex Hook. & Arn.) Landon,,NA,"bird plum, bird cherry",Rosaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Oemleria cerasiformis,Oemleria cerasiformis (Torr. & A. Gray ex Hook. & Arn.) Landon,Oemleria cerasiformis,Oemleria cerasiformis,Oemleria
+Oenanthe sarmentosa,,,C. Presl ex DC.,,NA,water-parsley,Apiaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Oenanthe sarmentosa,Oenanthe sarmentosa C. Presl ex DC.,Oenanthe sarmentosa,Oenanthe sarmentosa,Oenanthe
+Oplopanax horridus,,,(Sm.) Miq.,,NA,devil’s-club,Araliaceae,Y,Y,NA,NA,/,requested,Oplopanax horridus,Oplopanax horridus (Sm.) Miq.,Oplopanax horridus,Oplopanax horridus,Oplopanax
+Opuntia fragilis,,,(Nutt.) Haw.,,NA,brittle pricklypear cactus,Cactaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Opuntia fragilis,Opuntia fragilis (Nutt.) Haw.,Opuntia fragilis,Opuntia fragilis,Opuntia
+Opuntia polyacantha,,,Haw.,,NA,plains pricklypear cactus,Cactaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Opuntia polyacantha,Opuntia polyacantha Haw.,Opuntia polyacantha,Opuntia polyacantha,Opuntia
+Osmorhiza berteroi,,,DC,,NA,sweet cicely,Apiaceae,Y,Y,NA,NA,/,requested,Osmorhiza berteroi,Osmorhiza berteroi DC,Osmorhiza berteroi,Osmorhiza berteroi,Osmorhiza
+Osmorhiza occidentalis,,,(Nutt.) Torr.,,NA,western sweet cicely/ “sweetroot”,Apiaceae,Y,Y,NA,NA,/,requested,Osmorhiza occidentalis,Osmorhiza occidentalis (Nutt.) Torr.,Osmorhiza occidentalis,Osmorhiza occidentalis,Osmorhiza
+Oxalis oregana,,,Nutt.,,NA,Oregon woodsorrel,Oxalidaceae,Y,Y,NA,NA,/,requested,Oxalis oregana,Oxalis oregana Nutt.,Oxalis oregana,Oxalis oregana,Oxalis
+Oxyria digyna,,,(L.) Hill,,NA,mountain sorrel,Polygonaceae,Y,Y,NA,NA,/,requested,Oxyria digyna,Oxyria digyna (L.) Hill,Oxyria digyna,Oxyria digyna,Oxyria
+Paxistima myrsinites,,,(Pursh) Raf.,,NA,false box/Oregon boxleaf,Celastraceae,Y,Y,NA,NA,/,requested,Paxistima myrsinites,Paxistima myrsinites (Pursh) Raf.,Paxistima myrsinites,Paxistima myrsinites,Paxistima
+Penstemon fruticosus,,,(Pursh) Greene,,NA,shrubby penstemon,Scrophulariaceae,Y,Y,NA,NA,/,requested,Penstemon fruticosus,Penstemon fruticosus (Pursh) Greene,Penstemon fruticosus,Penstemon fruticosus,Penstemon
+Perideridia gairdneri,,,(Hook. & Arn.) Mathias,,NA,wild caraway/yampah,Apiaceae,Y,Y,NA,NA,/,requested,Perideridia gairdneri,Perideridia gairdneri (Hook. & Arn.) Mathias,Perideridia gairdneri,Perideridia gairdneri,Perideridia
+Petasites frigidus,,,(L.) Fr. var. sagittatus (Banks ex Pursh) Cherniawsky,,NA,arrowleaf sweet coltsfoot,Asteraceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Petasites frigidus,Petasites frigidus (L.) Fr. var. sagittatus (Banks ex Pursh) Cherniawsky,Petasites frigidus,Petasites frigidus,Petasites
+Phalaris arundinacea,,,L.,,NA,reed canarygrass,Poaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Phalaris arundinacea,Phalaris arundinacea L.,Phalaris arundinacea,Phalaris arundinacea,Phalaris
+Philadelphus lewisii,,,Pursh,,NA,mock-orange,Hydrangeaceae,Y,Y,NA,NA,/,requested,Philadelphus lewisii,Philadelphus lewisii Pursh,Philadelphus lewisii,Philadelphus lewisii,Philadelphus
+Phyllospadix scouleri,,,Hook. and P. torreyi S. Watson,,NA,surf-grass/seagrass,Zosteraceae,Y,Y,NA,NA,Stable (Least Concern),requested,Phyllospadix scouleri,Phyllospadix scouleri Hook. and P. torreyi S. Watson,Phyllospadix scouleri,Phyllospadix scouleri,Phyllospadix
+Physocarpus capitatus,,,(Pursh) Kuntze,,NA,Pacific ninebark,Rosaceae,Y,Y,NA,NA,/,requested,Physocarpus capitatus,Physocarpus capitatus (Pursh) Kuntze,Physocarpus capitatus,Physocarpus capitatus,Physocarpus
+Physocarpus malvaceus,,,(Greene) Kuntze,,NA,mallow ninebark,Rosaceae,Y,Y,NA,NA,/,requested,Physocarpus malvaceus,Physocarpus malvaceus (Greene) Kuntze,Physocarpus malvaceus,Physocarpus malvaceus,Physocarpus
+Plantago major,,,L.,,NA,"broadleaved plantain, or common plantain",Plantaginaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Plantago major,Plantago major L.,Plantago major,Plantago major,Plantago
+Plantago maritima,,,L.,,NA,"seaside plantain, or goose tongue",Plantaginaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Plantago maritima,Plantago maritima L.,Plantago maritima,Plantago maritima,Plantago
+Platanthera dilatata,,,(Pursh) Lindl. ex Beck,,NA,scented bog orchid,Orchidaceae,Y,Y,NA,NA,/,requested,Platanthera dilatata,Platanthera dilatata (Pursh) Lindl. ex Beck,Platanthera dilatata,Platanthera dilatata,Platanthera
+Platanthera stricta,,,Lindl.,,NA,slender bog orchid,Orchidaceae,Y,Y,NA,NA,/,requested,Platanthera stricta,Platanthera stricta Lindl.,Platanthera stricta,Platanthera stricta,Platanthera
+Platanthera hyperborea,,,(L.) Lindl,,NA,northern green orchid,Orchidaceae,Y,N,NA,NA,Unknown (Least Concern),requested,Platanthera hyperborea,Platanthera hyperborea (L.) Lindl,Platanthera hyperborea,Platanthera hyperborea,Platanthera
+Populus balsamifera,ssp. trichocarpa,,L.,(Torr. & A. Gray ex Hook.) Brayshaw,NA,black cottonwood,Salicaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Populus balsamifera subsp. trichocarpa,Populus balsamifera L. ssp. trichocarpa (Torr. & A. Gray ex Hook.) Brayshaw,Populus balsamifera subsp. trichocarpa,Populus balsamifera ssp. trichocarpa,Populus
+Populus tremuloides,,,Michx,,NA,trembling aspen,Salicaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Populus tremuloides,Populus tremuloides Michx,Populus tremuloides,Populus tremuloides,Populus
+Potamogeton natans,,,L.,,NA,floating pondweed,Potamogetonaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Potamogeton natans,Potamogeton natans L.,Potamogeton natans,Potamogeton natans,Potamogeton
+Prunus emarginata,,,(Douglas ex Hook.) D. Dietr.,,NA,bitter cherry,Rosaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Prunus emarginata,Prunus emarginata (Douglas ex Hook.) D. Dietr.,Prunus emarginata,Prunus emarginata,Prunus
+Prunus pensylvanica,,,L. f.,,NA,pin cherry,Rosaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Prunus pensylvanica,Prunus pensylvanica L. f.,Prunus pensylvanica,Prunus pensylvanica,Prunus
+Prunus virginiana,,,L.,,NA,choke cherry,Rosaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Prunus virginiana,Prunus virginiana L.,Prunus virginiana,Prunus virginiana,Prunus
+Pseudoroegneria spicata,,,(Pursh) A. Löve,,NA,bluebunch wheatgrass,Poaceae,Y,Y,NA,NA,/,not found,Pseudoroegneria spicata,Pseudoroegneria spicata (Pursh) A. Löve,Pseudoroegneria spicata,Pseudoroegneria spicata,Pseudoroegneria
+Pterospora andromedea,,,Nutt.,,NA,pinedrops,Monotropaceae,Y,Y,NA,NA,/,requested,Pterospora andromedea,Pterospora andromedea Nutt.,Pterospora andromedea,Pterospora andromedea,Pterospora
+Purshia tridentata,,,(Pursh) DC.,,NA,antelope-brush,Rosaceae,Y,Y,NA,NA,/,requested,Purshia tridentata,Purshia tridentata (Pursh) DC.,Purshia tridentata,Purshia tridentata,Purshia
+Pyrola asarifolia,,,Michx.,,NA,common pyrola/common pink wintergreen,Pyrolaceae,Y,Y,NA,NA,/,requested,Pyrola asarifolia,Pyrola asarifolia Michx.,Pyrola asarifolia,Pyrola asarifolia,Pyrola
+Quercus garryana,,,Douglas ex Hook.,,NA,garry oak,Fagaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Quercus garryana,Quercus garryana Douglas ex Hook.,Quercus garryana,Quercus garryana,Quercus
+Ranunculus glaberrimus,,,Hook.,,NA,sagebrush buttercup,Ranunculaceae,Y,Y,NA,NA,/,requested,Ranunculus glaberrimus,Ranunculus glaberrimus Hook.,Ranunculus glaberrimus,Ranunculus glaberrimus,Ranunculus
+Ranunculus acris,,,L.,,NA,tall buttercup,Ranunculaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Ranunculus acris,Ranunculus acris L.,Ranunculus acris,Ranunculus acris,Ranunculus
+Ranunculus occidentalis,,,Nutt.,,NA,western buttercup,Ranunculaceae,Y,Y,NA,NA,/,requested,Ranunculus occidentalis,Ranunculus occidentalis Nutt.,Ranunculus occidentalis,Ranunculus occidentalis,Ranunculus
+Rhodiola rosea,,,L.,,NA,roseroot stonecrop,Crassulaceae,Y,Y,NA,NA,/,requested,Rhodiola rosea,Rhodiola rosea L.,Rhodiola rosea,Rhodiola rosea,Rhodiola
+Rhododendron albiflorum,,,Hook.,,NA,white mountain rhododendron,Ericaceae,Y,Y,NA,NA,/,not found,Rhododendron albiflorum,Rhododendron albiflorum Hook.,Rhododendron albiflorum,Rhododendron albiflorum,Rhododendron
+Rhododendron groenlandicum,,,(Oeder) K.A. Kron & W.S. Judd,,NA,Labrador-tea,Ericaceae,N,N,NA,NA,/,not found,Rhododendron groenlandicum,Rhododendron groenlandicum (Oeder) K.A. Kron & W.S. Judd,Rhododendron groenlandicum,Rhododendron groenlandicum,Rhododendron
+Rhododendron neoglandulosum,,,Harmaja (syn. L. glandulosum Nutt.),,NA,"trapper’s tea, or western Labrador-tea",Ericaceae,N,N,NA,NA,/,not found,Rhododendron neoglandulosum,Rhododendron neoglandulosum Harmaja (syn. L. glandulosum Nutt.),Rhododendron neoglandulosum,Rhododendron neoglandulosum,Rhododendron
+Rhus glabra,,,L.,,NA,smooth sumac,Anacardiaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Rhus glabra,Rhus glabra L.,Rhus glabra,Rhus glabra,Rhus
+Ribes aureum,,,Pursh,,NA,golden currant,Grossulariaceae,Y,Y,NA,NA,/,requested,Ribes aureum,Ribes aureum Pursh,Ribes aureum,Ribes aureum,Ribes
+Ribes bracteosum,,,Douglas ex Hook.,,NA,gray currant/stink currant,Grossulariaceae,Y,Y,NA,NA,/,requested,Ribes bracteosum,Ribes bracteosum Douglas ex Hook.,Ribes bracteosum,Ribes bracteosum,Ribes
+Ribes cereum,,,Douglas,,NA,desert currant/wax currant,Grossulariaceae,Y,Y,NA,NA,/,requested,Ribes cereum,Ribes cereum Douglas,Ribes cereum,Ribes cereum,Ribes
+Ribes divaricatum,,,Douglas,,NA,coastal black gooseberry,Grossulariaceae,Y,Y,NA,NA,/,requested,Ribes divaricatum,Ribes divaricatum Douglas,Ribes divaricatum,Ribes divaricatum,Ribes
+Ribes lobbii,,,A. Gray,,NA,gummy gooseberry,Grossulariaceae,Y,Y,NA,NA,/,requested,Ribes lobbii,Ribes lobbii A. Gray,Ribes lobbii,Ribes lobbii,Ribes
+Ribes inerme,,,Rydb.,,NA,whitestem gooseberry,Grossulariaceae,Y,Y,NA,NA,/,requested,Ribes inerme,Ribes inerme Rydb.,Ribes inerme,Ribes inerme,Ribes
+Ribes oxyacanthoides,,,L. ssp. irriguum (Douglas) Sinnott,,NA,northern gooseberry,Grossulariaceae,Y,Y,NA,NA,/,requested,Ribes oxyacanthoides,Ribes oxyacanthoides L. ssp. irriguum (Douglas) Sinnott,Ribes oxyacanthoides,Ribes oxyacanthoides,Ribes
+Ribes hudsonianum,,,Richardson,,NA,northern black currant,Grossulariaceae,Y,Y,NA,NA,/,requested,Ribes hudsonianum,Ribes hudsonianum Richardson,Ribes hudsonianum,Ribes hudsonianum,Ribes
+Ribes lacustre,,,(Pers.) Poir.,,NA,"prickly currant, or swamp gooseberry",Grossulariaceae,Y,Y,NA,NA,/,requested,Ribes lacustre,Ribes lacustre (Pers.) Poir.,Ribes lacustre,Ribes lacustre,Ribes
+Ribes laxiflorum,,,Pursh,,NA,trailing currant,Grossulariaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Ribes laxiflorum,Ribes laxiflorum Pursh,Ribes laxiflorum,Ribes laxiflorum,Ribes
+Ribes glandulosum,,,Grauer,,NA,skunk currant,Grossulariaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Ribes glandulosum,Ribes glandulosum Grauer,Ribes glandulosum,Ribes glandulosum,Ribes
+Ribes sanguineum,,,Pursh,,NA,red-flowering currant,Grossulariaceae,Y,Y,NA,NA,/,requested,Ribes sanguineum,Ribes sanguineum Pursh,Ribes sanguineum,Ribes sanguineum,Ribes
+Ribes triste,,,Pall.,,NA,northern red currant,Grossulariaceae,Y,Y,NA,NA,/,requested,Ribes triste,Ribes triste Pall.,Ribes triste,Ribes triste,Ribes
+Rosa acicularis,,,Lindl.,,NA,prickly rose,Rosaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Rosa acicularis,Rosa acicularis Lindl.,Rosa acicularis,Rosa acicularis,Rosa
+Rosa nutkana,,,C. Presl,,NA,Nootka rose,Rosaceae,Y,Y,NA,NA,/,requested,Rosa nutkana,Rosa nutkana C. Presl,Rosa nutkana,Rosa nutkana,Rosa
+Rosa pisocarpa,,,A. Gray,,NA,swamp rose,Rosaceae,Y,Y,NA,NA,/,requested,Rosa pisocarpa,Rosa pisocarpa A. Gray,Rosa pisocarpa,Rosa pisocarpa,Rosa
+Rosa woodsii,,,Lindl.,,NA,Wood’s rose,Rosaceae,Y,Y,NA,NA,/,requested,Rosa woodsii,Rosa woodsii Lindl.,Rosa woodsii,Rosa woodsii,Rosa
+Rosa gymnocarpa,,,Nutt.,,NA,"dwarf wild rose, or baldhip rose",Rosaceae,Y,Y,NA,NA,/,requested,Rosa gymnocarpa,Rosa gymnocarpa Nutt.,Rosa gymnocarpa,Rosa gymnocarpa,Rosa
+Rubus arcticus,,,L. ssp. acaulis (Michx.) Focke,,NA,"nagoonberry, dwarf raspberry",Rosaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Rubus arcticus,Rubus arcticus L. ssp. acaulis (Michx.) Focke,Rubus arcticus,Rubus arcticus,Rubus
+Rubus chamaemorus,,,L.,,NA,"cloudberry, or bakeapple",Rosaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Rubus chamaemorus,Rubus chamaemorus L.,Rubus chamaemorus,Rubus chamaemorus,Rubus
+Rubus idaeus,,,L.,,NA,"wild raspberry, or American red raspberry",Rosaceae,Y,Y,NA,NA,/,requested,Rubus idaeus,Rubus idaeus L.,Rubus idaeus,Rubus idaeus,Rubus
+Rubus leucodermis,,,Douglas ex Torr. & A. Gray,,NA,"blackcap, or black raspberry",Rosaceae,Y,Y,NA,NA,/,requested,Rubus leucodermis,Rubus leucodermis Douglas ex Torr. & A. Gray,Rubus leucodermis,Rubus leucodermis,Rubus
+Rubus parviflorus,,,Nutt.,,NA,thimbleberry,Rosaceae,Y,Y,NA,NA,/,requested,Rubus parviflorus,Rubus parviflorus Nutt.,Rubus parviflorus,Rubus parviflorus,Rubus
+Rubus pedatus,,,Sm.,,NA,trailing raspberry,Rosaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Rubus pedatus,Rubus pedatus Sm.,Rubus pedatus,Rubus pedatus,Rubus
+Rubus pubescens,,,Raf.,,NA,dwarf red raspberry,Rosaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Rubus pubescens,Rubus pubescens Raf.,Rubus pubescens,Rubus pubescens,Rubus
+Rubus spectabilis,,,Pursh,,NA,salmonberry,Rosaceae,Y,Y,NA,NA,/,requested,Rubus spectabilis,Rubus spectabilis Pursh,Rubus spectabilis,Rubus spectabilis,Rubus
+Rubus ursinus,,,Cham. & Schltdl.,,NA,trailing blackberry,Rosaceae,Y,Y,NA,NA,/,requested,Rubus ursinus,Rubus ursinus Cham. & Schltdl.,Rubus ursinus,Rubus ursinus,Rubus
+Rumex aquaticus,,,L. var. fenestratus (Greene) Dorn,,NA,western dock,Polygonaceae,Y,Y,NA,NA,/,requested,Rumex aquaticus,Rumex aquaticus L. var. fenestratus (Greene) Dorn,Rumex aquaticus,Rumex aquaticus,Rumex
+Sagittaria latifolia,,,Willd.,,NA,"wapato, or broadleaf arrowhead",Alismataceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Sagittaria latifolia,Sagittaria latifolia Willd.,Sagittaria latifolia,Sagittaria latifolia,Sagittaria
+Sagittaria cuneata,,,Sheldon,,NA,arumleaf arrowhead,Alismataceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Sagittaria cuneata,Sagittaria cuneata Sheldon,Sagittaria cuneata,Sagittaria cuneata,Sagittaria
+Salix barclayi,,,Andersson,,NA,Barclay’s willow,Salicaeae,Y,N,NA,NA,Stable (Least Concern),requested,Salix barclayi,Salix barclayi Andersson,Salix barclayi,Salix barclayi,Salix
+Salix bebbiana,,,Sarg.,,NA,Bebb willow,Salicaeae,Y,Y,NA,NA,Unknown (Least Concern),requested,Salix bebbiana,Salix bebbiana Sarg.,Salix bebbiana,Salix bebbiana,Salix
+Salix discolor,,,Muhl.,,NA,pussy willow,Salicaeae,Y,Y,NA,NA,Stable (Least Concern),requested,Salix discolor,Salix discolor Muhl.,Salix discolor,Salix discolor,Salix
+Salix hookeriana,,,Barratt ex Hook.,,NA,Hooker's willow,Salicaeae,Y,Y,NA,NA,Stable (Least Concern),requested,Salix hookeriana,Salix hookeriana Barratt ex Hook.,Salix hookeriana,Salix hookeriana,Salix
+Salix scouleriana,,,Barratt ex Hook.,,NA,Scouler’s willow,Salicaeae,Y,Y,NA,NA,Stable (Least Concern),requested,Salix scouleriana,Salix scouleriana Barratt ex Hook.,Salix scouleriana,Salix scouleriana,Salix
+Salix sitchensis,,,Sanson ex Bong.,,NA,Sitka willow,Salicaeae,Y,Y,NA,NA,Stable (Least Concern),requested,Salix sitchensis,Salix sitchensis Sanson ex Bong.,Salix sitchensis,Salix sitchensis,Salix
+Salix exigua,,,Nutt.,,NA,"sandbar willow, or rope willow",Salicaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Salix exigua,Salix exigua Nutt.,Salix exigua,Salix exigua,Salix
+Salix lucida,,,Muhl. ssp. lasiandra (Benth.) E. Murray,,NA,Pacific willow,Salicaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Salix lucida,Salix lucida Muhl. ssp. lasiandra (Benth.) E. Murray,Salix lucida,Salix lucida,Salix
+Sambucus nigra,,,L. ssp. cerulea (Raf.) R. Bolli,,NA,blue elderberry,Caprifoliaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Sambucus nigra,Sambucus nigra L. ssp. cerulea (Raf.) R. Bolli,Sambucus nigra,Sambucus nigra,Sambucus
+Sambucus racemosa,,,L.,,NA,red elderberry,Caprifoliaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Sambucus racemosa,Sambucus racemosa L.,Sambucus racemosa,Sambucus racemosa,Sambucus
+Schoenoplectus acutus,,,(Muhl. ex Bigelow) A. Löve & D. Löve,,NA,hardstem bulrush,Cyperaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Schoenoplectus acutus,Schoenoplectus acutus (Muhl. ex Bigelow) A. Löve & D. Löve,Schoenoplectus acutus,Schoenoplectus acutus,Schoenoplectus
+Schoenoplectus americanus,,,(Pers.) Volkart ex Schinz & R. Keller,,NA,Olney’s three-square bulrush,Cyperaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Schoenoplectus americanus,Schoenoplectus americanus (Pers.) Volkart ex Schinz & R. Keller,Schoenoplectus americanus,Schoenoplectus americanus,Schoenoplectus
+Scirpus microcarpus,,,J. Presl & C. Presl,,NA,"small-flowered bulrush, or “cutgrass”",Cyperaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Scirpus microcarpus,Scirpus microcarpus J. Presl & C. Presl,Scirpus microcarpus,Scirpus microcarpus,Scirpus
+Sedum divergens,,,S. Watson,,NA,Pacific stonecrop,Crassulaceae,Y,Y,NA,NA,/,requested,Sedum divergens,Sedum divergens S. Watson,Sedum divergens,Sedum divergens,Sedum
+Sedum oreganum,,,Nutt.,,NA,Oregon stonecrop,Crassulaceae,Y,N,NA,NA,/,requested,Sedum oreganum,Sedum oreganum Nutt.,Sedum oreganum,Sedum oreganum,Sedum
+Shepherdia canadensis,,,(L.) Nutt.,,NA,"soapberry, or russet buffaloberry",Elaeagnaceae,Y,Y,NA,NA,/,requested,Shepherdia canadensis,Shepherdia canadensis (L.) Nutt.,Shepherdia canadensis,Shepherdia canadensis,Shepherdia
+Sium suave,,,Walter,,NA,water-parsnip,Apiaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Sium suave,Sium suave Walter,Sium suave,Sium suave,Sium
+Solidago canadensis,,,L.,,NA,Canada goldenrod,Asteraceae,Y,Y,NA,NA,/,requested,Solidago canadensis,Solidago canadensis L.,Solidago canadensis,Solidago canadensis,Solidago
+Sorbus sitchensis,,,M. Roem.,,NA,western mountain-ash,Rosaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Sorbus sitchensis,Sorbus sitchensis M. Roem.,Sorbus sitchensis,Sorbus sitchensis,Sorbus
+Sorbus scopulina,,,Greene,,NA,Greene’s mountain-ash,Rosaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Sorbus scopulina,Sorbus scopulina Greene,Sorbus scopulina,Sorbus scopulina,Sorbus
+Spiraea betulifolia,,,Pall,,NA,birch-leaved spiraea,Rosaceae,Y,Y,NA,NA,/,requested,Spiraea betulifolia,Spiraea betulifolia Pall,Spiraea betulifolia,Spiraea betulifolia,Spiraea
+Spiraea douglasii,,,Hook.,,NA,hardhack,Rosaceae,Y,Y,NA,NA,/,requested,Spiraea douglasii,Spiraea douglasii Hook.,Spiraea douglasii,Spiraea douglasii,Spiraea
+Stachys chamissonis,,,Benth. var. cooleyae (A. Heller) G. Mulligan & D. Munro,,NA,coastal hedge-nettle,Lamiaceae,Y,N,NA,NA,/,requested,Stachys chamissonis,Stachys chamissonis Benth. var. cooleyae (A. Heller) G. Mulligan & D. Munro,Stachys chamissonis,Stachys chamissonis,Stachys
+Streptopus amplexifolius,,,(L.) DC.,,NA,clasping twistedstalk,Liliaceae,Y,Y,NA,NA,/,requested,Streptopus amplexifolius,Streptopus amplexifolius (L.) DC.,Streptopus amplexifolius,Streptopus amplexifolius,Streptopus
+Streptopus streptopoides,,,(Ledeb.) Frye & Rigg,,NA,small twistedstalk,Liliaceae,Y,N,NA,NA,/,requested,Streptopus streptopoides,Streptopus streptopoides (Ledeb.) Frye & Rigg,Streptopus streptopoides,Streptopus streptopoides,Streptopus
+Symphoricarpos albus,,,(L.) S.F. Blake,,NA,"common snowberry, or waxberry",Caprifoliaceae,Y,Y,NA,NA,/,requested,Symphoricarpos albus,Symphoricarpos albus (L.) S.F. Blake,Symphoricarpos albus,Symphoricarpos albus,Symphoricarpos
+Thalictrum occidentale,,,Gray,,NA,western meadowrue,Ranunculaceae,Y,Y,NA,NA,/,requested,Thalictrum occidentale,Thalictrum occidentale Gray,Thalictrum occidentale,Thalictrum occidentale,Thalictrum
+Toxicodendron rydbergii,,,(Small ex Rydb.) Greene,,NA,western poison-ivy,Anacardiaceae,Y,Y,NA,NA,/,requested,Toxicodendron rydbergii,Toxicodendron rydbergii (Small ex Rydb.) Greene,Toxicodendron rydbergii,Toxicodendron rydbergii,Toxicodendron
+Trifolium wormskioldii,,,Lehm.,,NA,springbank clover,Fabaceae,Y,Y,NA,NA,/,requested,Trifolium wormskioldii,Trifolium wormskioldii Lehm.,Trifolium wormskioldii,Trifolium wormskioldii,Trifolium
+Triglochin maritima,,,L.,,NA,seaside arrowgrass,Juncaginaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Triglochin maritima,Triglochin maritima L.,Triglochin maritima,Triglochin maritima,Triglochin
+Trillium ovatum,,,Pursh,,NA,western trillium,Liliaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Trillium ovatum,Trillium ovatum Pursh,Trillium ovatum,Trillium ovatum,Trillium
+Trillium petiolatum,,,Pursh,,NA,round-leaved trillium,Liliaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Trillium petiolatum,Trillium petiolatum Pursh,Trillium petiolatum,Trillium petiolatum,Trillium
+Triteleia grandiflora,,,Lindl,,NA,large-flowered triteleia,Liliaceae,Y,Y,NA,NA,/,requested,Triteleia grandiflora,Triteleia grandiflora Lindl,Triteleia grandiflora,Triteleia grandiflora,Triteleia
+Typha latifolia,,,L.,,NA,cattail,Typhaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Typha latifolia,Typha latifolia L.,Typha latifolia,Typha latifolia,Typha
+Urtica dioica,,,L.,,NA,stinging nettle,Urticaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Urtica dioica,Urtica dioica L.,Urtica dioica,Urtica dioica,Urtica
+Vaccinium alaskaense,,,Howell,,NA,Alaska blueberry,Ericaceae,Y,N,NA,NA,/,requested,Vaccinium alaskaense,Vaccinium alaskaense Howell,Vaccinium alaskaense,Vaccinium alaskaense,Vaccinium
+Vaccinium caespitosum,,,Michx.,,NA,dwarf bilberry,Ericaceae,Y,Y,NA,NA,/,requested,Vaccinium caespitosum,Vaccinium caespitosum Michx.,Vaccinium caespitosum,Vaccinium caespitosum,Vaccinium
+Vaccinium membranaceum,,,Douglas ex Torr.,,NA,"black mountain huckleberry, or thinleaf huckleberry",Ericaceae,Y,Y,NA,NA,/,requested,Vaccinium membranaceum,Vaccinium membranaceum Douglas ex Torr.,Vaccinium membranaceum,Vaccinium membranaceum,Vaccinium
+Vaccinium myrtilloides,,,Michx.,,NA,"velvetleaf blueberry, or Canada blueberry",Ericaceae,Y,Y,NA,NA,/,requested,Vaccinium myrtilloides,Vaccinium myrtilloides Michx.,Vaccinium myrtilloides,Vaccinium myrtilloides,Vaccinium
+Vaccinium ovalifolium,,,Sm.,,NA,oval-leaved blueberry,Ericaceae,Y,Y,NA,NA,/,requested,Vaccinium ovalifolium,Vaccinium ovalifolium Sm.,Vaccinium ovalifolium,Vaccinium ovalifolium,Vaccinium
+Vaccinium ovatum,,,Pursh,,NA,evergreen huckleberry,Ericaceae,Y,Y,NA,NA,/,requested,Vaccinium ovatum,Vaccinium ovatum Pursh,Vaccinium ovatum,Vaccinium ovatum,Vaccinium
+Vaccinium oxycoccos,,,L.,,NA,"bog cranberry, or small cranberry",Ericaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Vaccinium oxycoccos,Vaccinium oxycoccos L.,Vaccinium oxycoccos,Vaccinium oxycoccos,Vaccinium
+Vaccinium parvifolium,,,Sm.,,NA,red huckleberry,Ericaceae,Y,Y,NA,NA,/,requested,Vaccinium parvifolium,Vaccinium parvifolium Sm.,Vaccinium parvifolium,Vaccinium parvifolium,Vaccinium
+Vaccinium scoparium,,,Leiberg ex Coville,,NA,grouseberry,Ericaceae,Y,Y,NA,NA,/,requested,Vaccinium scoparium,Vaccinium scoparium Leiberg ex Coville,Vaccinium scoparium,Vaccinium scoparium,Vaccinium
+Vaccinium myrtillus,,,L.,,NA,whortleberry,Ericaceae,Y,Y,NA,NA,/,requested,Vaccinium myrtillus,Vaccinium myrtillus L.,Vaccinium myrtillus,Vaccinium myrtillus,Vaccinium
+Vaccinium uliginosum,,,L.,,NA,bog blueberry,Ericaceae,Y,Y,NA,NA,/,requested,Vaccinium uliginosum,Vaccinium uliginosum L.,Vaccinium uliginosum,Vaccinium uliginosum,Vaccinium
+Vaccinium vitis-idaea,,,L.,,NA,"lingonberry, or lowbush cranberry",Ericaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Vaccinium vitis-idaea,Vaccinium vitis-idaea L.,Vaccinium vitis-idaea,Vaccinium vitis-idaea,Vaccinium
+Valeriana edulis,,,Nutt. ex Torr. & A. Gray,,NA,"tobacco root, or edible valerian",Valerianaceae,Y,Y,NA,NA,/,requested,Valeriana edulis,Valeriana edulis Nutt. ex Torr. & A. Gray,Valeriana edulis,Valeriana edulis,Valeriana
+Valeriana sitchensis,,,Bong,,NA,"mountain valerian, or Sitka valerian",Valerianaceae,Y,Y,NA,NA,/,requested,Valeriana sitchensis,Valeriana sitchensis Bong,Valeriana sitchensis,Valeriana sitchensis,Valeriana
+Veratrum viride,,,Aiton,,NA,"false hellebore, or green hellebore",Liliaceae,Y,Y,NA,NA,/,requested,Veratrum viride,Veratrum viride Aiton,Veratrum viride,Veratrum viride,Veratrum
+Viburnum edule,,,(Michx.) Raf,,NA,"highbush cranberry, or squashberry",Caprifoliaceae,Y,Y,NA,NA,/,requested,Viburnum edule,Viburnum edule (Michx.) Raf,Viburnum edule,Viburnum edule,Viburnum
+Viburnum opulus,,,L.,,NA,"American highbush cranberry, or bush cranberry",Caprifoliaceae,Y,Y,NA,NA,/,requested,Viburnum opulus,Viburnum opulus L.,Viburnum opulus,Viburnum opulus,Viburnum
+Vicia nigricans,ssp. gigantea,,NA,(Hook.) Lassetter & C.R. Gunn.,NA,giant vetch,Fabaceae,Y,Y,NA,NA,/,requested,Vicia nigricans subsp. gigantea,Vicia nigricans NA ssp. gigantea (Hook.) Lassetter & C.R. Gunn.,Vicia nigricans subsp. gigantea,Vicia nigricans ssp. gigantea,Vicia
+Viola adunca,,,Sm. var. adunca,,NA,early blue violet,Violaceae,Y,Y,NA,NA,/,requested,Viola adunca,Viola adunca Sm. var. adunca,Viola adunca,Viola adunca,Viola
+Xerophyllum tenax,,,(Pursh) Nutt.,,NA,common beargrass,Liliaceae,Y,Y,NA,NA,/,requested,Xerophyllum tenax,Xerophyllum tenax (Pursh) Nutt.,Xerophyllum tenax,Xerophyllum tenax,Xerophyllum
+Zigadenus venenosus,,,S. Watson,,NA,"death camas, meadow death camas",Liliaceae,Y,Y,NA,NA,/,not found,Zigadenus venenosus,Zigadenus venenosus S. Watson,Zigadenus venenosus,Zigadenus venenosus,Zigadenus
+Zigadenus elegans,,,Pursh,,NA,mountain death camas,Liliaceae,Y,Y,NA,NA,/,not found,Zigadenus elegans,Zigadenus elegans Pursh,Zigadenus elegans,Zigadenus elegans,Zigadenus
+Zostera marina,,,L.,,NA,eelgrass,Zosteraceae,Y,Y,NA,NA,Decreasing (Least Concern),requested,Zostera marina,Zostera marina L.,Zostera marina,Zostera marina,Zostera
+Hierochloe odorata,,,NA,,NA,NA,Poaceae,NA,NA,NA,NA,NA,NA,Hierochloe odorata,Hierochloe odorata NA,Hierochloe odorata,Hierochloe odorata,Hierochloe
+Rhododendron columbianum,,,NA,,NA,NA,Ericaceae,NA,NA,NA,NA,NA,NA,Rhododendron columbianum,Rhododendron columbianum NA,Rhododendron columbianum,Rhododendron columbianum,Rhododendron

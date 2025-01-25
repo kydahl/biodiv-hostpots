@@ -12,7 +12,7 @@ Adiantum aleuticum,Pteridaceae,NA,NA,NA,NA,NA,NA,25,16,11,Adiantum aleuticum,NA
 Agoseris glauca,Compositae,NA,0.181659021,17.17,520,non-woody,1.1523,8,5,1,Agoseris glauca,NA
 Allium cernuum,Amaryllidaceae,NA,NA,NA,NA,non-woody,3.85,52,36,69,Allium cernuum,NA
 Allium geyeri,Amaryllidaceae,NA,0.0562,NA,117.97,non-woody,2.34,11,8,7,Allium geyeri,NA
-Allium schoenoprasum subsp. sibiricum,Liliaceae,NA,NA,NA,NA,NA,NA,12,7,6,Allium schoenoprasum,subsp. sibiricum
+Allium schoenoprasum var. sibiricum,Liliaceae,NA,NA,NA,NA,NA,NA,12,7,6,Allium schoenoprasum,var. sibiricum
 Alnus incana subsp. tenuifolia,Betulaceae,NA,NA,21.9,NA,woody,0.6077,66,35,45,Alnus incana,subsp. tenuifolia
 Alnus rubra,Betulaceae,NA,30.98284191,23.73410952,NA,woody,0.8533,56,33,116,Alnus rubra,NA
 Alnus viridis subsp. crispa,Betulaceae,NA,NA,NA,NA,NA,NA,66,35,26,Alnus viridis,subsp. crispa
@@ -40,12 +40,12 @@ Artemisia tridentata,Compositae,NA,1.807239194,15.17575567,37.72,woody,0.6187,16
 Aruncus dioicus,Rosaceae,0.194935887,1.103405285,41.37404677,97188.52,non-woody,0.0881,20,16,10,Aruncus dioicus,NA
 Asarum caudatum,Aristolochiaceae,NA,NA,NA,NA,NA,NA,23,12,28,Asarum caudatum,NA
 Asclepias speciosa,Apocynaceae,NA,1.82,NA,NA,non-woody,6.9191,5,4,61,Asclepias speciosa,NA
-Athyrium filix-femina var. cyclosorum,Dryopteridaceae,NA,NA,NA,NA,NA,NA,30,19,1,Athyrium filix-femina,var. cyclosorum
+Athyrium filix-femina subsp. cyclosorum,Dryopteridaceae,NA,NA,NA,NA,NA,NA,30,19,1,Athyrium filix-femina,subsp. cyclosorum
 Balsamorhiza sagittata,Compositae,NA,0.6,NA,6992.42,non-woody,4.8273,31,13,109,Balsamorhiza sagittata,NA
 Betula nana,Betulaceae,397.525281153846,0.394932857,22.6860961,51.78,woody,0.2214,13,11,7,Betula nana,NA
 Betula occidentalis,Betulaceae,NA,12.34503949,NA,NA,woody,0.2168,8,7,12,Betula occidentalis,NA
 Betula papyrifera,Betulaceae,400.62,14.69789012,23.83371477,2536.38,woody,0.3278,56,35,174,Betula papyrifera,NA
-Betula pumila subsp. glandulifera,Betulaceae,NA,NA,NA,NA,NA,NA,13,11,3,Betula pumila,subsp. glandulifera
+Betula pumila var. glandulifera,Betulaceae,NA,NA,NA,NA,NA,NA,13,11,3,Betula pumila,var. glandulifera
 Blechnum spicant,Blechnaceae,NA,0.371950331,NA,NA,non-woody,5.15e-6,16,12,17,Blechnum spicant,NA
 Boschniakia hookeri,Orobanchaceae,NA,NA,NA,NA,NA,NA,8,5,3,Boschniakia hookeri,NA
 Boschniakia rossica,Orobanchaceae,NA,NA,NA,NA,NA,NA,8,5,1,Boschniakia rossica,NA
@@ -99,7 +99,7 @@ Elaeagnus commutata,Elaeagnaceae,NA,2.817831976,NA,NA,woody,119.1724,25,11,43,El
 Empetrum nigrum,Ericaceae,279.276306748081,0.213461056,11.41157144,4.8,woody,0.9796,42,18,31,Empetrum nigrum,NA
 Epilobium angustifolium,Onagraceae,0.304087785,0.831719514,28.6675871,2207.76,non-woody,0.0655,85,43,4,Epilobium angustifolium,NA
 Equisetum arvense,Equisetaceae,181.70286413985,0.348986214,20.03828835,112.82,non-woody,2.2e-5,89,43,54,Equisetum arvense,NA
-Equisetum hyemale var. affine,Equisetaceae,NA,NA,NA,NA,NA,NA,40,26,8,Equisetum hyemale,var. affine
+Equisetum hyemale subsp. affine,Equisetaceae,NA,NA,NA,NA,NA,NA,40,26,8,Equisetum hyemale,subsp. affine
 Equisetum telmateia,Equisetaceae,119.493333333333,1.168182022,NA,50.33,non-woody,2.2e-5,89,43,26,Equisetum telmateia,NA
 Ericameria nauseosa,Compositae,NA,1.105,20.57577722,28.27,woody,0.7539,17,8,41,Ericameria nauseosa,NA
 Eriophorum angustifolium,Cyperaceae,0.326532408,0.280294636,19.2332864,1159.4,non-woody,0.4922,26,8,6,Eriophorum angustifolium,NA
