@@ -728,7 +728,7 @@ PNW_imp_normalized <- missForest(normalized_data,
 # 
 # # Initialize a data frame for the inverse-transformed data
 # imputed_scaled_data <- PNW_imp_scaled$ximp
-# imputed_normalized_data <- PNW_imp_normalized$ximp
+imputed_normalized_data <- PNW_imp_normalized$ximp
 # imputed_scaled_to_original_scale <- imputed_scaled_data
 # imputed_normalized_to_original_scale <- imputed_normalized_data
 # 
@@ -748,24 +748,25 @@ PNW_imp_normalized <- missForest(normalized_data,
 #   FUN = "+"
 # )
 # 
-# # Initialize a data frame for the inverse-transformed data
-# imputed_normalized_to_original_scale <- imputed_normalized_data
-# 
-# # Multiply by (max - min)
-# imputed_normalized_to_original_scale[, numeric_vars] <- sweep(
-#   imputed_normalized_data[, numeric_vars],
-#   MARGIN = 2,
-#   STATS = col_maxs - col_mins,
-#   FUN = "*"
-# )
-# 
-# # Add the minimum
-# imputed_normalized_to_original_scale[, numeric_vars] <- sweep(
-#   imputed_normalized_to_original_scale[, numeric_vars],
-#   MARGIN = 2,
-#   STATS = col_mins,
-#   FUN = "+"
-# )
+# Initialize a data frame for the inverse-transformed data
+
+imputed_normalized_to_original_scale = imputed_normalized_data
+
+# Multiply by (max - min)
+imputed_normalized_to_original_scale[, numeric_vars] <- sweep(
+  imputed_normalized_data[, numeric_vars],
+  MARGIN = 2,
+  STATS = col_maxs - col_mins,
+  FUN = "*"
+)
+
+# Add the minimum
+imputed_normalized_to_original_scale[, numeric_vars] <- sweep(
+  imputed_normalized_to_original_scale[, numeric_vars],
+  MARGIN = 2,
+  STATS = col_mins,
+  FUN = "+"
+)
 # 
 # 
 # # Summary of the original data (with missing values)
@@ -778,13 +779,13 @@ PNW_imp_normalized <- missForest(normalized_data,
 # summary(imputed_normalized_to_original_scale)
 
 
-imp_df = PNW_imp_normalized$ximp
+imp_df = imputed_normalized_to_original_scale
 # traits_to_impute
 # trait_names = c("LDMC_log", "Nmass (mg/g)", "LeafArea_log", "PlantHeight_log", "DiasporeMass_log")
 trait_names = c("Woodiness", "LDMC", "Nmass (mg/g)", "LeafArea", "PlantHeight", "DiasporeMass")
 
 # add actual taxonomic columns back in and remove dummy variables
-imputed_traits <- cbind(traits_df[, 1:5], select(PNW_imp_normalized$ximp, all_of(trait_names))) %>% 
+imputed_traits <- cbind(traits_df[, 1:5], select(imp_df, all_of(trait_names))) %>% 
   mutate("LDMC (g/g)" = LDMC,
          "Diaspore mass (mg)" = DiasporeMass,
          "Plant height (m)" = PlantHeight,

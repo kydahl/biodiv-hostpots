@@ -183,9 +183,16 @@ trait.coeffvariance.metric <- function(in_df, trait_names) {
 trait.fdiv.metrics <- function(in_df){
   # Create dataframe of species x traits
   SpXTraits <- in_df %>%
-    dplyr::select(Species, `Nmass (mg/g)`:LDMC_log) %>% 
+    dplyr::select(Species, `Nmass (mg/g)`:`Leaf area (mm2)`) %>% 
+    # Log-transform zero-inflated traits
+    mutate(LeafArea_log = log(`Leaf area (mm2)`)) %>%
+    mutate(PlantHeight_log = log(`Plant height (m)`)) %>%
+    mutate(DiasporeMass_log = log(`Diaspore mass (mg)`)) %>%
+    mutate(LDMC_log = log(`LDMC (g/g)`)) %>%
+    # Remove original variables replaced by "logged" versions
+    select(-c("LDMC (g/g)", "Leaf area (mm2)", "Plant height (m)", "Diaspore mass (mg)")) %>% 
     # Scale quantitative traits
-    mutate(across(where(is.numeric), function(.x){scale(.x, center = TRUE, scale = TRUE)})) %>% 
+    mutate(across(-c(Species, Woodiness), function(.x){scale(.x, center = TRUE, scale = TRUE)})) %>%
     unique() %>%
     arrange(Species) %>% # order alphabetically to match with PatchXSp
     column_to_rownames(var = "Species")
@@ -226,7 +233,7 @@ trait.fdiv.metrics <- function(in_df){
     # Rao's entropy (Q)
     # right_join(fd_raoq(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
     mutate(Patch = as.integer(site), .keep = "unused")
-
+  
   # # For scaling up to 10000 sites
   # fdiv_df <- fd_fdis(SpXTraits, PatchXSp) %>%
   #   mutate(Patch = as.integer(site), .keep = "unused")
@@ -493,5 +500,5 @@ biodiv_comp_helper_func <- function(NumPatches, tree, baseline_metric) {
     # collect() %>% 
     # Make comparisons
     get.compare_df(., baseline_metric) 
-  
 }
+  

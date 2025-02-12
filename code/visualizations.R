@@ -116,14 +116,14 @@ shift_legend <- function(p) {
 # Load in dataset and phylogenetic tree
 final_data <- read_csv("data/clean/final_dataset.csv") %>% #read_csv("data/clean/final_dataset.csv") %>% 
   # log transform traits with large outliers
-  mutate(LeafArea_log = log(`Leaf area (mm2)`), .keep = 'unused') %>%
-  mutate(PlantHeight_log = log(`Plant height (m)`), .keep = 'unused') %>%
-  mutate(DiasporeMass_log = log(`Diaspore mass (mg)`), .keep = 'unused') %>%
-  mutate(LDMC_log = log(`LDMC (g/g)`), .keep = 'unused') %>%
+  # mutate(LeafArea_log = log(`Leaf area (mm2)`), .keep = 'unused') %>%
+  # mutate(PlantHeight_log = log(`Plant height (m)`), .keep = 'unused') %>%
+  # mutate(DiasporeMass_log = log(`Diaspore mass (mg)`), .keep = 'unused') %>%
+  # mutate(LDMC_log = log(`LDMC (g/g)`), .keep = 'unused') %>%
   # Turn categorical traits into quantitative ones
   mutate(Woodiness = ifelse(Woodiness == "woody", 1, 0)) %>% 
   # Put traits at the end
-  relocate(c(`Nmass (mg/g)`, Woodiness, LeafArea_log:LDMC_log), .after = last_col())
+  relocate(c(`Nmass (mg/g)`:`Leaf area (mm2)`), .after = last_col())
 
 # Assign colors to biodiversity metrics according to type
 TEK_color = c4a("brewer.dark2", 3)[1]
@@ -219,32 +219,56 @@ strip_theme = strip_themed(
                           face = rep("bold", 10), size = rep(8,10),
                           by_layer_x = TRUE))
 
-histogram_plot <- plot_df %>%
+# Compute a valid binwidth
+binwidth_value <- diff(range(biodiv_plot_df$value, na.rm = TRUE)) / 30
+
+# Ensure binwidth is positive and finite
+if (!is.finite(binwidth_value) || binwidth_value <= 0) {
+  binwidth_value <- 1  # Default fallback binwidth
+}
+
+histogram_plot <- biodiv_plot_df %>% #plot_df %>%
+  filter(!is.na(value)) %>% 
+  group_by(label) %>% 
+  mutate(
+    break_point = first(quantile(value, 0.95)),
+    band = ifelse(value < break_point, "less", "more"),
+    binwidth = diff(range(value)) / 30,
+    mean = mean(value)
+  ) %>% 
   filter(label != "Number of 'endemic' species") %>%
-  ggplot() +
-  geom_polygon(aes(x = x, y = y,fill = factor(band), color = factor(band))) +
-  scale_fill_manual(values = c("pink", "cyan"), 
-                    guide = guide_none()) +
-  scale_colour_manual(values = c("pink", "cyan"), 
-                      guide = guide_none()) +
-  # # add a spline approximating the probability density function
-  # geom_density(aes(x = value, ..scaled..),
-  #              alpha = .2,
-  #              fill = "#FF6666"
-  # ) +
-  # # add a vertical line showing where the top 5% are
-  # stat_summary(aes(xintercept = after_stat(x), y = 0),
-  #              fun = quantile, fun.args = list(0.95),
-  #              geom = "vline", orientation = "y",
-  #              color = "cyan", lwd = 1) +
+  ungroup() %>% 
+  ggplot(aes(x = value, fill = factor(band), color = factor(band))) +
+  geom_histogram(
+    position = "identity", 
+    alpha = 0.7
+  ) +
+  # geom_polygon(aes(x = x, y = y,fill = factor(band), color = factor(band))) +
+  scale_fill_manual(
+    values = rev(c4a("brewer.set1",2)),
+    guide = guide_none()
+  ) +
+  scale_colour_manual(
+    values = rev(c4a("brewer.set1",2)),
+    guide = guide_none()
+  ) +
   geom_vline(aes(xintercept = mean), linetype = 2) +
-  ylab('Density') +
-  xlab('Value') +
+  scale_x_continuous(
+    name = "",
+    expand = c(0,0)
+  ) +
+  scale_y_continuous(
+    name = "Density",
+    expand = c(0,0)
+  ) +
   # one histogram for each biodiversity metric
-  facet_wrap2( ~ label, ncol = 3, scales = "free_x",
+  facet_wrap2( ~ label, ncol = 3, scales = "free",
                remove_labels = "x",
                strip = strip_theme) +
-  theme_cowplot(8)
+  theme_half_open(11) +
+  theme(
+    axis.text.y = element_blank()
+  )
 
 histogram_plot
 
@@ -731,7 +755,7 @@ ggplot() +
   scale_color_manual(values = as.character(ddata_labels$color)) +
   scale_y_continuous(expand=c(0.5, 0),
                      trans = "reverse"
-                     ) + 
+  ) + 
   coord_flip() +
   guides(color = "none") +
   theme_cowplot(4) +
