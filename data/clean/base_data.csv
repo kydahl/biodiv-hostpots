@@ -30,6 +30,7 @@ Athyrium filix-femina,ssp. cyclosorum,,(L.) Roth.,(Rupr.) C. Chr.,Athyrium filix
 Blechnum spicant,,,(L.) Sm.,,NA,deer fern,Blechnaceae,Y,Y,Y,NA,/,requested,Blechnum spicant,Blechnum spicant (L.) Sm.,Blechnum spicant,Blechnum spicant,Blechnum
 Dryopteris expansa,,,(K.B. Presl) Fraser-Jenkins & Jermy,,NA,spiny wood fern,Dryopteridaceae,Y,Y,Y,NA,/,requested,Dryopteris expansa,Dryopteris expansa (K.B. Presl) Fraser-Jenkins & Jermy,Dryopteris expansa,Dryopteris expansa,Dryopteris
 Gymnocarpium dryopteris,,,s (L.) Newm.,,NA,oak fern,Dryopteridaceae,Y,Y,Y,NA,/,requested,Gymnocarpium dryopteris,Gymnocarpium dryopteris s (L.) Newm.,Gymnocarpium dryopteris,Gymnocarpium dryopteris,Gymnocarpium
+Polypodium glycyrrhiza,,,D.C. Eaton,,NA,licorice fern,Polypodiaceae,Y,Y,N,NA,/,requested,Polypodium glycyrrhiza,Polypodium glycyrrhiza D.C. Eaton,Polypodium glycyrrhiza,Polypodium glycyrrhiza,Polypodium
 Polystichum munitum,,,(Kaulf.) C. Presl,,NA,western swordfern,Dryopteridaceae,Y,Y,N,NA,/,requested,Polystichum munitum,Polystichum munitum (Kaulf.) C. Presl,Polystichum munitum,Polystichum munitum,Polystichum
 Pteridium aquilinum,,,m (L.) Kuhn,,NA,bracken fern,Denstaedtiaceae,Y,Y,Y,NA,Stable (Least Concern),requested,Pteridium aquilinum,Pteridium aquilinum m (L.) Kuhn,Pteridium aquilinum,Pteridium aquilinum,Pteridium
 Acer circinatum,,,Pursh,,/,NA,Aceraceae,Y,Y,N,NA,Stable (Least Concern),requested,Acer circinatum,Acer circinatum Pursh,Acer circinatum,Acer circinatum,Acer
@@ -58,6 +59,7 @@ Aquilegia formosa,,,Fisch. ex DC.,,NA,western columbine,Ranunculaceae,Y,Y,N,NA,/
 Aralia nudicaulis,,,L.,,NA,wild sarsaparilla,Araliaceae,Y,Y,N,NA,/,requested,Aralia nudicaulis,Aralia nudicaulis L.,Aralia nudicaulis,Aralia nudicaulis,Aralia
 Arbutus menziesii,,,Pursh,,NA,Arbutus/Pacific madrone,Ericaceae,Y,Y,N,NA,Stable (Least Concern),requested,Arbutus menziesii,Arbutus menziesii Pursh,Arbutus menziesii,Arbutus menziesii,Arbutus
 Arctostaphylos uva-ursi,,,(L.) Spreng.,,NA,kinnikinnick/bearberry,Ericaceae,Y,Y,Y,NA,/,requested,Arctostaphylos uva-ursi,Arctostaphylos uva-ursi (L.) Spreng.,Arctostaphylos uva-ursi,Arctostaphylos uva-ursi,Arctostaphylos
+Arctous rubra,,,(Rehder.& E.H. Wilson),,Arctostaphylos rubra (Red. & Wilson) Fern.,red bearberry,Ericaceae,Y,Y,N,NA,/,not found,Arctous rubra,Arctous ruber (Rehder.& E.H. Wilson),Arctous rubra,Arctous ruber,Arctous
 Argentina egedii,,,(Wormsk.) Rydb.,,NA,pacific silverweed,Rosaceae,Y,Y,N,NA,/,not found,Argentina egedii,Argentina egedii (Wormsk.) Rydb.,Argentina egedii,Argentina egedii,Argentina
 Argentina anserina,,,(L.) Rydb.,,NA,common silverweed,Rosaceae,N,Y,N,NA,Unknown (Least Concern),requested,Argentina anserina,Argentina anserina (L.) Rydb.,Argentina anserina,Argentina anserina,Argentina
 Arnica cordifolia,,,Hook.,,NA,heartleaved arnica,Asteraceae,Y,Y,N,NA,/,requested,Arnica cordifolia,Arnica cordifolia Hook.,Arnica cordifolia,Arnica cordifolia,Arnica
@@ -109,6 +111,7 @@ Comandra umbellata,,,(L.) Nutt.,,NA,bastard toadflax,Santalaceae,Y,Y,NA,NA,/,req
 Comarum palustre,,,L.,,NA,purple marshlocks/marsh cinquefoil,Rosaceae,Y,Y,NA,NA,Unknown (Least Concern),requested,Comarum palustre,Comarum palustre L.,Comarum palustre,Comarum palustre,Comarum
 Conioselinum gmelinii,,,(Cham. & Schltdl.) Steud.,,NA,Pacific hemlockparsley,Apiaceae,N,Y,NA,NA,/,not found,Conioselinum gmelinii,Conioselinum gmelinii (Cham. & Schltdl.) Steud.,Conioselinum gmelinii,Conioselinum gmelinii,Conioselinum
 Cornus canadensis,,,L.,,NA,Canada bunchberry/dwarf dogwood,Cornaceae,Y,Y,NA,NA,/,requested,Cornus canadensis,Cornus canadensis L.,Cornus canadensis,Cornus canadensis,Cornus
+Cornus unalaschkensis,,,Ledeb.,,NA,western cordilleran bunchberry,Cornaceae,Y,Y,NA,NA,/,requested,Cornus unalaschkensis,Cornus unalaschkensis Ledeb.,Cornus unalaschkensis,Cornus unalaschkensis,Cornus
 Cornus suecica,,,L.,,NA,dwarf bog bunchberry,Cornaceae,Y,Y,NA,NA,/,requested,Cornus suecica,Cornus suecica L.,Cornus suecica,Cornus suecica,Cornus
 Cornus nuttallii,,,Audubon ex Torr. & A. Gray,,NA,Pacific flowering dogwood,Cornaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Cornus nuttallii,Cornus nuttallii Audubon ex Torr. & A. Gray,Cornus nuttallii,Cornus nuttallii,Cornus
 Cornus sericea,,,L.,,NA,red-osier dogwood/red willow,Cornaceae,Y,Y,NA,NA,Increasing (Least Concern),requested,Cornus sericea,Cornus sericea L.,Cornus sericea,Cornus sericea,Cornus
@@ -218,6 +221,7 @@ Plantago maritima,,,L.,,NA,"seaside plantain, or goose tongue",Plantaginaceae,Y,
 Platanthera dilatata,,,(Pursh) Lindl. ex Beck,,NA,scented bog orchid,Orchidaceae,Y,Y,NA,NA,/,requested,Platanthera dilatata,Platanthera dilatata (Pursh) Lindl. ex Beck,Platanthera dilatata,Platanthera dilatata,Platanthera
 Platanthera stricta,,,Lindl.,,NA,slender bog orchid,Orchidaceae,Y,Y,NA,NA,/,requested,Platanthera stricta,Platanthera stricta Lindl.,Platanthera stricta,Platanthera stricta,Platanthera
 Platanthera hyperborea,,,(L.) Lindl,,NA,northern green orchid,Orchidaceae,Y,N,NA,NA,Unknown (Least Concern),requested,Platanthera hyperborea,Platanthera hyperborea (L.) Lindl,Platanthera hyperborea,Platanthera hyperborea,Platanthera
+Populus balsamifera,ssp. balsamifera,,L.,,NA,balsam poplar,Salicaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Populus balsamifera subsp. balsamifera,Populus balsamifera L. ssp. balsamifera,Populus balsamifera subsp. balsamifera,Populus balsamifera ssp. balsamifera,Populus
 Populus balsamifera,ssp. trichocarpa,,L.,(Torr. & A. Gray ex Hook.) Brayshaw,NA,black cottonwood,Salicaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Populus balsamifera subsp. trichocarpa,Populus balsamifera L. ssp. trichocarpa (Torr. & A. Gray ex Hook.) Brayshaw,Populus balsamifera subsp. trichocarpa,Populus balsamifera ssp. trichocarpa,Populus
 Populus tremuloides,,,Michx,,NA,trembling aspen,Salicaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Populus tremuloides,Populus tremuloides Michx,Populus tremuloides,Populus tremuloides,Populus
 Potamogeton natans,,,L.,,NA,floating pondweed,Potamogetonaceae,Y,Y,NA,NA,Stable (Least Concern),requested,Potamogeton natans,Potamogeton natans L.,Potamogeton natans,Potamogeton natans,Potamogeton

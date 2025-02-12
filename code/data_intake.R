@@ -74,7 +74,7 @@ synonym_func <- function(in_df) {
   # "Cornus unalaschkensis" -> Cornus unalaschkensis_x Ledeb.
   # "Populus balsamifera ssp. balsamifera" # in_df = filter(in_df, (Species != "Populus balsamifera" | Ssp != "ssp. balsamifera"))
   bad_list = c("Polypodium glycyrrhiza", "Arctous ruber", "Cornus unalaschkensis", "Populus balsamifera ssp. balsamifera")
-  out_df <- filter(out_df,!(Species_full %in% bad_list))
+  # out_df <- filter(out_df,!(Species_full %in% bad_list))
   
   # Initialize the synonym list data frame with these out cases, then add onto it
   synonyms_list <- tibble(
@@ -184,12 +184,11 @@ base_data %>%
   mutate(Species = apply(., 1, function(x) paste(na.omit(x), collapse = " "))) %>% 
   select(Species) %>% 
   write_csv("data/raw/original_species_names_list.csv")
-# 
-# # Load output from GNA Verifier
-# GNA_Verify_data <- read_csv("data/raw/GNA_verifier_output.csv") %>% 
-#   select(ScientificName, MatchedName, MatchedCanonical, CurrentName, TaxonomicStatus) %>% 
-#   select(ScientificName, MatchedCanonical, TaxonomicStatus)
 
+# Load output from GNA Verifier
+GNA_Verify_data <- read_csv("data/raw/GNA_verifier_output.csv") %>%
+  select(ScientificName, MatchedName, MatchedCanonical, CurrentName, TaxonomicStatus) %>%
+  select(ScientificName, MatchedCanonical, TaxonomicStatus)
 
 full_species_synonyms_list <- data.frame(
   original_name = base_data$original_name,
@@ -685,12 +684,12 @@ col_maxs <- sapply(data[, numeric_vars], max, na.rm = TRUE)
 scaled_data <- data
 normalized_data <- data
 
-# Standardize numeric variables
-scaled_data[, numeric_vars] <- scale(
-  data[, numeric_vars],
-  center = col_means,
-  scale = col_sds
-)
+# # Standardize numeric variables
+# scaled_data[, numeric_vars] <- scale(
+#   data[, numeric_vars],
+#   center = col_means,
+#   scale = col_sds
+# )
 
 # Apply min-max normalization to numeric variables
 normalized_data[, numeric_vars] <- scale(
@@ -699,14 +698,14 @@ normalized_data[, numeric_vars] <- scale(
   scale = col_maxs - col_mins
 )
 
-# run missForest imputation
-PNW_imp_scaled <- missForest(scaled_data,
-                             maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
-                             ntree = 10000, # number of trees to grow in each forest
-                             verbose = TRUE, # if 'TRUE', gives additional output between iterations
-                             # mtry = 1
-                             variablewise = F # if 'TRUE', the OOB error is returned for each variable separately
-)
+# # run missForest imputation
+# PNW_imp_scaled <- missForest(scaled_data,
+#                              maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
+#                              ntree = 10000, # number of trees to grow in each forest
+#                              verbose = TRUE, # if 'TRUE', gives additional output between iterations
+#                              # mtry = 1
+#                              variablewise = F # if 'TRUE', the OOB error is returned for each variable separately
+# )
 
 # run missForest imputation
 PNW_imp_normalized <- missForest(normalized_data,
@@ -716,67 +715,67 @@ PNW_imp_normalized <- missForest(normalized_data,
                                  # mtry = 1
                                  variablewise = F # if 'TRUE', the OOB error is returned for each variable separately
 )
-
-# run missForest imputation
-PNW_imp <- missForest(data,
-                      maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
-                      ntree = 10000, # number of trees to grow in each forest
-                      verbose = F#, # if 'TRUE', gives additional output between iterations
-                      # mtry = 1
-                      # variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
-)
-
-
-# Initialize a data frame for the inverse-transformed data
-imputed_scaled_data <- PNW_imp_scaled$ximp
-imputed_normalized_data <- PNW_imp_normalized$ximp
-imputed_scaled_to_original_scale <- imputed_scaled_data
-imputed_normalized_to_original_scale <- imputed_normalized_data
-
-# Multiply by the standard deviation
-imputed_scaled_to_original_scale[, numeric_vars] <- sweep(
-  imputed_scaled_data[, numeric_vars],
-  MARGIN = 2,
-  STATS = col_sds,
-  FUN = "*"
-)
-
-# Add the mean
-imputed_scaled_to_original_scale[, numeric_vars] <- sweep(
-  imputed_scaled_to_original_scale[, numeric_vars],
-  MARGIN = 2,
-  STATS = col_means,
-  FUN = "+"
-)
-
-# Initialize a data frame for the inverse-transformed data
-imputed_normalized_to_original_scale <- imputed_normalized_data
-
-# Multiply by (max - min)
-imputed_normalized_to_original_scale[, numeric_vars] <- sweep(
-  imputed_normalized_data[, numeric_vars],
-  MARGIN = 2,
-  STATS = col_maxs - col_mins,
-  FUN = "*"
-)
-
-# Add the minimum
-imputed_normalized_to_original_scale[, numeric_vars] <- sweep(
-  imputed_normalized_to_original_scale[, numeric_vars],
-  MARGIN = 2,
-  STATS = col_mins,
-  FUN = "+"
-)
-
-
-# Summary of the original data (with missing values)
-summary(data)
-
-# Summary of the imputed data (after inverse transformation)
-summary(imputed_scaled_to_original_scale)
-
-# Summary of the imputed data (after inverse transformation)
-summary(imputed_normalized_to_original_scale)
+# 
+# # run missForest imputation
+# PNW_imp <- missForest(data,
+#                       maxiter = 10000, # maximum number of iterations to be performed given the stopping criterion isn't met
+#                       ntree = 10000, # number of trees to grow in each forest
+#                       verbose = F#, # if 'TRUE', gives additional output between iterations
+#                       # mtry = 1
+#                       # variablewise = TRUE # if 'TRUE', the OOB error is returned for each variable separately
+# )
+# 
+# 
+# # Initialize a data frame for the inverse-transformed data
+# imputed_scaled_data <- PNW_imp_scaled$ximp
+# imputed_normalized_data <- PNW_imp_normalized$ximp
+# imputed_scaled_to_original_scale <- imputed_scaled_data
+# imputed_normalized_to_original_scale <- imputed_normalized_data
+# 
+# # Multiply by the standard deviation
+# imputed_scaled_to_original_scale[, numeric_vars] <- sweep(
+#   imputed_scaled_data[, numeric_vars],
+#   MARGIN = 2,
+#   STATS = col_sds,
+#   FUN = "*"
+# )
+# 
+# # Add the mean
+# imputed_scaled_to_original_scale[, numeric_vars] <- sweep(
+#   imputed_scaled_to_original_scale[, numeric_vars],
+#   MARGIN = 2,
+#   STATS = col_means,
+#   FUN = "+"
+# )
+# 
+# # Initialize a data frame for the inverse-transformed data
+# imputed_normalized_to_original_scale <- imputed_normalized_data
+# 
+# # Multiply by (max - min)
+# imputed_normalized_to_original_scale[, numeric_vars] <- sweep(
+#   imputed_normalized_data[, numeric_vars],
+#   MARGIN = 2,
+#   STATS = col_maxs - col_mins,
+#   FUN = "*"
+# )
+# 
+# # Add the minimum
+# imputed_normalized_to_original_scale[, numeric_vars] <- sweep(
+#   imputed_normalized_to_original_scale[, numeric_vars],
+#   MARGIN = 2,
+#   STATS = col_mins,
+#   FUN = "+"
+# )
+# 
+# 
+# # Summary of the original data (with missing values)
+# summary(data)
+# 
+# # Summary of the imputed data (after inverse transformation)
+# summary(imputed_scaled_to_original_scale)
+# 
+# # Summary of the imputed data (after inverse transformation)
+# summary(imputed_normalized_to_original_scale)
 
 
 imp_df = PNW_imp_normalized$ximp
@@ -785,7 +784,7 @@ imp_df = PNW_imp_normalized$ximp
 trait_names = c("Woodiness", "LDMC", "Nmass (mg/g)", "LeafArea", "PlantHeight", "DiasporeMass")
 
 # add actual taxonomic columns back in and remove dummy variables
-imputed_traits <- cbind(traits_df[, 1:5], select(PNW_imp$ximp, all_of(trait_names))) %>% 
+imputed_traits <- cbind(traits_df[, 1:5], select(PNW_imp_normalized$ximp, all_of(trait_names))) %>% 
   mutate("LDMC (g/g)" = LDMC,
          "Diaspore mass (mg)" = DiasporeMass,
          "Plant height (m)" = PlantHeight,
@@ -826,7 +825,7 @@ error_df <- as.list(PNW_imp_normalized$OOBerror[1:6]) %>%
   rename(error_value = value) %>%
   mutate(error_type = substr(as.character(variable), start = 1, stop = 3),
          .keep = "unused") %>%
-  cbind(variable = colnames(PNW_imp$ximp[,1:6])) %>%
+  cbind(variable = colnames(PNW_imp_normalized$ximp[,1:6])) %>%
   # compute NRMSE from MSE
   inner_join(var_df, by = "variable") %>%
   mutate(RMSE = sqrt(error_value)) %>%

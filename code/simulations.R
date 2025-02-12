@@ -108,7 +108,7 @@ metric_names <- c(
 
 # Set comparison parameters
 numIterations <- 100
-NumPatches <- 1000 # For scaling up: increase to 10000
+NumPatches <- 1000 # For scaling up: increase to 10000, for scaling down go to 100
 
 # Set up progress bar
 handlers(global = TRUE)

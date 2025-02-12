@@ -29,6 +29,7 @@ Aquilegia formosa,Ranunculaceae,NA,0.91,NA,NA,non-woody,1.3283,29,20,31,Aquilegi
 Aralia nudicaulis,Araliaceae,NA,0.45,20.1078031,4321.2,non-woody,5.905,14,11,79,Aralia nudicaulis,NA
 Arbutus menziesii,Ericaceae,NA,19.71806211,11.52874754,4276.55,woody,92.6492,15,12,61,Arbutus menziesii,NA
 Arctostaphylos uva-ursi,Ericaceae,NA,0.269174936,10.72919761,172.17,woody,11.325,87,49,186,Arctostaphylos uva-ursi,NA
+Arctous rubra,Ericaceae,NA,0.15,NA,NA,woody,2.23,11,6,4,Arctous rubra,NA
 Argentina anserina,Rosaceae,NA,NA,NA,NA,NA,NA,49,25,16,Argentina anserina,NA
 Argentina egedii,Rosaceae,NA,NA,NA,NA,NA,NA,49,25,19,Argentina egedii,NA
 Arnica cordifolia,Compositae,NA,0.45,NA,1283.83,non-woody,1.4841,3,4,5,Arnica cordifolia,NA
@@ -86,6 +87,7 @@ Cornus canadensis,Cornaceae,NA,0.15,18.50784993,771.38,non-woody,8.7106,60,30,40
 Cornus nuttallii,Cornaceae,NA,14.72585482,NA,3200,woody,91.8359,24,14,30,Cornus nuttallii,NA
 Cornus sericea,Cornaceae,NA,2.663296645,17.55,2345.51,woody,25.7526,76,40,21,Cornus sericea,NA
 Cornus suecica,Cornaceae,0.197911602,0.164964651,19.88696657,301.4,non-woody,3.42,60,30,2,Cornus suecica,NA
+Cornus unalaschkensis,Cornaceae,NA,NA,NA,NA,NA,NA,60,30,6,Cornus unalaschkensis,NA
 Corylus cornuta,Betulaceae,NA,3.394021317,19.53619192,3166.4,woody,472.61130000000003,63,29,25,Corylus cornuta,NA
 Crataegus douglasii,Rosaceae,NA,3.123716806,NA,NA,woody,22.1203,68,25,41,Crataegus douglasii,NA
 Delphinium nuttallianum,Ranunculaceae,NA,NA,NA,381.97,non-woody,0.4033,6,4,2,Delphinium nuttallianum,NA
@@ -204,7 +206,9 @@ Plantago major,Plantaginaceae,0.1596663,0.166581764,18.80325799,4852.23,non-wood
 Plantago maritima,Plantaginaceae,NA,0.192142876,15.37,749.42,non-woody,0.5613,6,4,2,Plantago maritima,NA
 Platanthera dilatata,Orchidaceae,NA,NA,NA,NA,non-woody,0.03,8,6,2,Platanthera dilatata,NA
 Platanthera stricta,Orchidaceae,NA,NA,NA,NA,NA,NA,8,6,1,Platanthera stricta,NA
+Polypodium glycyrrhiza,Polypodiaceae,NA,NA,NA,NA,NA,NA,39,30,33,Polypodium glycyrrhiza,NA
 Polystichum munitum,Dryopteridaceae,NA,1.06,NA,NA,non-woody,1.94e-5,71,29,59,Polystichum munitum,NA
+Populus balsamifera subsp. balsamifera,Salicaceae,NA,NA,NA,NA,NA,NA,94,51,17,Populus balsamifera,subsp. balsamifera
 Populus balsamifera subsp. trichocarpa,Salicaceae,NA,NA,NA,NA,NA,NA,94,51,92,Populus balsamifera,subsp. trichocarpa
 Populus tremuloides,Salicaceae,365.3545907044,16.70656374,20.80417917,2066.58,woody,0.117,55,32,117,Populus tremuloides,NA
 Potamogeton natans,Potamogetonaceae,0.206473961,0.1334681635,38.11417833,2369.5,non-woody,5.7488,9,7,2,Potamogeton natans,NA
