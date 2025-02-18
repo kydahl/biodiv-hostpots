@@ -185,28 +185,35 @@ trait.fdiv.metrics <- function(in_df){
   SpXTraits <- in_df %>%
     dplyr::select(Species, `Nmass (mg/g)`:`Leaf area (mm2)`) %>% 
     # Log-transform zero-inflated traits
-    mutate(LeafArea_log = log(`Leaf area (mm2)`)) %>%
-    mutate(PlantHeight_log = log(`Plant height (m)`)) %>%
-    mutate(DiasporeMass_log = log(`Diaspore mass (mg)`)) %>%
-    mutate(LDMC_log = log(`LDMC (g/g)`)) %>%
+    mutate(across(c(`Leaf area (mm2)`, `Plant height (m)`, `Diaspore mass (mg)`, `LDMC (g/g)`), ~ log(.x))) %>%
+    mutate(Woodiness = Woodiness == "woody") %>% 
     # Remove original variables replaced by "logged" versions
-    select(-c("LDMC (g/g)", "Leaf area (mm2)", "Plant height (m)", "Diaspore mass (mg)")) %>% 
+    # select(-c("LDMC (g/g)", "Leaf area (mm2)", "Plant height (m)", "Diaspore mass (mg)")) %>%
     # Scale quantitative traits
-    mutate(across(-c(Species, Woodiness), function(.x){scale(.x, center = TRUE, scale = TRUE)})) %>%
-    unique() %>%
+    mutate(Woodiness = as.numeric(Woodiness)) %>% 
+    # mutate(across(-c(Species, Woodiness), function(.x){scale(.x, center = TRUE, scale = TRUE)})) %>%
+    distinct() %>% 
     arrange(Species) %>% # order alphabetically to match with PatchXSp
     column_to_rownames(var = "Species")
+  SpXTraits <- as.matrix(SpXTraits)  # Ensure matrix format
+  SpXTraits <- scale(SpXTraits)  # Fast vectorized scaling
+  
   
   # Create dataframe of patch x species with presence/absence
   PatchXSp <- in_df %>% 
     mutate(Presence = 1) %>%
     dplyr::select(Patch, Species, Presence) %>%
-    arrange(Species) %>% 
+    # arrange(Species) %>% 
     # keys become column names and values are the entries
-    pivot_wider(names_from = Species, values_from = Presence, values_fn = unique) %>% 
-    replace(is.na(.), 0) %>%
+    pivot_wider(names_from = Species, values_from = Presence, values_fill = 0) %>%
+    arrange(Patch) %>% 
     column_to_rownames(var = "Patch") %>%
-    as(., "sparseMatrix")
+    as.matrix()
+  
+  # Remove patches with zero species
+  PatchXSp <- PatchXSp[rowSums(PatchXSp) > 0, ]
+  PatchXSp <- as(PatchXSp, "sparseMatrix")
+  
   
   # # The number of species (columns) in PatchXSp must match the number of species (rows) in SpXTraits. 
   # if(nrow(SpXTraits) == ncol(PatchXSp)) {
@@ -222,12 +229,36 @@ trait.fdiv.metrics <- function(in_df){
   #   print("Warning: The species in the SpXTraits and PatchXSp dataframes are NOT in the same order, so check fdiv script")
   # }
   
+  # Check for NA, NaN, or Inf in trait matrix
+  if (any(is.na(SpXTraits)) || any(is.infinite(as.matrix(SpXTraits)))) {
+    SpXTraits[is.na(SpXTraits)] <- 0
+    SpXTraits[is.infinite(SpXTraits)] <- 0
+  }
+  
+  # Ensure enough unique species
+  SpXTraits <- unique(SpXTraits)
+  
+  common_species <- intersect(rownames(SpXTraits), colnames(PatchXSp))
+  
+  # Use fast index-based subsetting instead of `filter()`
+  SpXTraits <- SpXTraits[match(common_species, rownames(SpXTraits)), , drop = FALSE]
+  PatchXSp <- PatchXSp[, match(common_species, colnames(PatchXSp)), drop = FALSE]
+  
+  # # If there is a high degree of collinearity among the functional traits, 
+  # # use the first two principal components instead of actual trait values
+  # # Likely necessary if number of patches > 5000
+  # cor_matrix <- cor(SpXTraits)
+  # if (any(abs(cor_matrix[upper.tri(cor_matrix)]) > 0.5)) {
+  # pca <- prcomp(SpXTraits, scale. = TRUE)
+  # SpXTraits_fric <- pca$x[, 1:2]  # Keep first 2 principal components only if needed
+  # }
+  
   # Calculate functional diversity
-  fdiv_df <- fd_fric(SpXTraits, PatchXSp, stand = TRUE) %>% # functional richness (calculation will fail for very large patch sizes, > 5000)
+  fdiv_df <- fd_fdis(SpXTraits, PatchXSp) %>% # functional richness (calculation will fail for very large patch sizes, > 5000)
     # functional divergence
     # right_join(fd_fdiv(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
     # functional dispersion
-    right_join(fd_fdis(SpXTraits, PatchXSp), by = "site") %>%
+    right_join(fd_fric(SpXTraits, PatchXSp, stand = TRUE), by = "site") %>%
     # functional evenness
     # right_join(fd_feve(SpXTraits, as.matrix(PatchXSp)), by = "site") %>%
     # Rao's entropy (Q)
@@ -501,4 +532,3 @@ biodiv_comp_helper_func <- function(NumPatches, tree, baseline_metric) {
     # Make comparisons
     get.compare_df(., baseline_metric) 
 }
-  

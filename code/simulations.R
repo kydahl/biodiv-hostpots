@@ -40,29 +40,21 @@ library(GGally) # To nicely plot correlations among variables
 # Load in analysis functions
 source("code/functions.R")
 
-# Set up parallel processing
-# plan(multisession, workers = 6, gc = TRUE)
-# cl <- new_cluster(12)
-# cluster_library(cl, .packages())
-# cluster_copy(cl, lsf.str())
-# cluster_copy(cl, c("PD_dist_mat", "FD_dist_mat"))
-
 # Load in dataset and phylogenetic tree
-final_data <- read_csv("data/clean/final_dataset.csv") %>% 
-  # log transform traits with large outliers
-  mutate(LeafArea_log = log(`Leaf area (mm2)`), .keep = 'unused') %>%
-  mutate(PlantHeight_log = log(`Plant height (m)`), .keep = 'unused') %>%
-  mutate(DiasporeMass_log = log(`Diaspore mass (mg)`), .keep = 'unused') %>%
-  mutate(LDMC_log = log(`LDMC (g/g)`), .keep = 'unused') %>%
-  # Turn categorical traits into quantitative ones
-  mutate(Woodiness = ifelse(Woodiness == "woody", 1, 0)) %>% 
-  # Put traits at the end
-  relocate(c(`Nmass (mg/g)`, Woodiness, LeafArea_log:LDMC_log), .after = last_col())
+final_data <- read_csv("data/clean/final_dataset_no_taxa.csv") #%>% # read_csv("data/clean/final_dataset.csv") %>% 
+# # log transform traits with large outliers
+# mutate(LeafArea_log = log(`Leaf area (mm2)`), .keep = 'unused') %>%
+# mutate(PlantHeight_log = log(`Plant height (m)`), .keep = 'unused') %>%
+# mutate(DiasporeMass_log = log(`Diaspore mass (mg)`), .keep = 'unused') %>%
+# mutate(LDMC_log = log(`LDMC (g/g)`), .keep = 'unused') %>%
+# # Turn categorical traits into quantitative ones
+# mutate(Woodiness = ifelse(Woodiness == "woody", 1, 0)) %>% 
+# # Put traits at the end
+# relocate(c(`Nmass (mg/g)`, Woodiness, LeafArea_log:LDMC_log), .after = last_col())
 
 # tree <- readRDS("data/clean/full_tree.rds") # old tree
 tree <- readRDS("data/clean/final_tree.rds")
-# system.time({temp_full_df = get.full_df(10000)})
-# system.time({explore_df = get.biodiv_df(temp_full_df, tree)})
+# tree <- get.phylo_tree(final_data)
 
 # Set the random seed used to generate figures in the manuscript 
 set.seed(9523)
@@ -79,7 +71,6 @@ set.seed(9523)
 #                  "Leaf area (mm2)", "Diaspore mass (mg)")
 
 #### Explore an example simulation with 40 patches ----
-
 
 # # Plot correlations among biodiversity metrics
 # pair_plot <- explore_df %>% 
@@ -102,8 +93,6 @@ metric_names <- c(
   "richness", "PD", "PSVs", "PSR",
   # Functional
   "FD", "FRic", "FDis"
-  #  "FDiv",  "FEve", "Q", "GiniSimpson",
-  # "Simpson", "Shannon", "Margalef", "Menhinick", "McIntosh",
 )
 
 # Set comparison parameters
@@ -118,7 +107,6 @@ full_compare_df <- tibble(
   baseline = as.character(), # baseline biodiversity metric
   comparison = as.character(), # comparison biodiversity metric
   type = as.character(), # type (precision or list length)
-  # value = as.double()
   mean = as.double(),
   var = as.double()
 )
@@ -141,12 +129,6 @@ for (metric_name in metric_names) {
     PD = as.double(), richness = as.double(), PSVs = as.double(), PSR = as.double(),
     # Functional
     FD = as.double(), FRic = as.integer(), FDis = as.integer(),
-    #  GiniSimpson = as.double(),
-    # Simpson = as.double(), Shannon = as.double(),
-    # Margalef = as.double(), Menhinick = as.double(),
-    # McIntosh = as.double(), 
-    #    FDiv = as.integer(),  
-    #   FEve = as.integer(),  Q = as.integer(),
     iteration = as.integer()
   ) %>%
     # Remove the focal metric
@@ -160,8 +142,7 @@ for (metric_name in metric_names) {
       .inorder = FALSE,
       .combine = "rbind",
       .options.future = list(seed = TRUE) # ensures true RNG among parallel processes
-      ) %dofuture% {
-    # ) %do% {
+    ) %dofuture% {
       
       # Get biodiversity hotspot comparisons
       biodiv.compare_df = retry(
@@ -172,26 +153,29 @@ for (metric_name in metric_names) {
         silent = FALSE,
         interval = 0
       )
-
-      # biodiv.compare_df = biodiv_comp_helper_func(NumPatches, tree, baseline_metric)
       
       # Set up output dataframe
       out_df = rbind(
         mutate(biodiv.compare_df %>%
-                 select(-c(list_length, recall)) %>% 
+                 select(-c(list_length, recall, jaccard)) %>% 
                  pivot_wider(names_from = variable) %>%
                  unique(),
                type = "precision"),
         mutate(biodiv.compare_df %>%
-                 select(-c(value, recall)) %>% 
+                 select(-c(value, recall, jaccard)) %>% 
                  pivot_wider(names_from = variable, values_from = list_length) %>%
                  unique(),
                type = "list_length"),
         mutate(biodiv.compare_df %>%
-                 select(-c(value, list_length)) %>% 
+                 select(-c(value, list_length, jaccard)) %>% 
                  pivot_wider(names_from = variable, values_from = recall) %>%
                  unique(),
-               type = "recall")
+               type = "recall"),
+        mutate(biodiv.compare_df %>%
+                 select(-c(value, list_length, recall)) %>% 
+                 pivot_wider(names_from = variable, values_from = jaccard) %>%
+                 unique(),
+               type = "jaccard")
       )
       
       # Iterate progress bar
@@ -200,11 +184,11 @@ for (metric_name in metric_names) {
     }
   }
   
-  sliceSize = numIterations/4 # Change this value to match the memory/CPU
+  sliceSize = numIterations/1 # Change this value to match memory/CPU availability
   sliceRange = 1:sliceSize
   for (i in 1:(numIterations/sliceSize)) {
     print(paste0("Collect simulation chunk # ", i, " of ", (numIterations/sliceSize), ":"))
-    plan(multisession, workers = 30, gc = TRUE) # !!! change to ncores based on user's machine
+    plan(multisession, workers = availableCores()-2, gc = TRUE)
     compare_df = rbind(compare_df, get.temp_compare_df(sliceRange))
     plan(sequential)
   }
@@ -213,14 +197,14 @@ for (metric_name in metric_names) {
     rename(
       comparison = variable,
       precision = value
-      ) %>% 
+    ) %>% 
     pivot_longer(cols = precision:list_length, names_to = "type") %>% 
     group_by(comparison, type) %>%
     summarise(
       mean = mean(value),
       var = var(value),
       .groups = "keep"
-      ) %>%
+    ) %>%
     mutate(baseline = baseline_metric)
   
   full_compare_df <- add_row(full_compare_df, out_df)

@@ -1,11 +1,11 @@
-...1,x
-1,Phylogenetic species variability
-2,Functional dispersion
-3,Faith's metric
-4,Phylogenetic species richness
-5,Phylogenetic Rao's entropy
-6,Functional Rao's entropy
-7,Indigenous names
-8,Recorded Indigenous uses
-9,Species richness
-10,Functional richness
+"","x"
+"1","Faith's metric"
+"2","Functional richness"
+"3","Phylogenetic Rao's entropy"
+"4","Functional Rao's entropy"
+"5","Phylogenetic species richness"
+"6","Species richness"
+"7","Recorded Indigenous uses"
+"8","Indigenous names"
+"9","Phylogenetic species variability"
+"10","Functional dispersion"
