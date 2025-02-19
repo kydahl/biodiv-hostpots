@@ -653,6 +653,9 @@ all_traits = bind_rows(
   mutate(trait_no_impute, type = "not_imputed")
 )
 
+
+all_traits$type = factor(all_traits$type, levels = c("not_imputed", "imputed"))
+
 logged_plots <- all_traits %>%
   filter(label %in% c("log(Leaf area (mm2))",
                       "log(Plant height (m))",
